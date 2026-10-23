@@ -100,7 +100,8 @@ Preset değişince ekranda bildirim çıkıyor. Ayrıca üst bardaki **EasyEffec
 **Zincir:** Presetlerin hepsinde **Equalizer → Compressor → Limiter** var. Sadece LSP eklentileri kullanılıyor.
 - **Equalizer:** Girişte, en yüksek yükseltme kadar ses kısılıyor. Böylece equalizer'ın kendisi clipping yapmıyor (`python3 files/easyeffects/make_presets.py --check` ile eğriler kontrol edilebilir).
 - **Compressor:** Attack süresi en az 25 ms. Kick'in ve 808'in ilk vuruşu ezilmeden geçiyor.
-- **Limiter:** -1 dB'de tavan yapıyor, release süresi 80 ms. Bu süre önemli: 50 Hz'lik bir bas dalgası 20 ms sürüyor. Release daha kısa olursa limiter sesi bas dalgasının *içinde* açıp kısıyor ve bu da basta bozulma ve çatırtı yapıyor.
+- **Limiter:** -1 dB'de tavan yapıyor, ama sadece güvenlik ağı. EasyEffects 7.x'te limiter'ın release süresi en fazla 20 ms olabiliyor. 50 Hz'lik bir bas dalgası da 20 ms sürdüğü için limiter her devreye girdiğinde sesi bas dalgasının *içinde* açıp kısıyor ve basta bozulma yapıyor. Bu yüzden compressor'ün çıkış artırması (makeup) düşük tutuldu, sinyal limiter'a nadiren ulaşıyor. Ses biraz kısık gelirse kulaklığın tekerinden aç.
+- `make_presets.py` değerleri EasyEffects şemasındaki aralıklara göre kontrol ediyor. Aralık dışı bir değer olursa preset üretilmiyor, çünkü EasyEffects böyle bir değeri hata vermeden reddedip eski değeri kullanmaya devam ediyor.
 
 Presetleri değiştirmek için `files/easyeffects/make_presets.py` dosyasını düzenleyip `python3 files/easyeffects/make_presets.py` komutunu çalıştır, sonra `./install.sh`'ı tekrar çalıştır.
 
