@@ -127,3 +127,25 @@ Presetleri değiştirmek için `files/easyeffects/make_presets.py` dosyasını d
 ## Test edilen ortam
 
 Ubuntu 24.04, kernel 7.0, PipeWire 1.0.5, WirePlumber 0.4.17, BlueZ 5.72, EasyEffects 7.1.6, Realtek RTL8821CE (WiFi + Bluetooth).
+
+## Klasör yapısı
+
+```
+install.sh                         # tüm düzeltmeleri, presetleri ve uzantıları kurar
+uninstall.sh                       # kurulanları kaldırır (presetler ve GNOME uzantıları kalır)
+files/
+├── bin/ee-preset                  # preset değiştirici (ee-preset <ad> | next)
+├── easyeffects/
+│   ├── make_presets.py            # presetleri üreten ve şema aralıklarını doğrulayan script
+│   ├── output/*.json              # Rap, Tekno - Rave, Deep House, Genel
+│   └── autostart/                 # EasyEffects'i oturum açılışında servis olarak başlatır
+├── gnome/dynamic-music-pill.ini   # Dynamic Music Pill ayarları (dconf)
+├── modprobe/                      # btusb.conf, rtw88.conf
+├── networkmanager/                # wifi-powersave-off.conf
+├── systemd/                       # arctis-autoconnect.service + .sh (kullanıcı servisi)
+└── wireplumber/                   # 51-arctis-a2dp-only.lua (0.4) ve .conf (0.5+)
+```
+
+## Proje durumu
+
+Repo 23 Ekim 2026'da oluşturuldu ve aynı gün dört commit ile bugünkü hâline getirildi. Yukarıdaki test ortamında günlük kullanımda. Repoda henüz bir lisans dosyası yok.
