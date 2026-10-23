@@ -1,6 +1,6 @@
 # Arctis Nova 3P Wireless: Ubuntu Bluetooth Düzeltmeleri
 
-SteelSeries Arctis Nova 3P Wireless kulaklığı Ubuntu'da (PipeWire + WirePlumber) Bluetooth ile sorunsuz kullanmak için gereken ayarlar ve rap / deep house için EasyEffects presetleri.
+SteelSeries Arctis Nova 3P Wireless kulaklığı Ubuntu'da (PipeWire + WirePlumber) Bluetooth ile sorunsuz kullanmak için gereken ayarlar. Yanında Rap, Tekno/Rave, Deep House ve Genel için EasyEffects presetleri ve bunlar arasında tek tuşla geçiş var.
 
 ## Kurulum
 
@@ -14,10 +14,11 @@ cd arctis-nova-3p-linux
 Script sırasıyla şunları yapıyor:
 
 1. **Kulaklığın bağlanır bağlanmaz kapanması:** Bluetooth codec listesini 19'dan sadece SBC'ye indiriyor ve HFP'yi kapatıyor.
-2. **Cızırtı ve kopma:** Bilgisayarda Realtek `rtw88` WiFi kartı varsa sürücünün güç tasarrufunu kapatıyor.
+2. **Güç tasarrufu (cızırtı ve kopma):** Bluetooth USB adaptörünün uykuya geçmesini her bilgisayarda kapatıyor. Bilgisayarda Realtek `rtw88` WiFi kartı varsa WiFi sürücüsünün ve NetworkManager'ın güç tasarrufunu da kapatıyor.
 3. **Otomatik bağlanma:** Oturum açıldıktan sonra kulaklığa kendisi bağlanmayı deneyen servisi kuruyor.
-4. **EasyEffects:** Kurulu değilse EasyEffects'i ve LSP eklentilerini kuruyor. Presetleri ekliyor, kulaklık bağlanınca "Ana - HipHop House"un otomatik yüklenmesini ve EasyEffects'in her açılışta arka planda başlamasını ayarlıyor.
-5. **Dynamic Music Pill:** Üst barda şarkıyı yönetmeye yarayan GNOME uzantısını indirip kuruyor ve ayarlarını (görünüm, görselleştirici, şeffaflık) yüklüyor.
+4. **EasyEffects:** Kurulu değilse EasyEffects'i ve LSP eklentilerini kuruyor. 4 preseti ekliyor, kulaklık bağlanınca **Rap**'in otomatik yüklenmesini ve EasyEffects'in her açılışta arka planda başlamasını ayarlıyor.
+5. **Hızlı preset geçişi:** Klavye kısayollarını ve üst bara preset menüsünü (EasyEffects Preset Selector uzantısı) kuruyor.
+6. **Dynamic Music Pill:** Üst barda şarkıyı yönetmeye yarayan GNOME uzantısını indirip kuruyor ve ayarlarını (görünüm, görselleştirici, şeffaflık) yüklüyor.
 
 Notlar:
 - Scripti `sudo` ile **değil**, normal kullanıcı olarak çalıştır. Gerekirse sudo şifresini kendisi sorar.
@@ -49,7 +50,17 @@ Dosyalar:
 
 Hangisinin kurulacağına `install.sh` kendisi karar veriyor. WirePlumber 0.4, `.conf` dosyalarını **okumaz**; internetteki çoğu rehber 0.5 formatını anlattığı için bu önemli.
 
-### 2. Ses cızırtılı ya da kesik geliyor (sadece Realtek rtw88 WiFi kartlarında)
+### 2. Ses cızırtılı ya da kesik geliyor (güç tasarrufu)
+
+Güç tasarrufu üç yerde kapatılıyor:
+
+| Ayar | Dosya | Hangi bilgisayarda |
+|---|---|---|
+| Bluetooth USB adaptörü uykuya geçmesin | `/etc/modprobe.d/btusb.conf` | Hepsinde |
+| Realtek WiFi firmware'i derin uykuya girmesin | `/etc/modprobe.d/rtw88.conf` | Sadece `rtw88` kartlarda |
+| NetworkManager WiFi güç tasarrufu kapalı | `/etc/NetworkManager/conf.d/wifi-powersave-off.conf` | Sadece `rtw88` kartlarda |
+
+Asıl sorun Realtek kartlarda:
 
 **Sebep:** Bilgisayarın donanımı. Örneğin Realtek RTL8821CE gibi kartlarda WiFi ve Bluetooth tek çipte ve aynı anteni paylaşıyor. `rtw88` sürücüsü kartı derin güç tasarrufu moduna sokuyor, firmware de bu moddan çıkamıyor. Sonuç olarak WiFi ile Bluetooth anteni düzgün paylaşamıyor. Kernel logunda binlerce kez şu hata görünüyor:
 
@@ -63,7 +74,7 @@ rtw88_8821ce: failed to send h2c command
 options rtw88_core disable_lps_deep=y
 options rtw88_pci disable_aspm=y
 ```
-`install.sh` bu ayarı sadece bilgisayarda `rtw88` sürücüsü varsa kuruyor. Kurduktan sonra bilgisayarı yeniden başlatman gerekiyor.
+`install.sh` bu ayarı ve NetworkManager ayarını sadece bilgisayarda `rtw88` sürücüsü varsa kuruyor. Kurduktan sonra bilgisayarı yeniden başlatman gerekiyor.
 
 Bilgisayarında bu kart var mı diye bakmak için:
 ```bash
@@ -76,14 +87,22 @@ Kulaklık açılınca bilgisayara bağlanmayı deniyor. Bilgisayar o sırada hen
 
 ## EasyEffects presetleri
 
-Presetlerin hepsinde aynı zincir var: **Equalizer → Compressor → Limiter**. Limiter -1 dB'de tavan yaptığı için bas ne kadar güçlü olursa olsun cızırtı ya da patlama olmuyor. Sadece LSP eklentileri kullanılıyor (`sudo apt install easyeffects lsp-plugins`).
+| Kısayol | Preset | Karakter |
+|---|---|---|
+| `Ctrl+Alt+1` | **Rap** | Varsayılan, kulaklık bağlanınca otomatik yükleniyor. 808 sub'ı (50 Hz) göğüste hissediliyor, vokal en önde. Geniş bir bas yükseltmesi yerine dar bir 50 Hz yükseltmesi kullanıldığı için bas şişmiyor, sıkı vuruyor. |
+| `Ctrl+Alt+2` | **Tekno - Rave** | Sürükleyen kick ve rumble, parlak synth ve hi-hat'ler. Orta frekanslar hafifçe oyuk, ses geniş ve enerjik. |
+| `Ctrl+Alt+3` | **Deep House** | Derin ve sıcak sub (40 Hz), yumuşak tizler. Uzun setlerde kulağı yormuyor. |
+| `Ctrl+Alt+4` | **Genel** | Her türe uyan hafif bir V eğrisi. |
+| `Ctrl+Alt+0` | *sıradaki* | Presetler arasında sırayla geçiyor. |
 
-| Preset | Karakter |
-|---|---|
-| **Ana - HipHop House** | Varsayılan. Kulaklık bağlanınca otomatik yükleniyor. 808 ve sub-bass güçlü, 250 Hz civarı kısıldığı için bas çamurlaşmadan vuruyor, vokal net, Bluetooth'un tizlerdeki sertliği yumuşatılmış. |
-| **Deep House** | Sub-bass ve kick daha baskın, hi-hat'lerde daha fazla hava var. Compressor'ün attack'i yavaş, vuruşun ilk anı ezilmeden geçiyor. |
-| **Rap - HipHop** | 808 en güçlü haliyle, vokal en önde, compressor daha agresif. |
-| **Genel Muzik** | Her türe uyan hafif bir V eğrisi. Uzun dinlemede kulağı yormuyor. |
+Preset değişince ekranda bildirim çıkıyor. Ayrıca üst bardaki **EasyEffects Preset Selector** menüsünden fareyle de seçebilirsin. Terminalden geçmek için: `ee-preset Rap`, `ee-preset next`.
+
+**Zincir:** Presetlerin hepsinde **Equalizer → Compressor → Limiter** var. Sadece LSP eklentileri kullanılıyor.
+- **Equalizer:** Girişte, en yüksek yükseltme kadar ses kısılıyor. Böylece equalizer'ın kendisi clipping yapmıyor (`python3 files/easyeffects/make_presets.py --check` ile eğriler kontrol edilebilir).
+- **Compressor:** Attack süresi en az 25 ms. Kick'in ve 808'in ilk vuruşu ezilmeden geçiyor.
+- **Limiter:** -1 dB'de tavan yapıyor, release süresi 80 ms. Bu süre önemli: 50 Hz'lik bir bas dalgası 20 ms sürüyor. Release daha kısa olursa limiter sesi bas dalgasının *içinde* açıp kısıyor ve bu da basta bozulma ve çatırtı yapıyor.
+
+Presetleri değiştirmek için `files/easyeffects/make_presets.py` dosyasını düzenleyip `python3 files/easyeffects/make_presets.py` komutunu çalıştır, sonra `./install.sh`'ı tekrar çalıştır.
 
 **Spotify ayarları:** Ses kalitesi "Çok yüksek", "Ses düzeyini normalleştir" kapalı ve uygulamanın ses çubuğu %100'de olsun. Sesi sistemden ya da kulaklığın tekerinden ayarla; compressor gelen sesin seviyesine göre çalıştığı için Spotify kısıkken presetler tasarlandığı gibi çalışmıyor.
 

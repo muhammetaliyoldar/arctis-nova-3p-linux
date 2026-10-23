@@ -1,0 +1,21 @@
+#!/bin/bash
+# EasyEffects preset değiştirici.
+#   ee-preset Rap        -> o preseti yükler
+#   ee-preset next       -> listedeki bir sonrakine geçer
+PRESETS=("Rap" "Tekno - Rave" "Deep House" "Genel")
+
+target="$1"
+if [ "$target" = "next" ] || [ -z "$target" ]; then
+    current=$(gsettings get com.github.wwmm.easyeffects last-used-output-preset 2>/dev/null | tr -d "'")
+    target="${PRESETS[0]}"
+    for i in "${!PRESETS[@]}"; do
+        if [ "${PRESETS[$i]}" = "$current" ]; then
+            target="${PRESETS[$(( (i + 1) % ${#PRESETS[@]} ))]}"
+        fi
+    done
+fi
+
+easyeffects -l "$target"
+command -v notify-send >/dev/null && \
+    notify-send -a "Easy Effects" -i com.github.wwmm.easyeffects -h string:x-canonical-private-synchronous:ee-preset \
+        "🎧 $target" "EasyEffects preseti değişti"
