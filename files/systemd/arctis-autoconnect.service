@@ -1,0 +1,11 @@
+[Unit]
+Description=Arctis Nova 3P Bluetooth otomatik bağlanma
+After=wireplumber.service
+
+[Service]
+Type=oneshot
+ExecStartPre=/bin/sleep 8
+ExecStart=%h/.local/bin/arctis-autoconnect.sh
+
+[Install]
+WantedBy=default.target
