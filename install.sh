@@ -14,6 +14,17 @@ if [ "$(id -u)" -eq 0 ]; then
     exit 1
 fi
 
+# 0) Gerekli paketler: curl (uzantı indirme), EasyEffects + LSP eklentileri
+command -v curl >/dev/null || { say "curl kuruluyor (sudo gerekli)"; sudo apt-get install -y curl; }
+if ! command -v easyeffects >/dev/null && ! flatpak info com.github.wwmm.easyeffects >/dev/null 2>&1; then
+    if command -v apt-get >/dev/null; then
+        say "EasyEffects ve LSP eklentileri kuruluyor (sudo gerekli)"
+        sudo apt-get install -y easyeffects lsp-plugins-lv2
+    else
+        warn "apt yok: EasyEffects'i ve lsp-plugins'i dağıtımının paket yöneticisiyle kur, sonra scripti tekrar çalıştır"
+    fi
+fi
+
 # 1) Realtek rtw88 WiFi/BT kombo kartı: firmware LPS deep modundan çıkamıyor,
 #    WiFi/BT coexistence bozulup ses cızırtılı/kesik geliyor. Sadece bu kartlarda gerekli.
 if [ -d /sys/module/rtw88_core ]; then
@@ -76,11 +87,48 @@ EOF
     else
         warn "Kulaklık henüz eşleştirilmemiş: eşleştirdikten sonra scripti tekrar çalıştır (otomatik preset için)"
     fi
+
+    # Oturum açılınca arka planda başlasın; pencere kapatılınca efektler kapanmasın
+    if [ "$EE_DIR" = ~/.config/easyeffects ]; then
+        install -Dm 644 "$DIR/easyeffects/autostart/easyeffects-service.desktop" \
+            ~/.config/autostart/easyeffects-service.desktop
+        gsettings set com.github.wwmm.easyeffects shutdown-on-window-close false 2>/dev/null || true
+        gsettings set com.github.wwmm.easyeffects last-used-output-preset "$PRESET" 2>/dev/null || true
+    fi
 else
-    warn "EasyEffects kurulu değil, presetler atlandı (kurmak için: sudo apt install easyeffects lsp-plugins)"
+    warn "EasyEffects kurulu değil, presetler atlandı"
 fi
 
-# 5) Ayarları uygula. EasyEffects açıkken WirePlumber yeniden başlarsa
+# 5) Dynamic Music Pill (GNOME üst barda şarkı kontrolü) + ayarları
+PILL="dynamic-music-pill@andbal"
+if command -v gnome-shell >/dev/null; then
+    if [ ! -d ~/.local/share/gnome-shell/extensions/$PILL ]; then
+        SHELL_VER=$(gnome-shell --version | grep -oE '[0-9]+' | head -1)
+        say "Dynamic Music Pill indiriliyor (GNOME $SHELL_VER)"
+        URL=$(curl -fsSL "https://extensions.gnome.org/extension-info/?uuid=$PILL&shell_version=$SHELL_VER" \
+              | python3 -c 'import json,sys; print(json.load(sys.stdin)["download_url"])' 2>/dev/null) || URL=""
+        if [ -n "$URL" ]; then
+            TMP=$(mktemp -d)
+            curl -fsSL -o "$TMP/pill.zip" "https://extensions.gnome.org$URL"
+            gnome-extensions install --force "$TMP/pill.zip"
+            rm -rf "$TMP"
+        else
+            warn "Dynamic Music Pill bu GNOME sürümü için bulunamadı, atlandı"
+        fi
+    fi
+    if [ -d ~/.local/share/gnome-shell/extensions/$PILL ]; then
+        dconf load /org/gnome/shell/extensions/dynamic-music-pill/ < "$DIR/gnome/dynamic-music-pill.ini"
+        # Yeni kurulan uzantı GNOME yeniden yüklenmeden görünmez; listeye ekleyip
+        # bir sonraki oturumda açılmasını garantile
+        gnome-extensions enable $PILL 2>/dev/null || \
+            gsettings set org.gnome.shell enabled-extensions \
+                "$(gsettings get org.gnome.shell enabled-extensions | python3 -c "
+import ast,sys; l=ast.literal_eval(sys.stdin.read().replace('@as ','')); '$PILL' in l or l.append('$PILL'); print(l)")"
+        say "Dynamic Music Pill kuruldu (görünmezse oturumu kapatıp aç)"
+    fi
+fi
+
+# 6) Ayarları uygula. EasyEffects açıkken WirePlumber yeniden başlarsa
 #    ses bağlantıları kopuyor, o yüzden EasyEffects de yeniden başlatılır.
 say "WirePlumber yeniden başlatılıyor (kulaklık birkaç saniye kopabilir)"
 systemctl --user restart wireplumber

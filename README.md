@@ -5,12 +5,24 @@ SteelSeries Arctis Nova 3P Wireless kulaklığı Ubuntu'da (PipeWire + WirePlumb
 ## Kurulum
 
 ```bash
+sudo apt install -y git
 git clone https://github.com/muhammetaliyoldar/arctis-nova-3p-linux.git
 cd arctis-nova-3p-linux
 ./install.sh
 ```
 
+Script sırasıyla şunları yapıyor:
+
+1. **Kulaklığın bağlanır bağlanmaz kapanması:** Bluetooth codec listesini 19'dan sadece SBC'ye indiriyor ve HFP'yi kapatıyor.
+2. **Cızırtı ve kopma:** Bilgisayarda Realtek `rtw88` WiFi kartı varsa sürücünün güç tasarrufunu kapatıyor.
+3. **Otomatik bağlanma:** Oturum açıldıktan sonra kulaklığa kendisi bağlanmayı deneyen servisi kuruyor.
+4. **EasyEffects:** Kurulu değilse EasyEffects'i ve LSP eklentilerini kuruyor. Presetleri ekliyor, kulaklık bağlanınca "Ana - HipHop House"un otomatik yüklenmesini ve EasyEffects'in her açılışta arka planda başlamasını ayarlıyor.
+5. **Dynamic Music Pill:** Üst barda şarkıyı yönetmeye yarayan GNOME uzantısını indirip kuruyor ve ayarlarını (görünüm, görselleştirici, şeffaflık) yüklüyor.
+
+Notlar:
 - Scripti `sudo` ile **değil**, normal kullanıcı olarak çalıştır. Gerekirse sudo şifresini kendisi sorar.
+- Tekrar çalıştırmak güvenli; zaten kurulu olanları baştan yazıyor.
+- Music pill kurulduktan sonra üst barda görünmezse oturumu kapatıp aç. Wayland'de yeni kurulan uzantılar ancak bir sonraki oturumda yükleniyor.
 - Kulaklığı önce Bluetooth'tan eşleştirmen iyi olur. Eşleştirmeden kurarsan, eşleştirdikten sonra scripti bir kez daha çalıştır; böylece otomatik preset yüklemesi de ayarlanır.
 - Kaldırmak için: `./uninstall.sh`
 
@@ -74,6 +86,10 @@ Presetlerin hepsinde aynı zincir var: **Equalizer → Compressor → Limiter**.
 | **Genel Muzik** | Her türe uyan hafif bir V eğrisi. Uzun dinlemede kulağı yormuyor. |
 
 **Spotify ayarları:** Ses kalitesi "Çok yüksek", "Ses düzeyini normalleştir" kapalı ve uygulamanın ses çubuğu %100'de olsun. Sesi sistemden ya da kulaklığın tekerinden ayarla; compressor gelen sesin seviyesine göre çalıştığı için Spotify kısıkken presetler tasarlandığı gibi çalışmıyor.
+
+## Dynamic Music Pill
+
+[Dynamic Music Pill](https://github.com/Andbal23/dynamic-music-pill), Spotify'da ya da tarayıcıda çalan şarkıyı üst barda kapak resmi, görselleştirici ve kontrol tuşlarıyla gösteren bir GNOME uzantısı. `install.sh` uzantıyı extensions.gnome.org'dan GNOME sürümüne uygun haliyle indiriyor ve `files/gnome/dynamic-music-pill.ini` içindeki ayarları yüklüyor. Dinleme geçmişi bu dosyaya dahil değil.
 
 ## Sorun giderme
 
