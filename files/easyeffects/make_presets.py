@@ -6,10 +6,10 @@ Kullanım: python3 make_presets.py [çıktı_klasörü] [--check]
 
 Zincir: Equalizer -> Compressor -> Limiter
 - Compressor attack >= 25 ms: kick/808'in ilk vuruşu ezilmeden geçer (punch).
-- Limiter release 80 ms: 50 Hz'lik bir dalga 20 ms sürer; daha kısa release
-  bas dalgasının içinde gain'i oynatıp bozulma (çatırtı) yapar.
-- EQ input-gain, en yüksek boost kadar negatif: equalizer clipping yapmaz,
-  limiter sadece güvenlik ağı olarak kalır.
+- Limiter: EasyEffects 7.x'te release en fazla 20 ms; 50 Hz'lik bir dalga da 20 ms
+  sürdüğü için limiter devreye girdiğinde basta bozulma yapar. Bu yüzden EQ
+  input-gain en yüksek boost kadar negatif ve compressor makeup düşük: sinyal
+  limiter'a nadiren ulaşır, limiter sadece güvenlik ağıdır.
 """
 import json
 import math
@@ -46,7 +46,7 @@ def compressor(threshold, ratio, attack, release, makeup):
 def limiter(input_gain=0.0):
     return {"bypass": False, "input-gain": input_gain, "output-gain": 0.0,
             "mode": "Herm Thin", "oversampling": "None", "dithering": "None",
-            "lookahead": 5.0, "attack": 5.0, "release": 80.0, "threshold": -1.0,
+            "lookahead": 5.0, "attack": 5.0, "release": 20.0, "threshold": -1.0,
             "gain-boost": False, "sidechain-preamp": 0.0, "stereo-link": 100.0,
             "alr": False, "alr-attack": 5.0, "alr-release": 50.0, "alr-knee": 0.0,
             "external-sidechain": False}
@@ -71,7 +71,7 @@ PRESETS = {
         band("Bell", 3000.0, 2.5, q=1.0),           # vokal netliği / sözler
         band("Bell", 6500.0, -1.5, q=3.0),          # "sss" + SBC sertliği
         band("Hi-shelf", 10000.0, 1.5, q=0.7),      # hava
-    ], -6.0, compressor(threshold=-16.0, ratio=2.0, attack=25.0, release=150.0, makeup=2.0)),
+    ], -6.0, compressor(threshold=-16.0, ratio=2.0, attack=25.0, release=150.0, makeup=0.5)),
 
     # Sürükleyen kick + rumble, parlak synth/hat'ler, orta frekanslar hafif oyuk (V)
     "Tekno - Rave": preset([
@@ -83,7 +83,7 @@ PRESETS = {
         band("Bell", 4500.0, 1.5, q=1.0),           # synth ısırığı / hat'ler
         band("Bell", 7500.0, -1.0, q=3.0),          # SBC sertliği
         band("Hi-shelf", 11000.0, 3.0, q=0.7),      # parlaklık
-    ], -5.5, compressor(threshold=-18.0, ratio=2.5, attack=30.0, release=150.0, makeup=2.5)),
+    ], -5.5, compressor(threshold=-18.0, ratio=2.5, attack=30.0, release=150.0, makeup=1.0)),
 
     # Derin, sıcak sub ve yumuşak tizler; uzun setlerde yormaz
     "Deep House": preset([
@@ -94,7 +94,7 @@ PRESETS = {
         band("Bell", 700.0, -1.0, q=1.2),           # kutu sesi
         band("Bell", 3200.0, 1.0, q=1.0),           # vokal / synth varlığı
         band("Hi-shelf", 10000.0, 2.0, q=0.7),      # hi-hat havası
-    ], -6.5, compressor(threshold=-18.0, ratio=1.8, attack=30.0, release=200.0, makeup=1.5)),
+    ], -6.5, compressor(threshold=-18.0, ratio=1.8, attack=30.0, release=200.0, makeup=0.5)),
 
     # Her türe uyan hafif V; günlük kullanım
     "Genel": preset([
@@ -104,7 +104,7 @@ PRESETS = {
         band("Bell", 3000.0, 1.0, q=1.0),
         band("Bell", 6500.0, -1.0, q=3.0),
         band("Hi-shelf", 10000.0, 1.5, q=0.7),
-    ], -4.0, compressor(threshold=-16.0, ratio=1.5, attack=30.0, release=150.0, makeup=1.0)),
+    ], -4.0, compressor(threshold=-16.0, ratio=1.5, attack=30.0, release=150.0, makeup=0.0)),
 }
 
 
@@ -138,7 +138,42 @@ def response_db(bands, f, fs=48000.0):
     return total
 
 
+SCHEMA = "/usr/share/glib-2.0/schemas/com.github.wwmm.easyeffects.%s.gschema.xml"
+
+
+def schema_ranges(name):
+    """EasyEffects gsettings şemasındaki min/max aralıkları (şema yoksa boş)."""
+    import re
+    try:
+        xml = open(SCHEMA % name).read()
+    except OSError:
+        return {}
+    out = {}
+    for key, body in re.findall(r'<key name="([^"]+)"[^>]*>(.*?)</key>', xml, re.S):
+        m = re.search(r'<range min="([^"]+)" max="([^"]+)"', body)
+        if m:
+            out[key] = (float(m.group(1)), float(m.group(2)))
+    return out
+
+
+def validate(name, data):
+    """Aralık dışı değerleri EasyEffects sessizce reddeder; bunları yakala."""
+    errors = []
+    for plugin, schema in (("compressor#0", "compressor"), ("limiter#0", "limiter"),
+                           ("equalizer#0", "equalizer")):
+        ranges = schema_ranges(schema)
+        for key, val in data["output"][plugin].items():
+            if isinstance(val, (int, float)) and not isinstance(val, bool) and key in ranges:
+                lo, hi = ranges[key]
+                if not lo <= val <= hi:
+                    errors.append(f"{name}: {plugin}.{key}={val} (izin verilen {lo}..{hi})")
+    return errors
+
+
 if __name__ == "__main__":
+    problems = [e for n, d in PRESETS.items() for e in validate(n, d)]
+    if problems:
+        sys.exit("Aralık dışı değerler:\n  " + "\n  ".join(problems))
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     out = args[0] if args else os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
     for name, data in PRESETS.items():
