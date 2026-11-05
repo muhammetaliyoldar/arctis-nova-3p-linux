@@ -5,8 +5,8 @@ systemctl --user disable --now arctis-autoconnect.service 2>/dev/null
 rm -f ~/.config/systemd/user/arctis-autoconnect.service ~/.local/bin/arctis-autoconnect.sh
 systemctl --user daemon-reload
 
-rm -f ~/.config/wireplumber/bluetooth.lua.d/51-arctis-a2dp-only.lua \
-      ~/.config/wireplumber/wireplumber.conf.d/51-arctis-a2dp-only.conf
+rm -f ~/.config/wireplumber/bluetooth.lua.d/51-arctis-{a2dp,sbc}-only.lua \
+      ~/.config/wireplumber/wireplumber.conf.d/51-arctis-{a2dp,sbc}-only.conf
 rm -f ~/.config/easyeffects/autoload/output/bluez_output.*:headphone-output.json \
       ~/.var/app/com.github.wwmm.easyeffects/config/easyeffects/autoload/output/bluez_output.*:headphone-output.json
 

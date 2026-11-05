@@ -11,18 +11,21 @@ cd arctis-nova-3p-linux
 ./install.sh
 ```
 
-Script sırasıyla şunları yapıyor:
+Script başta hangi parçaların kurulacağını soruyor (Enter = evet, `h` = hayır):
 
-1. **Kulaklığın bağlanır bağlanmaz kapanması:** Bluetooth codec listesini 19'dan sadece SBC'ye indiriyor ve HFP'yi kapatıyor.
-2. **Güç tasarrufu (cızırtı ve kopma):** Bluetooth USB adaptörünün uykuya geçmesini her bilgisayarda kapatıyor. Bilgisayarda Realtek `rtw88` WiFi kartı varsa WiFi sürücüsünün ve NetworkManager'ın güç tasarrufunu da kapatıyor.
-3. **Otomatik bağlanma:** Oturum açıldıktan sonra kulaklığa kendisi bağlanmayı deneyen servisi kuruyor.
-4. **EasyEffects:** Kurulu değilse EasyEffects'i ve LSP eklentilerini kuruyor. 4 preseti ekliyor, kulaklık bağlanınca **Rap**'in otomatik yüklenmesini ve EasyEffects'in her açılışta arka planda başlamasını ayarlıyor.
-5. **Hızlı preset geçişi:** Klavye kısayollarını ve üst bara preset menüsünü (EasyEffects Preset Selector uzantısı) kuruyor.
-6. **Dynamic Music Pill:** Üst barda şarkıyı yönetmeye yarayan GNOME uzantısını indirip kuruyor ve ayarlarını (görünüm, görselleştirici, şeffaflık) yüklüyor.
+1. **Bağlantı düzeltmeleri:** Üç şey kuruyor.
+   - **Kulaklığın bağlanır bağlanmaz kapanması:** Bluetooth codec listesini 19'dan sadece SBC'ye indiriyor.
+   - **Güç tasarrufu (cızırtı ve kopma):** Bluetooth USB adaptörünün uykuya geçmesini her bilgisayarda kapatıyor. Bilgisayarda Realtek `rtw88` WiFi kartı varsa WiFi sürücüsünün ve NetworkManager'ın güç tasarrufunu da kapatıyor.
+   - **Otomatik bağlanma:** Oturum açıldıktan sonra kulaklığa kendisi bağlanmayı deneyen servisi kuruyor.
+2. **Bluetooth mikrofonu kapatılsın mı?** Sadece 1. soruya evet dersen soruluyor. Evet (varsayılan) HFP/HSP'yi kapatıyor; bugüne kadar test edilen ayar bu. Hayır dersen mikrofon açık kalıyor, ama kopmalar geri gelebilir (aşağıda "Belirtiler" altında 1. maddeye bak).
+3. **Ses presetleri:** Kurulu değilse EasyEffects'i ve LSP eklentilerini kuruyor. 4 preseti ekliyor, kulaklık bağlanınca **Rap**'in otomatik yüklenmesini ve EasyEffects'in her açılışta arka planda başlamasını ayarlıyor. Ctrl+Alt kısayollarını ve üst bara preset menüsünü (EasyEffects Preset Selector uzantısı) da bu kuruyor.
+4. **Dynamic Music Pill:** Sadece GNOME varsa soruluyor. Üst barda şarkıyı yönetmeye yarayan uzantıyı indirip kuruyor ve ayarlarını (görünüm, görselleştirici, şeffaflık) yüklüyor.
 
 Notlar:
 - Scripti `sudo` ile **değil**, normal kullanıcı olarak çalıştır. Gerekirse sudo şifresini kendisi sorar.
-- Tekrar çalıştırmak güvenli; zaten kurulu olanları baştan yazıyor.
+- İstemediğin parçaya `h` de. Örneğin sadece ses presetlerini kurmak için 1. ve 4. soruya `h`, 3. soruya Enter yeterli.
+- Terminal yoksa ya da cevap verilmezse hepsi evet sayılıyor.
+- Tekrar çalıştırmak güvenli; zaten kurulu olanları baştan yazıyor. Mikrofon seçimini değiştirmek için de scripti tekrar çalıştırman yeterli: seçilen dosya kurulurken öbürü siliniyor.
 - Music pill kurulduktan sonra üst barda görünmezse oturumu kapatıp aç. Wayland'de yeni kurulan uzantılar ancak bir sonraki oturumda yükleniyor.
 - Kulaklığı önce Bluetooth'tan eşleştirmen iyi olur. Eşleştirmeden kurarsan, eşleştirdikten sonra scripti bir kez daha çalıştır; böylece otomatik preset yüklemesi de ayarlanır.
 - Kaldırmak için: `./uninstall.sh`
@@ -40,15 +43,22 @@ Reason: Remote Device Terminated due to Power Off (0x15)
 
 Telefonlar ve Windows sadece SBC/AAC sunduğu için orada bu sorun olmuyor.
 
-**Çözüm:** WirePlumber'ın kulaklığa sadece **SBC** sunması. Arctis zaten SBC kullanıyor, yani ses kalitesinden bir şey kaybedilmiyor. Ek olarak, bağlantı kurulurken müzik ve mikrofon profillerinin çakışmasını önlemek için HFP/HSP (Bluetooth mikrofon) profili de kapatılıyor.
+**Çözüm:** WirePlumber'ın kulaklığa sadece **SBC** sunması. Arctis zaten SBC kullanıyor, yani ses kalitesinden bir şey kaybedilmiyor. Ek olarak, kurulumda mikrofonu kapatmayı seçersen (varsayılan), bağlantı kurulurken müzik ve mikrofon profillerinin çakışmasını önlemek için HFP/HSP (Bluetooth mikrofon) profili de kapatılıyor.
 
-> ⚠️ Bu ayarı kurduğun bilgisayarda Bluetooth kulaklıkların **mikrofonu çalışmaz**, müzik ve ses normal çalışır. Kulaklığın kendisine dokunulmuyor; telefonda ve başka cihazlarda mikrofon eskisi gibi çalışır.
+> ⚠️ **Mikrofon kapalıyken** (varsayılan, test edilen ayar) bu bilgisayarda Bluetooth kulaklıkların **mikrofonu çalışmaz**, müzik ve ses normal çalışır.
+>
+> **Mikrofon açıkken** sadece SBC ayarı kuruluyor. Bu seçenek henüz **test edilmedi**. Açılışta A2DP ve HFP aynı anda kurulmaya çalışınca bağlantılar çakışıp kulaklık kapanıyordu; bu kopmalar geri gelebilir. Öyle olursa scripti tekrar çalıştırıp mikrofonu kapat. Ayrıca mikrofon açıkken bir uygulama mikrofonu açınca kulaklık mikrofon profiline geçer ve ses telefon görüşmesi kalitesine düşer (Bluetooth'un sınırı).
+>
+> İki seçenekte de ayar sadece kurulduğu Linux bilgisayarı etkiler. Kulaklığın kendisine, Windows'a, Mac'e ya da telefona dokunulmuyor; oralarda mikrofon eskisi gibi çalışır.
 
 Dosyalar:
-- WirePlumber 0.4 (Ubuntu 24.04): `~/.config/wireplumber/bluetooth.lua.d/51-arctis-a2dp-only.lua`
-- WirePlumber 0.5+: `~/.config/wireplumber/wireplumber.conf.d/51-arctis-a2dp-only.conf`
 
-Hangisinin kurulacağına `install.sh` kendisi karar veriyor. WirePlumber 0.4, `.conf` dosyalarını **okumaz**; internetteki çoğu rehber 0.5 formatını anlattığı için bu önemli.
+| | Mikrofon kapalı (varsayılan) | Mikrofon açık |
+|---|---|---|
+| WirePlumber 0.4 (Ubuntu 24.04) | `~/.config/wireplumber/bluetooth.lua.d/51-arctis-a2dp-only.lua` | `~/.config/wireplumber/bluetooth.lua.d/51-arctis-sbc-only.lua` |
+| WirePlumber 0.5+ | `~/.config/wireplumber/wireplumber.conf.d/51-arctis-a2dp-only.conf` | `~/.config/wireplumber/wireplumber.conf.d/51-arctis-sbc-only.conf` |
+
+Hangisinin kurulacağına `install.sh` kendisi karar veriyor. Birini kurarken öbürünü siliyor. WirePlumber 0.4, `.conf` dosyalarını **okumaz**; internetteki çoğu rehber 0.5 formatını anlattığı için bu önemli.
 
 ### 2. Ses cızırtılı ya da kesik geliyor (güç tasarrufu)
 
@@ -131,7 +141,7 @@ Ubuntu 24.04, kernel 7.0, PipeWire 1.0.5, WirePlumber 0.4.17, BlueZ 5.72, EasyEf
 ## Klasör yapısı
 
 ```
-install.sh                         # tüm düzeltmeleri, presetleri ve uzantıları kurar
+install.sh                         # düzeltmeleri, presetleri ve uzantıları (istediğini seçerek) kurar
 uninstall.sh                       # kurulanları kaldırır (presetler ve GNOME uzantıları kalır)
 files/
 ├── bin/ee-preset                  # preset değiştirici (ee-preset <ad> | next)
@@ -143,7 +153,7 @@ files/
 ├── modprobe/                      # btusb.conf, rtw88.conf
 ├── networkmanager/                # wifi-powersave-off.conf
 ├── systemd/                       # arctis-autoconnect.service + .sh (kullanıcı servisi)
-└── wireplumber/                   # 51-arctis-a2dp-only.lua (0.4) ve .conf (0.5+)
+└── wireplumber/                   # 51-arctis-a2dp-only (mikrofon kapalı) ve 51-arctis-sbc-only (mikrofon açık); her biri .lua (0.4) ve .conf (0.5+)
 ```
 
 ## Proje durumu
