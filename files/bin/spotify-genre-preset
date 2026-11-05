@@ -1,0 +1,135 @@
+#!/usr/bin/env python3
+"""Spotify'da çalan şarkının türüne göre EasyEffects presetini değiştirir.
+
+Tür (anahtar gerekmez): Deezer albüm türü Rap/Hip Hop ise Rap. Elektronikse ya da
+şarkı Deezer'de yoksa MusicBrainz sanatçı etiketlerine bakılır. Uymayan her şey Genel.
+Sonuç albüm başına ~/.cache/spotify-genre-preset.json'a yazılır, tekrar sorulmaz.
+Ağ hatasında preset değişmez. Elle seçilen preset tür değişene kadar korunur.
+"""
+import json
+import os
+import subprocess
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+
+import gi
+gi.require_version("Gio", "2.0")
+from gi.repository import Gio, GLib
+
+RAP, TEKNO, DEEP, GENEL = "Rap", "Tekno - Rave", "Deep House", "Genel"
+DEEZER_RAP = 116
+DEEZER_ELECTRONIC = {106, 111, 113}  # Electro, Techno/House, Dance
+UA = "arctis-nova-3p-linux (https://github.com/muhammetaliyoldar/arctis-nova-3p-linux)"
+CACHE = os.path.join(GLib.get_user_cache_dir(), "spotify-genre-preset.json")
+EE_PRESET = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ee-preset")
+MPRIS = "org.mpris.MediaPlayer2.spotify"
+
+
+def get_json(url, tries=3):
+    for i in range(tries):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": UA})
+            with urllib.request.urlopen(req, timeout=8) as r:
+                return json.load(r)
+        except urllib.error.HTTPError as e:  # MusicBrainz yoğunken 503 dönüyor
+            if e.code != 503 or i == tries - 1:
+                raise
+            time.sleep(2)
+
+
+def deezer_genres(artist, title):
+    """Şarkının albüm tür numaraları; şarkı bulunamazsa boş küme."""
+    q = urllib.parse.quote(f"{artist} {title}")
+    for t in get_json(f"https://api.deezer.com/search?q={q}&limit=5").get("data", []):
+        if t["artist"]["name"].casefold() == artist.casefold():
+            album = get_json(f"https://api.deezer.com/album/{t['album']['id']}")
+            return {g["id"] for g in album.get("genres", {}).get("data", [])}
+    return set()
+
+
+def musicbrainz_tags(artist):
+    """Adı birebir eşleşen ilk etiketli sanatçının etiketleri, en çok oy alan önce."""
+    q = urllib.parse.quote(f'artist:"{artist}"')
+    for a in get_json(f"https://musicbrainz.org/ws/2/artist/?query={q}&limit=5&fmt=json")["artists"]:
+        if a.get("score") == 100 and a.get("tags"):
+            return [t["name"] for t in sorted(a["tags"], key=lambda t: -t["count"])]
+    return []
+
+
+def preset_from_tags(tags):
+    for t in tags:
+        if any(k in t for k in ("techno", "tech house", "rave", "trance", "hardstyle")):
+            return TEKNO
+        if "house" in t:
+            return DEEP
+        if any(k in t for k in ("hip hop", "rap", "trap", "drill", "grime")):
+            return RAP
+    return GENEL
+
+
+def classify(artist, title):
+    genres = deezer_genres(artist, title)
+    if DEEZER_RAP in genres:
+        return RAP
+    if genres and not genres & DEEZER_ELECTRONIC:
+        return GENEL
+    return preset_from_tags(musicbrainz_tags(artist))
+
+
+class Follower:
+    def __init__(self):
+        self.track = self.applied = None
+        try:
+            with open(CACHE) as fh:
+                self.cache = json.load(fh)
+        except FileNotFoundError:
+            self.cache = {}
+
+    def on_metadata(self, md):
+        track, title = md.get("mpris:trackid", ""), md.get("xesam:title", "")
+        artist = (md.get("xesam:artist") or [""])[0]
+        if not artist or track == self.track or "/ad/" in track or ":ad:" in track:
+            return
+        self.track = track
+        key = f"{artist}\t{md.get('xesam:album', '')}"
+        preset = self.cache.get(key)
+        if preset is None:
+            try:
+                preset = classify(artist, title)
+            except (OSError, ValueError, KeyError) as e:
+                print(f"{artist} - {title}: tür alınamadı ({e}), preset değişmedi", flush=True)
+                return
+            self.cache[key] = preset
+            with open(CACHE, "w") as fh:
+                json.dump(self.cache, fh, ensure_ascii=False, indent=1)
+        print(f"{artist} - {title}: {preset}", flush=True)
+        if preset != self.applied:
+            self.applied = preset
+            subprocess.run([EE_PRESET, preset], check=False)
+
+
+def main():
+    bus = Gio.bus_get_sync(Gio.BusType.SESSION)
+    f = Follower()
+
+    def on_signal(_conn, _sender, _path, _iface, _signal, params):
+        iface, changed, _ = params.unpack()
+        if iface == "org.mpris.MediaPlayer2.Player" and "Metadata" in changed:
+            f.on_metadata(changed["Metadata"])
+
+    bus.signal_subscribe(MPRIS, "org.freedesktop.DBus.Properties", "PropertiesChanged",
+                         "/org/mpris/MediaPlayer2", None, Gio.DBusSignalFlags.NONE, on_signal)
+    try:  # servis açılırken Spotify zaten çalıyorsa
+        md = bus.call_sync(MPRIS, "/org/mpris/MediaPlayer2", "org.freedesktop.DBus.Properties", "Get",
+                           GLib.Variant("(ss)", ("org.mpris.MediaPlayer2.Player", "Metadata")),
+                           None, Gio.DBusCallFlags.NONE, 2000, None)
+        f.on_metadata(md.unpack()[0])
+    except GLib.Error:
+        print("Spotify kapalı, açılması bekleniyor", flush=True)
+    GLib.MainLoop().run()
+
+
+if __name__ == "__main__":
+    main()

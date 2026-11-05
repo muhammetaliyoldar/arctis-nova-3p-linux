@@ -3,6 +3,8 @@
 
 Kullanım: python3 make_presets.py [çıktı_klasörü] [--check]
   --check: her presetin EQ eğrisinin tepe noktalarını yazdırır (dosya yazmaz)
+Aynı EQ eğrilerini ../equalizer-apo (Windows) ve ../headset (kulaklığın kendi EQ'su,
+headsetcontrol) klasörlerine de yazar; compressor/limiter oralara taşınmaz.
 
 Zincir: Equalizer -> Compressor -> Limiter
 - Compressor attack >= 25 ms: kick/808'in ilk vuruşu ezilmeden geçer (punch).
@@ -108,6 +110,30 @@ PRESETS = {
 }
 
 
+APO_TYPES = {"Hi-pass": "HPQ", "Bell": "PK", "Lo-shelf": "LSC", "Hi-shelf": "HSC"}
+HEADSET_TYPES = {"Hi-pass": "highpass", "Bell": "peaking", "Lo-shelf": "lowshelf", "Hi-shelf": "highshelf"}
+
+
+def single_slope(bands):
+    """x2 eğimli filtreyi iki ardışık filtreye açar; APO'da ve kulaklıkta eğim ayarı yok."""
+    return [b for b in bands for _ in range(2 if b["slope"] == "x2" else 1)]
+
+
+def apo_config(bands, preamp):
+    """Windows Equalizer APO config dosyası."""
+    lines = [f"Preamp: {preamp:.1f} dB"]
+    for i, b in enumerate(single_slope(bands), 1):
+        gain = "" if b["type"] == "Hi-pass" else f" Gain {b['gain']:.1f} dB"
+        lines.append(f"Filter {i}: ON {APO_TYPES[b['type']]} Fc {b['frequency']:g} Hz{gain} Q {b['q']:.2f}")
+    return "\n".join(lines) + "\n"
+
+
+def headset_bands(bands):
+    """headsetcontrol --parametric-equalizer argümanı (kulaklığın kendi EQ'su: 10 bant, en az 20 Hz)."""
+    return ";".join(f"{max(b['frequency'], 20):g},{b['gain']:g},{b['q']:g},{HEADSET_TYPES[b['type']]}"
+                    for b in single_slope(bands)) + "\n"
+
+
 def response_db(bands, f, fs=48000.0):
     """RBJ biquad yaklaşımıyla EQ'nun f frekansındaki toplam kazancı (dB)."""
     total = 0.0
@@ -175,7 +201,8 @@ if __name__ == "__main__":
     if problems:
         sys.exit("Aralık dışı değerler:\n  " + "\n  ".join(problems))
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    out = args[0] if args else os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
+    here = os.path.dirname(os.path.abspath(__file__))
+    out = args[0] if args else os.path.join(here, "output")
     for name, data in PRESETS.items():
         eq = data["output"]["equalizer#0"]
         bands = list(eq["left"].values())
@@ -191,3 +218,10 @@ if __name__ == "__main__":
         with open(os.path.join(out, f"{name}.json"), "w") as fh:
             json.dump(data, fh, indent=4)
         print(f"yazıldı: {os.path.join(out, name)}.json")
+        for folder, text in (("equalizer-apo", apo_config(bands, eq["input-gain"])),
+                             ("headset", headset_bands(bands))):
+            path = os.path.normpath(os.path.join(here, "..", folder, f"{name}.txt"))
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w") as fh:
+                fh.write(text)
+            print(f"yazıldı: {path}")

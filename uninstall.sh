@@ -2,7 +2,10 @@
 # install.sh ile kurulan her şeyi kaldırır (EasyEffects presetleri hariç).
 
 systemctl --user disable --now arctis-autoconnect.service 2>/dev/null
-rm -f ~/.config/systemd/user/arctis-autoconnect.service ~/.local/bin/arctis-autoconnect.sh
+systemctl --user disable --now spotify-genre-preset.service 2>/dev/null
+rm -f ~/.config/systemd/user/arctis-autoconnect.service ~/.local/bin/arctis-autoconnect.sh \
+      ~/.config/systemd/user/spotify-genre-preset.service ~/.local/bin/spotify-genre-preset \
+      ~/.cache/spotify-genre-preset.json
 systemctl --user daemon-reload
 
 rm -f ~/.config/wireplumber/bluetooth.lua.d/51-arctis-{a2dp,sbc}-only.lua \

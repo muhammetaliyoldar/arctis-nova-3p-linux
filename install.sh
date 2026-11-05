@@ -23,6 +23,7 @@ echo "Hangi parçalar kurulsun? (Enter = evet, h = hayır)"
 ask "Bağlantı düzeltmeleri: sadece SBC codec, güç tasarrufu kapalı, otomatik bağlanma" && DO_BT=1
 [ -n "$DO_BT" ] && ask "  Bluetooth mikrofonu kapatılsın mı? (test edilen ayar; açık kalırsa kopmalar geri gelebilir)" && MIC_OFF=1
 ask "Ses presetleri: EasyEffects, 4 preset ve Ctrl+Alt kısayolları" && DO_EE=1
+[ -n "$DO_EE" ] && ask "  Spotify'da çalan şarkının türüne göre preset kendiliğinden değişsin mi? (sanatçı ve şarkı adı Deezer ve MusicBrainz'e sorulur)" && DO_GENRE=1
 command -v gnome-shell >/dev/null && ask "Dynamic Music Pill: üst barda şarkı kontrolü ve görselleştirici" && DO_PILL=1
 
 # 0) Gerekli paketler: curl (uzantı indirme), EasyEffects + LSP eklentileri
@@ -151,6 +152,20 @@ import ast,sys; l=ast.literal_eval(sys.stdin.read().replace('@as ','')); '$path'
     done
     add_shortcut "ee-preset-next" "EasyEffects: sıradaki preset" \
         "$HOME/.local/bin/ee-preset next" "<Control><Alt>0"
+
+    # 5b) Spotify'da çalan şarkının türüne göre otomatik preset
+    if [ -n "$DO_GENRE" ]; then
+        say "Spotify tür takibi kuruluyor"
+        install -Dm 755 "$DIR/bin/spotify-genre-preset" ~/.local/bin/spotify-genre-preset
+        install -Dm 644 "$DIR/systemd/spotify-genre-preset.service" ~/.config/systemd/user/spotify-genre-preset.service
+        systemctl --user daemon-reload
+        systemctl --user enable spotify-genre-preset.service
+        systemctl --user restart spotify-genre-preset.service
+    elif [ -f ~/.config/systemd/user/spotify-genre-preset.service ]; then
+        say "Spotify tür takibi kaldırılıyor"
+        systemctl --user disable --now spotify-genre-preset.service
+        rm -f ~/.config/systemd/user/spotify-genre-preset.service ~/.local/bin/spotify-genre-preset
+    fi
 elif [ -n "$DO_EE" ]; then
     warn "EasyEffects kurulu değil, presetler atlandı"
 fi
@@ -213,6 +228,7 @@ fi
 echo
 say "Kurulum tamam."
 [ -n "$EE_DIR" ] && echo "    Preset geçişi: Ctrl+Alt+1 Rap | Ctrl+Alt+2 Tekno - Rave | Ctrl+Alt+3 Deep House | Ctrl+Alt+4 Genel | Ctrl+Alt+0 sıradaki"
+[ -n "$EE_DIR" ] && [ -n "$DO_GENRE" ] && echo "    Spotify tür takibini izlemek için: journalctl --user -u spotify-genre-preset -f"
 [ -n "$DO_PILL$EE_DIR" ] && echo "    Üst bardaki uzantılar görünmezse oturumu kapatıp aç."
 [ -n "$NEED_REBOOT" ] && warn "WiFi sürücü ayarlarının devreye girmesi için bilgisayarı yeniden başlat."
 exit 0
