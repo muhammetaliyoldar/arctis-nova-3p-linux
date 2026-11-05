@@ -6,9 +6,8 @@
 set -e
 
 DIR="$(cd "$(dirname "$0")" && pwd)/files"
-PRESET="Rap"                                   # kulaklık bağlanınca otomatik yüklenen
-PRESETS=("Rap" "Tekno - Rave" "Deep House" "Genel")
-LEGACY_PRESETS=("Ana - HipHop House" "Rap - HipHop" "Genel Muzik")
+PRESET="Genel"                                 # açılışta ve kulaklık bağlanınca yüklenen
+LEGACY_PRESETS=("Ana - HipHop House" "Rap - HipHop" "Genel Muzik" "Rap" "Tekno - Rave" "House - Disco")  # eski sürümlerin adları
 
 say()  { printf '\033[1;32m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33m!!\033[0m %s\n' "$*"; }
@@ -24,6 +23,14 @@ ask "Bağlantı düzeltmeleri: sadece SBC codec, güç tasarrufu kapalı, otomat
 [ -n "$DO_BT" ] && ask "  Bluetooth mikrofonu kapatılsın mı? (test edilen ayar; açık kalırsa kopmalar geri gelebilir)" && MIC_OFF=1
 ask "Ses presetleri: EasyEffects, 4 preset ve Ctrl+Alt kısayolları" && DO_EE=1
 [ -n "$DO_EE" ] && ask "  Spotify'da çalan şarkının türüne göre preset kendiliğinden değişsin mi? (sanatçı ve şarkı adı Deezer ve MusicBrainz'e sorulur)" && DO_GENRE=1
+if [ -n "$DO_GENRE" ]; then
+    # Menüdeki "en çok dinlenen 5" nereden gelsin; sonradan menüdeki "Kaynak"tan değiştirilebilir
+    [ -f ~/.config/spotify-genre-preset/spotify.json ] && MODE_DEFAULT=3 || MODE_DEFAULT=2
+    echo "    Menüdeki 'en çok dinlenen 5' nereden gelsin?"
+    echo "      1) Sabit 5 tür (menüden seçersin)  2) Bu bilgisayardaki dinlemelerim  3) Spotify hesabım (tüm cihazlar, Premium)"
+    read -rp $'\033[1;36m??\033[0m '"  Seçim [$MODE_DEFAULT]: " c || c=""
+    case "${c:-$MODE_DEFAULT}" in 1) MODE=sabit ;; 3) MODE=hesap ;; *) MODE=cihaz ;; esac
+fi
 command -v gnome-shell >/dev/null && ask "Dynamic Music Pill: üst barda şarkı kontrolü ve görselleştirici" && DO_PILL=1
 
 # 0) Gerekli paketler: curl (uzantı indirme), EasyEffects + LSP eklentileri
@@ -96,9 +103,10 @@ elif [ -n "$DO_EE" ] && command -v easyeffects >/dev/null; then
 fi
 
 if [ -n "$EE_DIR" ]; then
-    say "EasyEffects presetleri kuruluyor: ${PRESETS[*]}"
+    say "EasyEffects presetleri kuruluyor: Genel + $(ls "$DIR"/easyeffects/output/*.json | grep -vc '/Genel.json$') tür"
     mkdir -p "$EE_DIR/output" "$EE_DIR/autoload/output"
     cp "$DIR"/easyeffects/output/*.json "$EE_DIR/output/"
+    install -Dm 644 "$DIR/genres.json" ~/.local/share/spotify-genre-preset/genres.json  # menü, kısayollar ve servis okur
 
     # Bu reponun eski sürümündeki presetler silinmez, kenara alınır
     for p in "${LEGACY_PRESETS[@]}"; do
@@ -133,7 +141,7 @@ EOF
         gsettings set com.github.wwmm.easyeffects last-used-output-preset "$PRESET" 2>/dev/null || true
     fi
 
-    # 5) Hızlı preset geçişi: Ctrl+Alt+1..4 ve Ctrl+Alt+0 (sıradaki)
+    # 5) Hızlı preset geçişi: Ctrl+Alt+1..7 = üst bar menüsünün satırları, Ctrl+Alt+0 = sıradaki
     install -Dm 755 "$DIR/bin/ee-preset" ~/.local/bin/ee-preset
     say "Klavye kısayolları ekleniyor"
     KB=org.gnome.settings-daemon.plugins.media-keys
@@ -146,9 +154,8 @@ EOF
         gsettings set $KB custom-keybindings "$(gsettings get $KB custom-keybindings | python3 -c "
 import ast,sys; l=ast.literal_eval(sys.stdin.read().replace('@as ','')); '$path' in l or l.append('$path'); print(l)")"
     }
-    for i in "${!PRESETS[@]}"; do
-        add_shortcut "ee-preset-$((i + 1))" "EasyEffects: ${PRESETS[$i]}" \
-            "$HOME/.local/bin/ee-preset \"${PRESETS[$i]}\"" "<Control><Alt>$((i + 1))"
+    for i in 1 2 3 4 5 6 7; do
+        add_shortcut "ee-preset-$i" "EasyEffects: menüdeki $i. satır" "$HOME/.local/bin/ee-preset $i" "<Control><Alt>$i"
     done
     add_shortcut "ee-preset-next" "EasyEffects: sıradaki preset" \
         "$HOME/.local/bin/ee-preset next" "<Control><Alt>0"
@@ -158,6 +165,19 @@ import ast,sys; l=ast.literal_eval(sys.stdin.read().replace('@as ','')); '$path'
         say "Spotify tür takibi kuruluyor"
         install -Dm 755 "$DIR/bin/spotify-genre-preset" ~/.local/bin/spotify-genre-preset
         install -Dm 644 "$DIR/systemd/spotify-genre-preset.service" ~/.config/systemd/user/spotify-genre-preset.service
+        rm -f ~/.cache/spotify-genre-preset.json   # tür eşlemesi değişmiş olabilir, baştan sorulsun
+        python3 - "$MODE" ~/.config/spotify-genre-preset/config.json ~/.local/share/spotify-genre-preset/genres.json <<'PY'
+import json, os, sys
+mode, path, genres = sys.argv[1:4]
+old = json.load(open(path)) if os.path.exists(path) else {}
+os.makedirs(os.path.dirname(path), exist_ok=True)
+json.dump({"mode": mode, "sabit": old.get("sabit") or json.load(open(genres))["defaults"]},
+          open(path, "w"), ensure_ascii=False, indent=1)
+PY
+        if [ "$MODE" = hesap ] && [ ! -f ~/.config/spotify-genre-preset/spotify.json ] && [ -t 0 ]; then
+            say "Spotify hesabını bağlama (README: Spotify hesabını bağlama)"
+            ~/.local/bin/spotify-genre-preset --login || warn "Giriş yapılmadı; sonra: spotify-genre-preset --login"
+        fi
         systemctl --user daemon-reload
         systemctl --user enable spotify-genre-preset.service
         systemctl --user restart spotify-genre-preset.service
@@ -187,6 +207,11 @@ install_extension() {  # uuid
     gnome-extensions install --force "$tmp/ext.zip"
     rm -rf "$tmp"
 }
+disable_extension() {  # uuid
+    gsettings set org.gnome.shell enabled-extensions \
+        "$(gsettings get org.gnome.shell enabled-extensions | python3 -c "
+import ast,sys; l=ast.literal_eval(sys.stdin.read().replace('@as ','')); print([e for e in l if e != '$1'])")"
+}
 enable_extension() {  # uuid -- yeni kurulan uzantı GNOME yeniden yüklenmeden görünmez,
                       # listeye ekleyip bir sonraki oturumda açılmasını garantile
     gnome-extensions enable "$1" 2>/dev/null || \
@@ -206,8 +231,19 @@ if command -v gnome-shell >/dev/null; then
     fi
     if [ -n "$EE_DIR" ]; then
         SELECTOR="eepresetselector@ulville.github.io"
-        say "EasyEffects Preset Selector kuruluyor"
-        install_extension "$SELECTOR" && enable_extension "$SELECTOR"
+        MENU="arctis-preset-menu@muhammetaliyoldar"
+        EXT_DIR=~/.local/share/gnome-shell/extensions
+        if [ -n "$DO_GENRE" ]; then
+            # Kendi menümüz (kilit + en çok dinlenen 5 + Genel) tüm presetleri listeleyen Selector'ın yerine geçer
+            say "Preset menüsü kuruluyor (kilit + en çok dinlenen 5 preset + Genel)"
+            mkdir -p "$EXT_DIR" && rm -rf "$EXT_DIR/$MENU" && cp -r "$DIR/gnome/$MENU" "$EXT_DIR/"
+            enable_extension "$MENU"
+            disable_extension "$SELECTOR"
+        else
+            [ -d "$EXT_DIR/$MENU" ] && { disable_extension "$MENU"; rm -rf "${EXT_DIR:?}/$MENU"; }
+            say "EasyEffects Preset Selector kuruluyor"
+            install_extension "$SELECTOR" && enable_extension "$SELECTOR"
+        fi
     fi
 fi
 
@@ -227,8 +263,10 @@ fi
 
 echo
 say "Kurulum tamam."
-[ -n "$EE_DIR" ] && echo "    Preset geçişi: Ctrl+Alt+1 Rap | Ctrl+Alt+2 Tekno - Rave | Ctrl+Alt+3 Deep House | Ctrl+Alt+4 Genel | Ctrl+Alt+0 sıradaki"
+[ -n "$EE_DIR" ] && echo "    Preset geçişi: Ctrl+Alt+1..7 üst bar menüsündeki satırlar | Ctrl+Alt+0 sıradaki"
 [ -n "$EE_DIR" ] && [ -n "$DO_GENRE" ] && echo "    Spotify tür takibini izlemek için: journalctl --user -u spotify-genre-preset -f"
+[ -n "$EE_DIR" ] && [ "$MODE" = hesap ] && [ ! -f ~/.config/spotify-genre-preset/spotify.json ] && \
+    echo "    Spotify hesabı bağlı değil: spotify-genre-preset --login (README: Spotify hesabını bağlama)"
 [ -n "$DO_PILL$EE_DIR" ] && echo "    Üst bardaki uzantılar görünmezse oturumu kapatıp aç."
 [ -n "$NEED_REBOOT" ] && warn "WiFi sürücü ayarlarının devreye girmesi için bilgisayarı yeniden başlat."
 exit 0

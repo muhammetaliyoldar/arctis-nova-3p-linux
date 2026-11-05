@@ -1,18 +1,33 @@
 #!/bin/bash
 # EasyEffects preset değiştirici.
-#   ee-preset Rap        -> o preseti yükler
-#   ee-preset next       -> listedeki bir sonrakine geçer
-PRESETS=("Rap" "Tekno - Rave" "Deep House" "Genel")
+#   ee-preset "Türkçe Rap" -> o preseti yükler
+#   ee-preset 3            -> üst bar menüsünün 3. satırı (Ctrl+Alt+1..7)
+#   ee-preset next         -> menüdeki sırada (state.json "menu") bir sonrakine geçer
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/spotify-genre-preset/state.json"
+GENRES="${XDG_DATA_HOME:-$HOME/.local/share}/spotify-genre-preset/genres.json"
 
 target="$1"
-if [ "$target" = "next" ] || [ -z "$target" ]; then
-    current=$(gsettings get com.github.wwmm.easyeffects last-used-output-preset 2>/dev/null | tr -d "'")
-    target="${PRESETS[0]}"
-    for i in "${!PRESETS[@]}"; do
-        if [ "${PRESETS[$i]}" = "$current" ]; then
-            target="${PRESETS[$(( (i + 1) % ${#PRESETS[@]} ))]}"
-        fi
-    done
+if [ "$target" = "next" ] || [ -z "$target" ] || [[ "$target" =~ ^[1-7]$ ]]; then
+    # Menü: servisin yazdığı sıra; servis yoksa katalogdaki varsayılan 5 tür + Genel
+    mapfile -t PRESETS < <(python3 -c '
+import json, os, sys
+state, genres = sys.argv[1:3]
+menu = json.load(open(state)).get("menu") if os.path.exists(state) else None
+if not menu:
+    menu = (json.load(open(genres))["defaults"] if os.path.exists(genres) else []) + ["Genel"]
+print("\n".join(menu))' "$STATE" "$GENRES")
+    if [[ "$target" =~ ^[1-7]$ ]]; then
+        target="${PRESETS[$((target - 1))]}"
+        [ -z "$target" ] && exit 0  # menüde o kadar satır yok
+    else
+        current=$(gsettings get com.github.wwmm.easyeffects last-used-output-preset 2>/dev/null | tr -d "'")
+        target="${PRESETS[0]}"
+        for i in "${!PRESETS[@]}"; do
+            if [ "${PRESETS[$i]}" = "$current" ]; then
+                target="${PRESETS[$(( (i + 1) % ${#PRESETS[@]} ))]}"
+            fi
+        done
+    fi
 fi
 
 easyeffects -l "$target"

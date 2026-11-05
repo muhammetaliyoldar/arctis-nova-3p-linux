@@ -1,0 +1,1 @@
+22,0,0.7,highpass;22,0,0.7,highpass;105,3,0.7,lowshelf;160,-3,0.7,peaking;500,2,1,peaking;4300,4,2.5,peaking;9000,-2.5,1.2,peaking;60,2,0.8,peaking

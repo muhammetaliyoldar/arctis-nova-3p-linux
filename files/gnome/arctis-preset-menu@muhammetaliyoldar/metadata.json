@@ -1,0 +1,7 @@
+{
+  "uuid": "arctis-preset-menu@muhammetaliyoldar",
+  "name": "Arctis Preset Menüsü",
+  "description": "Panelde çalan müzik türü. Menüde en çok dinlenen 5 tür, Genel ve çalan tür (her satırda kilit); kaynak seçimi (sabit 5 tür, bu cihazdaki dinlemeler ya da Spotify hesabı) ve sabit 5 türün seçimi. spotify-genre-preset servisiyle çalışır.",
+  "shell-version": ["45", "46", "47", "48", "49"],
+  "url": "https://github.com/muhammetaliyoldar/arctis-nova-3p-linux"
+}

@@ -1,0 +1,1112 @@
+{
+ "genres": [
+  {
+   "name": "Türkçe Rap",
+   "family": "rap",
+   "keywords": [
+    "turkish hip hop",
+    "turkish rap",
+    "turkish trap",
+    "türkçe rap"
+   ],
+   "turkish": true
+  },
+  {
+   "name": "Hip Hop",
+   "family": "rap",
+   "keywords": [
+    "hip hop",
+    "hip-hop",
+    "hiphop",
+    "rap",
+    "g-funk"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Trap",
+   "family": "rap",
+   "keywords": [
+    "trap"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Drill",
+   "family": "rap",
+   "keywords": [
+    "drill"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Boom Bap",
+   "family": "rap",
+   "keywords": [
+    "boom bap",
+    "boom-bap",
+    "east coast hip hop",
+    "golden age hip hop",
+    "jazz rap"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Phonk",
+   "family": "rap",
+   "keywords": [
+    "phonk",
+    "memphis rap"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Lo-fi Hip Hop",
+   "family": "rap",
+   "keywords": [
+    "lo-fi hip hop",
+    "lofi",
+    "chillhop"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Grime",
+   "family": "rap",
+   "keywords": [
+    "grime"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Pop Rap",
+   "family": "rap",
+   "keywords": [
+    "pop rap",
+    "melodic rap"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Techno",
+   "family": "techno",
+   "keywords": [
+    "techno",
+    "rave"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Hard Techno",
+   "family": "techno",
+   "keywords": [
+    "hard techno",
+    "industrial techno",
+    "schranz"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Melodic Techno",
+   "family": "techno",
+   "keywords": [
+    "melodic techno",
+    "melodic house"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Trance",
+   "family": "techno",
+   "keywords": [
+    "trance"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Psytrance",
+   "family": "techno",
+   "keywords": [
+    "psytrance",
+    "psy-trance",
+    "psychedelic trance",
+    "goa trance"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Hardstyle",
+   "family": "techno",
+   "keywords": [
+    "hardstyle",
+    "hard dance",
+    "rawstyle",
+    "gabber"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "House",
+   "family": "house",
+   "keywords": [
+    "house",
+    "lo-fi house",
+    "latin house"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Deep House",
+   "family": "house",
+   "keywords": [
+    "deep house",
+    "organic house"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Tech House",
+   "family": "house",
+   "keywords": [
+    "tech house"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Afro House",
+   "family": "house",
+   "keywords": [
+    "afro house"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Progressive House",
+   "family": "house",
+   "keywords": [
+    "progressive house"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "French House",
+   "family": "house",
+   "keywords": [
+    "french house",
+    "french touch",
+    "filter house"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Nu-Disco",
+   "family": "house",
+   "keywords": [
+    "nu-disco",
+    "nu disco",
+    "indie dance",
+    "disco house"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Disco",
+   "family": "house",
+   "keywords": [
+    "disco"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Drum & Bass",
+   "family": "bass",
+   "keywords": [
+    "drum and bass",
+    "drum & bass",
+    "drum n bass",
+    "dnb",
+    "liquid funk",
+    "neurofunk"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Jungle",
+   "family": "bass",
+   "keywords": [
+    "jungle"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Dubstep",
+   "family": "bass",
+   "keywords": [
+    "dubstep",
+    "brostep"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "UK Garage",
+   "family": "bass",
+   "keywords": [
+    "uk garage",
+    "2-step",
+    "speed garage",
+    "bassline"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Future Bass",
+   "family": "bass",
+   "keywords": [
+    "future bass"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Elektronik",
+   "family": "electronic",
+   "keywords": [
+    "electronic",
+    "electronica",
+    "electro",
+    "idm"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "EDM",
+   "family": "electronic",
+   "keywords": [
+    "edm",
+    "big room",
+    "electro house",
+    "electronic dance"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Synthwave",
+   "family": "electronic",
+   "keywords": [
+    "synthwave",
+    "retrowave",
+    "outrun",
+    "vaporwave",
+    "darksynth"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Ambient",
+   "family": "ambient",
+   "keywords": [
+    "ambient",
+    "new age",
+    "meditation"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Downtempo",
+   "family": "ambient",
+   "keywords": [
+    "downtempo",
+    "chill",
+    "lounge"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Trip Hop",
+   "family": "ambient",
+   "keywords": [
+    "trip hop",
+    "trip-hop"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Pop",
+   "family": "pop",
+   "keywords": [
+    "pop"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Türkçe Pop",
+   "family": "pop",
+   "keywords": [
+    "turkish pop",
+    "türkçe pop"
+   ],
+   "turkish": true
+  },
+  {
+   "name": "Dance Pop",
+   "family": "pop",
+   "keywords": [
+    "dance"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Synthpop",
+   "family": "pop",
+   "keywords": [
+    "synthpop",
+    "synth-pop",
+    "synth pop",
+    "techno-pop",
+    "new wave"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Electropop",
+   "family": "pop",
+   "keywords": [
+    "electropop",
+    "electro-pop",
+    "electro pop"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Hyperpop",
+   "family": "pop",
+   "keywords": [
+    "hyperpop",
+    "digicore"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "K-pop",
+   "family": "asian",
+   "keywords": [
+    "k-pop",
+    "kpop",
+    "korean pop"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "J-pop",
+   "family": "asian",
+   "keywords": [
+    "j-pop",
+    "jpop",
+    "japanese pop",
+    "anime",
+    "city pop"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Bollywood",
+   "family": "asian",
+   "keywords": [
+    "bollywood",
+    "filmi",
+    "bhangra"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Indie",
+   "family": "indie",
+   "keywords": [
+    "indie",
+    "lo-fi"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Türkçe Indie",
+   "family": "indie",
+   "keywords": [
+    "turkish indie",
+    "turkish alternative"
+   ],
+   "turkish": true
+  },
+  {
+   "name": "Indie Rock",
+   "family": "indie",
+   "keywords": [
+    "indie rock"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Indie Pop",
+   "family": "indie",
+   "keywords": [
+    "indie pop",
+    "bedroom pop",
+    "jangle pop"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Dream Pop",
+   "family": "indie",
+   "keywords": [
+    "dream pop",
+    "chillwave",
+    "baroque pop"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Shoegaze",
+   "family": "indie",
+   "keywords": [
+    "shoegaze",
+    "nu gaze"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Indie Folk",
+   "family": "indie",
+   "keywords": [
+    "indie folk",
+    "chamber folk"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Psikedelik",
+   "family": "psych",
+   "keywords": [
+    "psych"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Anadolu Rock",
+   "family": "psych",
+   "keywords": [
+    "anatolian rock",
+    "anadolu rock",
+    "anatolian psych"
+   ],
+   "turkish": true
+  },
+  {
+   "name": "Rock",
+   "family": "rock",
+   "keywords": [
+    "rock"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Türkçe Rock",
+   "family": "rock",
+   "keywords": [
+    "turkish rock",
+    "türkçe rock"
+   ],
+   "turkish": true
+  },
+  {
+   "name": "Hard Rock",
+   "family": "rock",
+   "keywords": [
+    "hard rock"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Klasik Rock",
+   "family": "rock",
+   "keywords": [
+    "classic rock",
+    "rock and roll",
+    "rock & roll",
+    "rock opera"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Alternatif Rock",
+   "family": "rock",
+   "keywords": [
+    "alternative rock",
+    "alt-rock",
+    "britpop"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Punk",
+   "family": "rock",
+   "keywords": [
+    "punk",
+    "punk rock"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Grunge",
+   "family": "rock",
+   "keywords": [
+    "grunge"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Post-Punk",
+   "family": "rock",
+   "keywords": [
+    "post-punk",
+    "post punk",
+    "dance-punk",
+    "darkwave",
+    "coldwave"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Progresif Rock",
+   "family": "rock",
+   "keywords": [
+    "prog",
+    "progressive rock",
+    "prog rock"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Metal",
+   "family": "metal",
+   "keywords": [
+    "metal"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Heavy Metal",
+   "family": "metal",
+   "keywords": [
+    "heavy metal",
+    "nwobhm"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Thrash Metal",
+   "family": "metal",
+   "keywords": [
+    "thrash"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Death Metal",
+   "family": "metal",
+   "keywords": [
+    "death metal",
+    "deathcore"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Metalcore",
+   "family": "metal",
+   "keywords": [
+    "metalcore",
+    "post-hardcore"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Nu Metal",
+   "family": "metal",
+   "keywords": [
+    "nu metal",
+    "nu-metal",
+    "rap metal"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "R&B",
+   "family": "rnb",
+   "keywords": [
+    "r&b",
+    "rnb",
+    "rhythm and blues"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Alternatif R&B",
+   "family": "rnb",
+   "keywords": [
+    "alternative r&b",
+    "indie r&b",
+    "pbr&b",
+    "trap soul"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Neo Soul",
+   "family": "rnb",
+   "keywords": [
+    "neo soul",
+    "neo-soul"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Soul",
+   "family": "rnb",
+   "keywords": [
+    "soul",
+    "motown"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Funk",
+   "family": "rnb",
+   "keywords": [
+    "funk",
+    "funk rock",
+    "jazz-funk",
+    "jazz funk"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Gospel",
+   "family": "rnb",
+   "keywords": [
+    "gospel",
+    "worship"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Caz",
+   "family": "jazz",
+   "keywords": [
+    "jazz",
+    "bebop",
+    "swing",
+    "soul jazz"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Smooth Jazz",
+   "family": "jazz",
+   "keywords": [
+    "smooth jazz"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Bossa Nova",
+   "family": "jazz",
+   "keywords": [
+    "bossa nova",
+    "mpb",
+    "samba"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Klasik",
+   "family": "classical",
+   "keywords": [
+    "classical",
+    "orchestral"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Opera",
+   "family": "classical",
+   "keywords": [
+    "opera"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Neoklasik",
+   "family": "classical",
+   "keywords": [
+    "neoclassical",
+    "neo-classical",
+    "modern classical",
+    "contemporary classical"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Film Müziği",
+   "family": "classical",
+   "keywords": [
+    "soundtrack",
+    "film score",
+    "video game"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Akustik",
+   "family": "acoustic",
+   "keywords": [
+    "acoustic",
+    "singer-songwriter",
+    "singer/songwriter",
+    "singer songwriter"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Folk",
+   "family": "folk",
+   "keywords": [
+    "folk",
+    "folk rock"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Türk Halk",
+   "family": "folk",
+   "keywords": [
+    "turkish folk",
+    "türk halk",
+    "türkü",
+    "halk müziği",
+    "uzun hava"
+   ],
+   "turkish": true
+  },
+  {
+   "name": "Country",
+   "family": "country",
+   "keywords": [
+    "country",
+    "bluegrass",
+    "americana"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Blues",
+   "family": "blues",
+   "keywords": [
+    "blues",
+    "country blues"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Reggaeton",
+   "family": "latin",
+   "keywords": [
+    "reggaeton",
+    "reggaetón",
+    "latin trap",
+    "dembow",
+    "urbano"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Latin Pop",
+   "family": "latin",
+   "keywords": [
+    "latin",
+    "sertanejo"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Salsa",
+   "family": "latin",
+   "keywords": [
+    "salsa",
+    "latin jazz",
+    "timba",
+    "son cubano"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Bachata",
+   "family": "latin",
+   "keywords": [
+    "bachata"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Cumbia",
+   "family": "latin",
+   "keywords": [
+    "cumbia",
+    "vallenato"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Meksika Müziği",
+   "family": "latin",
+   "keywords": [
+    "regional mexican",
+    "corrido",
+    "banda",
+    "mariachi",
+    "norteño",
+    "ranchera"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Funk Carioca",
+   "family": "latin",
+   "keywords": [
+    "funk carioca",
+    "baile funk",
+    "brazilian funk",
+    "funk brasileiro"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Reggae",
+   "family": "reggae",
+   "keywords": [
+    "reggae",
+    "dub",
+    "ska",
+    "rocksteady"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Dancehall",
+   "family": "reggae",
+   "keywords": [
+    "dancehall",
+    "ragga"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Afrobeats",
+   "family": "african",
+   "keywords": [
+    "afrobeat",
+    "afropop",
+    "afro pop",
+    "afro-pop",
+    "naija",
+    "highlife"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Amapiano",
+   "family": "african",
+   "keywords": [
+    "amapiano",
+    "gqom",
+    "kwaito"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Arap Müziği",
+   "family": "arabic",
+   "keywords": [
+    "arab",
+    "khaleeji",
+    "raï",
+    "chaabi"
+   ],
+   "turkish": false
+  },
+  {
+   "name": "Arabesk",
+   "family": "arabic",
+   "keywords": [
+    "arabesk",
+    "arabesque",
+    "damar"
+   ],
+   "turkish": true
+  },
+  {
+   "name": "Fantezi",
+   "family": "arabic",
+   "keywords": [
+    "fantezi"
+   ],
+   "turkish": true
+  },
+  {
+   "name": "Türk Sanat",
+   "family": "turkish",
+   "keywords": [
+    "turkish classical",
+    "türk sanat",
+    "sanat müziği",
+    "fasıl"
+   ],
+   "turkish": true
+  }
+ ],
+ "deezer": {
+  "132": "Pop",
+  "116": "Hip Hop",
+  "152": "Rock",
+  "113": "EDM",
+  "165": "R&B",
+  "85": "Indie",
+  "106": "Elektronik",
+  "466": "Folk",
+  "144": "Reggae",
+  "129": "Caz",
+  "98": "Klasik",
+  "173": "Film Müziği",
+  "464": "Metal",
+  "169": "Soul",
+  "2": "Afrobeats",
+  "12": "Arap Müziği",
+  "16": "K-pop",
+  "153": "Blues",
+  "75": "Latin Pop",
+  "81": "Bollywood",
+  "95": "Pop",
+  "197": "Latin Pop",
+  "84": "Country",
+  "3": "Afrobeats",
+  "13": "Arap Müziği",
+  "14": "Arap Müziği",
+  "15": "Arap Müziği",
+  "22": "J-pop",
+  "23": "K-pop",
+  "49": "Türk Halk",
+  "58": "Meksika Müziği",
+  "65": "Meksika Müziği",
+  "67": "Salsa",
+  "71": "Cumbia",
+  "76": "Latin Pop",
+  "78": "Bossa Nova",
+  "79": "Latin Pop",
+  "80": "Latin Pop",
+  "86": "Indie Pop",
+  "87": "Indie Rock",
+  "99": "Klasik",
+  "100": "Klasik",
+  "101": "Klasik",
+  "102": "Neoklasik",
+  "103": "Opera",
+  "104": "Klasik",
+  "105": "Klasik",
+  "107": "Downtempo",
+  "108": "Dubstep",
+  "110": "Electropop",
+  "111": "House",
+  "112": "Afro House",
+  "114": "EDM",
+  "115": "Trance",
+  "121": "Hip Hop",
+  "122": "Reggaeton",
+  "123": "Hip Hop",
+  "124": "Hip Hop",
+  "125": "Amapiano",
+  "128": "Hip Hop",
+  "130": "Caz",
+  "131": "Caz",
+  "133": "Indie Pop",
+  "134": "Pop",
+  "137": "Türkçe Pop",
+  "138": "Latin Pop",
+  "143": "Pop",
+  "145": "Dancehall",
+  "146": "Reggae",
+  "147": "Reggae",
+  "154": "Indie Rock",
+  "155": "Hard Rock",
+  "156": "Klasik Rock",
+  "159": "Türkçe Rock",
+  "160": "Rock",
+  "166": "R&B",
+  "167": "Neo Soul",
+  "168": "Disco",
+  "170": "Soul",
+  "171": "Soul",
+  "174": "Film Müziği",
+  "175": "Film Müziği",
+  "176": "Film Müziği",
+  "177": "Film Müziği",
+  "178": "Bollywood",
+  "179": "Film Müziği",
+  "180": "Blues",
+  "181": "Blues",
+  "182": "Blues",
+  "183": "Blues",
+  "184": "Blues",
+  "185": "Blues",
+  "186": "Gospel",
+  "187": "Gospel",
+  "188": "Gospel",
+  "192": "Country",
+  "193": "Country",
+  "194": "Country",
+  "195": "Country",
+  "196": "Country",
+  "200": "Trap",
+  "202": "Boom Bap",
+  "204": "Hip Hop",
+  "206": "Boom Bap",
+  "208": "Boom Bap",
+  "472": "Funk Carioca",
+  "498": "Cumbia",
+  "500": "Cumbia",
+  "504": "Salsa",
+  "510": "Meksika Müziği",
+  "512": "Meksika Müziği",
+  "514": "Meksika Müziği",
+  "516": "Latin Pop",
+  "520": "Grime",
+  "522": "Akustik",
+  "530": "Bachata",
+  "532": "Folk",
+  "534": "Latin Pop",
+  "536": "Soul",
+  "537": "Downtempo"
+ },
+ "turkish_variant": {
+  "rap": "Türkçe Rap",
+  "pop": "Türkçe Pop",
+  "rock": "Türkçe Rock",
+  "indie": "Türkçe Indie",
+  "psych": "Anadolu Rock",
+  "folk": "Türk Halk",
+  "arabic": "Arabesk"
+ },
+ "defaults": [
+  "Türkçe Rap",
+  "Psikedelik",
+  "Elektronik",
+  "Türkçe Rock",
+  "R&B"
+ ]
+}

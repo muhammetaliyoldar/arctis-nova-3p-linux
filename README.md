@@ -1,6 +1,6 @@
 # Arctis Nova 3P Wireless: Ubuntu Bluetooth Düzeltmeleri
 
-SteelSeries Arctis Nova 3P Wireless kulaklığı Ubuntu'da (PipeWire + WirePlumber) Bluetooth ile sorunsuz kullanmak için gereken ayarlar. Yanında Rap, Tekno/Rave, Deep House ve Genel için EasyEffects presetleri ve bunlar arasında tek tuşla geçiş var.
+SteelSeries Arctis Nova 3P Wireless kulaklığı Ubuntu'da (PipeWire + WirePlumber) Bluetooth ile sorunsuz kullanmak için gereken ayarlar. Yanında Genel ve 100 tür için toplam 101 EasyEffects presetleri var (9'u Türkçe tür). Çalan şarkının türüne göre preset kendiliğinden değişiyor, istersen tek tuşla elle de geçebilirsin.
 
 ## Kurulum
 
@@ -18,14 +18,15 @@ Script başta hangi parçaların kurulacağını soruyor (Enter = evet, `h` = ha
    - **Güç tasarrufu (cızırtı ve kopma):** Bluetooth USB adaptörünün uykuya geçmesini her bilgisayarda kapatıyor. Bilgisayarda Realtek `rtw88` WiFi kartı varsa WiFi sürücüsünün ve NetworkManager'ın güç tasarrufunu da kapatıyor.
    - **Otomatik bağlanma:** Oturum açıldıktan sonra kulaklığa kendisi bağlanmayı deneyen servisi kuruyor.
 2. **Bluetooth mikrofonu kapatılsın mı?** Sadece 1. soruya evet dersen soruluyor. Evet (varsayılan) HFP/HSP'yi kapatıyor; bugüne kadar test edilen ayar bu. Hayır dersen mikrofon açık kalıyor, ama kopmalar geri gelebilir (aşağıda "Belirtiler" altında 1. maddeye bak).
-3. **Ses presetleri:** Kurulu değilse EasyEffects'i ve LSP eklentilerini kuruyor. 4 preseti ekliyor, kulaklık bağlanınca **Rap**'in otomatik yüklenmesini ve EasyEffects'in her açılışta arka planda başlamasını ayarlıyor. Ctrl+Alt kısayollarını ve üst bara preset menüsünü (EasyEffects Preset Selector uzantısı) da bu kuruyor.
-4. **Spotify'daki türe göre otomatik preset:** Sadece 3. soruya evet dersen soruluyor. Spotify'da şarkı değişince türüne bakıp Rap / Tekno - Rave / Deep House / Genel arasında kendisi geçiyor (ayrıntı aşağıda "Spotify'daki türe göre otomatik preset" altında).
+3. **Ses presetleri:** Kurulu değilse EasyEffects'i ve LSP eklentilerini kuruyor. 101 preseti ekliyor (eski Rap, Tekno - Rave ve House - Disco presetlerini EasyEffects'te eski-presetler klasörüne alıyor), açılışta ve kulaklık bağlanınca **Genel**'in otomatik yüklenmesini ve EasyEffects'in her açılışta arka planda başlamasını ayarlıyor. Ctrl+Alt kısayollarını da bu kuruyor. Üst bar preset menüsü olarak 4. soruya hayır dersen EasyEffects Preset Selector uzantısı, evet dersen kendi menümüz kuruluyor.
+4. **Spotify'daki türe göre otomatik preset:** Sadece 3. soruya evet dersen soruluyor. Spotify'da şarkı değişince türüne bakıp o türün presetine kendisi geçiyor. Ardından en çok dinlenen türlerin kaynağını soruyor: 1) sabit 5 tür, 2) bu bilgisayardaki dinlemelerin, 3) Spotify hesabın (Enter: Spotify bağlıysa 3, değilse 2; sonra menüden değişir). Ayrıca üst bara çalan türü, kilidi ve en çok dinlenen türleri gösteren kendi menümüzü kuruyor (ayrıntı aşağıda "Spotify'daki türe göre otomatik preset" altında; Spotify hesabını bağlamak için "Spotify hesabını bağlama" bölümüne bak).
 5. **Dynamic Music Pill:** Sadece GNOME varsa soruluyor. Üst barda şarkıyı yönetmeye yarayan uzantıyı indirip kuruyor ve ayarlarını (görünüm, görselleştirici, şeffaflık) yüklüyor.
 
 Notlar:
 - Scripti `sudo` ile **değil**, normal kullanıcı olarak çalıştır. Gerekirse sudo şifresini kendisi sorar.
 - İstemediğin parçaya `h` de. Örneğin sadece ses presetlerini kurmak için 1., 4. ve 5. soruya `h`, 3. soruya Enter yeterli.
 - Terminal yoksa ya da cevap verilmezse hepsi evet sayılıyor.
+- Hepsini hazır cevapla kurmak için: `printf 'h\n\n\n\nh\n' | ./install.sh` (bağlantı düzeltmeleri hayır, presetler evet, tür takibi evet, kaynak modu varsayılan, Music Pill hayır).
 - Tekrar çalıştırmak güvenli; zaten kurulu olanları baştan yazıyor. Mikrofon seçimini değiştirmek için de scripti tekrar çalıştırman yeterli: seçilen dosya kurulurken öbürü siliniyor.
 - Music pill kurulduktan sonra üst barda görünmezse oturumu kapatıp aç. Wayland'de yeni kurulan uzantılar ancak bir sonraki oturumda yükleniyor.
 - Kulaklığı önce Bluetooth'tan eşleştirmen iyi olur. Eşleştirmeden kurarsan, eşleştirdikten sonra scripti bir kez daha çalıştır; böylece otomatik preset yüklemesi de ayarlanır.
@@ -98,20 +99,50 @@ Kulaklık açılınca bilgisayara bağlanmayı deniyor. Bilgisayar o sırada hen
 
 ## EasyEffects presetleri
 
-| Kısayol | Preset | Karakter |
-|---|---|---|
-| `Ctrl+Alt+1` | **Rap** | Varsayılan, kulaklık bağlanınca otomatik yükleniyor. 808 sub'ı (50 Hz) göğüste hissediliyor, vokal en önde. Geniş bir bas yükseltmesi yerine dar bir 50 Hz yükseltmesi kullanıldığı için bas şişmiyor, sıkı vuruyor. |
-| `Ctrl+Alt+2` | **Tekno - Rave** | Sürükleyen kick ve rumble, parlak synth ve hi-hat'ler. Orta frekanslar hafifçe oyuk, ses geniş ve enerjik. |
-| `Ctrl+Alt+3` | **Deep House** | Derin ve sıcak sub (40 Hz), yumuşak tizler. Uzun setlerde kulağı yormuyor. |
-| `Ctrl+Alt+4` | **Genel** | Her türe uyan hafif bir V eğrisi. |
-| `Ctrl+Alt+0` | *sıradaki* | Presetler arasında sırayla geçiyor. |
+101 preset var: **Genel** ve 100 tür (`files/genres.json`, 24 aile). **Genel** varsayılan; açılışta ve kulaklık bağlanınca yükleniyor, sadece kulaklık düzeltmesi tabanı var. Türlerin hepsi aynı kulaklık düzeltmesi tabanı üstüne kendi farklarını ekliyor. v1'in 10 eğrisi ve Genel yeni karşılıklarında birebir korundu.
 
-Preset değişince ekranda bildirim çıkıyor. Ayrıca üst bardaki **EasyEffects Preset Selector** menüsünden fareyle de seçebilirsin. Terminalden geçmek için: `ee-preset Rap`, `ee-preset next`.
+Aileler ve bazı türleri:
 
-**Zincir:** Presetlerin hepsinde **Equalizer → Compressor → Limiter** var. Sadece LSP eklentileri kullanılıyor.
-- **Equalizer:** Girişte, en yüksek yükseltme kadar ses kısılıyor. Böylece equalizer'ın kendisi clipping yapmıyor (`python3 files/easyeffects/make_presets.py --check` ile eğriler kontrol edilebilir).
-- **Compressor:** Attack süresi en az 25 ms. Kick'in ve 808'in ilk vuruşu ezilmeden geçiyor.
-- **Limiter:** -1 dB'de tavan yapıyor, ama sadece güvenlik ağı. EasyEffects 7.x'te limiter'ın release süresi en fazla 20 ms olabiliyor. 50 Hz'lik bir bas dalgası da 20 ms sürdüğü için limiter her devreye girdiğinde sesi bas dalgasının *içinde* açıp kısıyor ve basta bozulma yapıyor. Bu yüzden compressor'ün çıkış artırması (makeup) düşük tutuldu, sinyal limiter'a nadiren ulaşıyor. Ses biraz kısık gelirse kulaklığın tekerinden aç.
+| Aile | Türler |
+|---|---|
+| rap | Türkçe Rap, Hip Hop, Trap, Drill, Boom Bap, Phonk |
+| rock | Rock, Türkçe Rock, Hard Rock, Klasik Rock, Punk, Grunge |
+| house | House, Deep House, Tech House, Afro House, French House, Disco |
+| techno | Techno, Hard Techno, Melodic Techno, Trance, Psytrance, Hardstyle |
+| bass | Drum & Bass, Jungle, Dubstep, UK Garage, Future Bass |
+| electronic | Elektronik, EDM, Synthwave |
+| ambient | Ambient, Downtempo, Trip Hop |
+| pop | Pop, Türkçe Pop, Dance Pop, Synthpop, Electropop, Hyperpop |
+| indie | Indie, Türkçe Indie, Indie Pop, Dream Pop, Shoegaze, Indie Folk |
+| psych | Psikedelik, Anadolu Rock |
+| metal | Metal, Heavy Metal, Thrash Metal, Death Metal, Metalcore, Nu Metal |
+| rnb | R&B, Alternatif R&B, Neo Soul, Soul, Funk, Gospel |
+| jazz | Caz, Smooth Jazz, Bossa Nova |
+| classical | Klasik, Opera, Neoklasik, Film Müziği |
+| acoustic | Akustik |
+| folk | Folk, Türk Halk |
+| country | Country |
+| blues | Blues |
+| latin | Reggaeton, Latin Pop, Salsa, Bachata, Cumbia, Meksika Müziği, Funk Carioca |
+| reggae | Reggae, Dancehall |
+| african | Afrobeats, Amapiano |
+| arabic | Arap Müziği, Arabesk, Fantezi |
+| asian | K-pop, J-pop, Bollywood |
+| turkish | Türk Sanat |
+
+Türkçe türler: Türkçe Rap, Türkçe Pop, Türkçe Rock, Türkçe Indie, Anadolu Rock, Arabesk, Türk Halk, Türk Sanat, Fantezi.
+
+Tür farkları türlerin bilinen frekans karakterine göre tasarlandı, kulakla denenmedi. En çok tahmine dayalı olanlar: Arabesk, Fantezi, Türk Sanat, Türk Halk, Psytrance, Death Metal, Afro House ve bazı Latin türleri.
+
+Kısayollar: `Ctrl+Alt+1..7` üst bar menüsündeki 1.-7. satır (sıra dinlemene göre değişiyor); `Ctrl+Alt+0` menüde sıradaki preset. Tür takibi kurulu değilse menü yerine `files/genres.json`'daki varsayılan 5 tür + Genel kullanılıyor.
+
+Preset değişince ekranda bildirim çıkıyor. Ayrıca üst bardaki menüden fareyle de seçebilirsin (tür takibi kuruluysa kendi menümüz, değilse EasyEffects Preset Selector). Terminalden geçmek için: `ee-preset "Türkçe Rap"`, `ee-preset next`.
+
+**Zincir:** Presetlerin hepsinde **Equalizer → Compressor → Limiter** var; compressor her türde aynı değil: kimisinde kapalı, kimisinde hafif yapıştırma, rapte punch ayarı var. Sadece LSP eklentileri kullanılıyor.
+- **Equalizer:** Her presette aynı kulaklık düzeltmesi tabanı var: 105 Hz bas rafı +2.5, 160 Hz -4 (kulaklığın 100-250 Hz'teki çamur tümseği), 500 Hz +2, 4.3 kHz +4 (kulaklığın 4-5 kHz çukuru: vokal ve atak), 9 kHz -3.5 (8-10 kHz sertliği). Nova 3P'nin yayımlanmış ölçümü yok; taban, kardeş modeller Nova 3 ve Nova 5'in AutoEq/rtings ölçümlerinin Harman OE 2018 hedefinden farkına göre yumuşatıldı. SBC codec 12 kHz üstünü bozduğu için oraya yükseltme yok. Türler tabanın üstüne kendi bantlarını ekliyor (en fazla 2 Bell). Filtreler "APO (DR)" modunda; Windows'taki Equalizer APO ile birebir aynı eğri. Girişteki ses kısma otomatik: eğrinin tepesi + 1 dB. Böylece equalizer'ın kendisi clipping yapmıyor (`python3 files/easyeffects/make_presets.py --check` ile eğriler kontrol edilebilir).
+- **Compressor:** Attack 30 ms, sidechain 100 Hz high-pass: 808 bütün mixi pompalamasın. Kick'in ve 808'in ilk vuruşu ezilmeden geçiyor. Techno, house, drum & bass, EDM, pop, rock, metal, indie gibi türlerde kapalı, çünkü bu türlerin masterları zaten çok sıkıştırılmış; ikinci compressor onları ezer. Klasik, caz ve akustikte de kapalı, dinamik korunuyor. R&B, soul, reggae, Arabesk gibi dinamik kayıtlarda hafif yapıştırma açık.
+- **Limiter:** -1 dB'de tavan yapıyor, ama sadece güvenlik ağı. EasyEffects 7.x'te limiter'ın release süresi en fazla 20 ms olabiliyor. 50 Hz'lik bir bas dalgası da 20 ms sürdüğü için limiter her devreye girdiğinde sesi bas dalgasının *içinde* açıp kısıyor ve basta bozulma yapıyor. Bu yüzden compressor'de çıkış artırması (makeup) yok ve EQ girişi eğrinin tepesi + 1 dB kadar kısılıyor; sinyal limiter'a nadiren ulaşıyor. Ses biraz kısık gelirse kulaklığın tekerinden aç.
+- Bu eğriler ölçüm ve kaynaklara göre tasarlandı, kulakla henüz denenmedi. Bas az gelirse ilgili Bell kazancını `make_presets.py`'de artırıp scripti ve `./install.sh`'ı tekrar çalıştır.
 - `make_presets.py` değerleri EasyEffects şemasındaki aralıklara göre kontrol ediyor. Aralık dışı bir değer olursa preset üretilmiyor, çünkü EasyEffects böyle bir değeri hata vermeden reddedip eski değeri kullanmaya devam ediyor.
 
 Presetleri değiştirmek için `files/easyeffects/make_presets.py` dosyasını düzenleyip `python3 files/easyeffects/make_presets.py` komutunu çalıştır, sonra `./install.sh`'ı tekrar çalıştır. Aynı komut Windows (`files/equalizer-apo/`) ve kulaklık (`files/headset/`) dosyalarını da aynı eğrilerden yeniden üretiyor.
@@ -120,34 +151,72 @@ Presetleri değiştirmek için `files/easyeffects/make_presets.py` dosyasını d
 
 ### Spotify'daki türe göre otomatik preset
 
-Spotify masaüstü uygulamasında şarkı değişince servis sanatçı ve şarkı adını alıyor (Linux'un medya oynatıcı arayüzü MPRIS üzerinden) ve türü buluyor:
-1. Deezer'de şarkıyı arıyor. Albümün türü "Rap/Hip Hop" ise **Rap**.
-2. Albüm elektronikse (Electro, Techno/House, Dance) ya da şarkı Deezer'de yoksa MusicBrainz'deki sanatçı etiketlerine bakıyor. techno, tech house, rave, trance, hardstyle → **Tekno - Rave**. house (deep house, melodic house vb.) → **Deep House**. hip hop, rap, trap, drill, grime → **Rap**.
-3. Bunların dışındaki her şey (pop, rock, Türk pop, drum and bass vb.) → **Genel**.
+Spotify masaüstü uygulamasında şarkı değişince servis sanatçı ve şarkı adını alıyor (Linux'un medya oynatıcı arayüzü MPRIS üzerinden), türü buluyor ve o türün presetine geçiyor. Tür bulunamazsa **Genel** kalıyor.
 
-Spotify'ın kendi API'si Şubat 2026'dan beri kişisel uygulamalara tür bilgisi vermiyor; o yüzden Deezer ve MusicBrainz kullanılıyor. İkisi de hesap ya da anahtar istemiyor. Bu servislere sadece sanatçı ve şarkı adı gidiyor.
+**Tür nasıl bulunuyor:** Deezer albüm türü ve MusicBrainz sanatçı etiketleri kullanılıyor. İkisi de hesap ya da anahtar istemiyor. Spotify'ın kendi API'si Şubat 2026'dan beri kişisel uygulamalara tür bilgisi vermiyor; o yüzden bu iki servis var. Servislere sadece sanatçı ve şarkı adı gidiyor.
+- Etiketlerden oyu en yüksek 5 etiket içinde önce özel tür aranıyor (French House, Dream Pop, Techno). Yoksa genel tür seçiliyor (Elektronik, Pop).
+- Deezer türü etiketten farklı bir aileden ve kesinse (rap, R&B, metal, caz...) ona güveniliyor. Pop, dans, elektronik, alternatif, rock gibi geniş Deezer türlerinde etiket daha özel türü seçiyor.
+- **Türkçe:** sanatçı ya da şarkı adında ğ, ı, ş, İ varsa, MusicBrainz'de "turkish" etiketi varsa ya da sanatçının ülkesi TR ise, bulunan genel tür o ailenin Türkçe türüne çevriliyor (rap → Türkçe Rap, pop → Türkçe Pop...).
+- Ad farkları (Siyasiyabend = "Siya siyabend", AGAB = "Aga B") ve "- Live Session" gibi ekler tolere ediliyor. Hiçbir yerde bulunamayan underground isimler Genel'e düşer.
 
-- Sonuç albüm başına `~/.cache/spotify-genre-preset.json` dosyasına yazılıyor; aynı albüm bir daha sorulmuyor. Yanlış bulunan bir albümü düzeltmek için bu dosyadan o satırı sil (ya da dosyayı sil).
-- Preset sadece tür değişince değişiyor, bildirim de o zaman çıkıyor. Kısayolla (`Ctrl+Alt+1..4`) elle seçtiğin preset, tür değişene kadar korunuyor.
+**Üst bar menüsü:** Kendi uzantımız (`arctis-preset-menu`), tür takibi kurulunca EasyEffects Preset Selector'ın yerine geçiyor (Selector kapatılıyor). Simgenin yanında çalan tür yazıyor; kilitliyken simge kilit oluyor. Menü simgenin ortasından açılıyor. Sırayla en çok dinlenen 5 tür var, altında sabit **Genel**; çalan tür bunlarda yoksa en altta geçici bir satır olarak görünüyor. En fazla 7 satır.
+
+Menüde iki alt menü daha var:
+- **Kaynak:** "Sabit 5 tür" / "Bu cihazdaki dinlemelerim" / "Spotify hesabım (tüm cihazlar)". Hesap seçiliyken giriş yoksa "Spotify hesabını bağla…" terminalde girişi açıyor.
+- **Sabit 5 türü seç:** 100 tür alfabetik. 5 tür seçiliyken yenisi en eskisinin yerine geçiyor. Seçerken menü kapanmıyor.
+
+Uzantıyı X11'de yüklemek ya da yenilemek için Alt+F2 → `r` → Enter; Wayland'de oturumu kapatıp aç.
+
+**Kilit:** Menüde ayrı bir kilit anahtarı yok; her satırın yanında kilit simgesi var.
+- Bir satırın kilidine basınca o preset uygulanıyor ve kilitleniyor: türü ne olursa olsun sonraki bütün şarkılar o presette çalıyor. Aynı kilide tekrar basınca kilit açılıyor.
+- Kilitliyken başka bir satıra tıklarsan kilit o satıra taşınıyor.
+- Kulaklık yeniden bağlanıp Genel yüklense de, bir sonraki şarkıda kilitli presete geri dönülüyor.
+
+**Elle seçim:** Kilit yokken menüden ya da kısayolla seçtiğin preset sadece o şarkı boyunca kalıyor. Sonraki şarkıda türün presetine otomatik dönülüyor.
+
+**"En çok dinlenen" listesi** için üç kaynak modu var:
+
+| Mod | Liste |
+|---|---|
+| Sabit | Menüden seçtiğin 5 tür (varsayılan: Türkçe Rap, Psikedelik, Elektronik, Türkçe Rock, R&B) |
+| Cihaz | Bu bilgisayardaki dinlemeler, bulunan tür sayılıyor ve birikiyor |
+| Hesap | Spotify hesabının son ~6 ayda en çok dinlenen 50 parçası, telefon dahil tüm cihazlar. 6 saatte bir güncelleniyor, hata olursa 5 dakika sonra tekrar deneniyor. Aynı hesabı bağlayan her bilgisayarda aynı liste çıkıyor, ayrıca senkron gerekmiyor |
+
+Mod kurulumda soruluyor, sonra menüdeki **Kaynak**'tan değişiyor. Ayarlar `~/.config/spotify-genre-preset/config.json`, durum `~/.local/state/spotify-genre-preset/state.json` dosyasında.
+
+#### Spotify hesabını bağlama
+
+Uygulamanın sahibinin Spotify Premium'u olmalı (Spotify'ın Şubat 2026 kuralı).
+
+1. https://developer.spotify.com/dashboard adresinde **Create app** de. Redirect URI tam olarak `http://127.0.0.1:8888/callback` olmalı (localhost değil). "Web API"yi işaretle, **Save** de, Client ID'yi kopyala.
+2. `spotify-genre-preset --login` komutunu çalıştır (Client ID'yi kendisi soruyor) ya da menüden "Spotify hesabını bağla…" de. Tarayıcıda Kabul et; "Spotify hesabı bağlandı" yazısını görünce `systemctl --user restart spotify-genre-preset` çalıştır. Sadece yenileme anahtarı `~/.config/spotify-genre-preset/spotify.json` dosyasına 600 izinle kaydediliyor; istenen tek yetki `user-top-read`.
+3. Diğer bilgisayarlarında aynı Client ID ile bir kez giriş yap. Dosyayı kopyalama: Spotify anahtarı yenileyince eski kopya geçersiz kalabilir.
+
+Bir başkası ya kendi uygulamasını açar ya da sen onu uygulamanın User Management sekmesine (ad + Spotify e-postası) eklersin ve senin Client ID'nle giriş yapar. Uygulama başına en fazla 5 kişi.
+
+- Sonuç albüm başına `~/.cache/spotify-genre-preset.json` dosyasına yazılıyor; aynı albüm bir daha sorulmuyor. `./install.sh` her çalıştığında bu önbellek sıfırlanıyor, çünkü tür eşlemesi değişmiş olabilir. Yanlış bulunan bir albümü düzeltmek için bu dosyadan o satırı sil (ya da dosyayı sil).
+- Preset sadece tür değişince değişiyor, bildirim de o zaman çıkıyor. Elle seçtiğin preset o şarkı bitene kadar korunuyor; kilitliysen hiç değişmiyor.
 - İnternet yoksa ya da servisler cevap vermezse preset değişmiyor; o albüm sonraki şarkıda tekrar deneniyor.
 - Ne yaptığını izlemek için: `journalctl --user -u spotify-genre-preset -f` (her şarkı için "Sanatçı - Şarkı: Preset" satırı yazıyor).
 - Geçici olarak kapatmak için: `systemctl --user stop spotify-genre-preset`. Tamamen kapatmak için `./install.sh`'ı tekrar çalıştırıp bu soruya `h` de.
 
 Sınırlar:
-- Tür şarkıya değil albüme (Deezer) ya da sanatçıya (MusicBrainz) göre bulunuyor. Rapçinin pop şarkısı da Rap olur.
+- Tür şarkıya değil albüme (Deezer) ya da sanatçıya (MusicBrainz) göre bulunuyor. Rapçinin pop şarkısı da rap türüne gider.
 - MusicBrainz'de sanatçı adla aranıyor. Deezer'de bulunamayan ve adı başka bir sanatçıyla aynı olan şarkılarda yanlış sanatçı seçilebiliyor. Türkçe rapte Deezer kapsamı iyi olduğu için bu nadiren gerekiyor.
 - Sadece Spotify masaüstü uygulaması izleniyor; tarayıcıdaki Spotify ya da YouTube izlenmiyor.
-- Test: 10 örnek şarkının 10'u doğru (Ben Fero, Motive, Lvbel C5, Travis Scott → Rap; Charlotte de Witte, Amelie Lens → Tekno - Rave; Kerri Chandler, Lane 8 → Deep House; Sezen Aksu, Duman → Genel). Servis, sahte bir Spotify ile uçtan uca denendi; gerçek Spotify ile henüz denenmedi.
+- Test: servis birim testleri 61/61, giriş 7/7. Kilit, elle seçim ve kulaklık yeniden bağlanınca geri dönme gibi davranışlar sahte Spotify ile uçtan uca 3 senaryoda denendi. Menü, ekransız ayrı bir GNOME Shell 46'da sanal fareyle denendi. Spotify girişi ve hesaptan en çok dinlenen 50 parçanın çekilmesi gerçek hesapla denendi.
+- Gerçek hesapla top 50 sınıflandırması: Türkçe Rap 15 sanatçı (Kayra, Lil Zey, Kamufle, Sürveyan, AGAB, UZI, Sansar Salvo...), Hip Hop (Gorillaz ve veritabanlarında Türkçe işareti olmayan birkaç Türk rapçi), Dream Pop (Lana Del Rey), Psikedelik (Tame Impala), Synthpop (French 79), French House (The Blaze), Türkçe Pop (M Lisa). Ayrıca Daft Punk → French House, Charlotte de Witte → Techno, Kerri Chandler → Deep House, Metallica → Thrash Metal, Müslüm Gürses → Arabesk, Sezen Aksu → Türkçe Pop. Underground isimlerin bir kısmı (hacibab, memzst, K''st...) Genel'e düşüyor.
 
 ## Diğer cihazlar: Windows ve kulaklığın kendi EQ'su
 
-Linux'taki ayarlar diğer cihazlara taşınmıyor. Aynı 4 eğri iki yoldan başka cihazlarda kullanılabilir. EQ'yu tek yerde aç: kulaklığın EQ'su ile EasyEffects ya da Equalizer APO aynı anda açıksa yükseltmeler toplanır (örn. Rap'te 50 Hz +5 dB iki kez = +10 dB), bas patlar.
+Linux'taki ayarlar diğer cihazlara taşınmıyor. Aynı eğriler (101 preset) iki yoldan başka cihazlarda kullanılabilir. EQ'yu tek yerde aç: kulaklığın EQ'su ile EasyEffects ya da Equalizer APO aynı anda açıksa yükseltmeler toplanır (örn. +3 dB'lik bir bas yükseltmesi iki kez = +6 dB), bas patlar.
 
 ### Kulaklığın kendi EQ'su (her cihazda geçerli)
 
 - Nova 3P'nin içinde 10 bantlı parametrik EQ var. Ayar kulaklıkta saklanıyor, yani hangi cihaza bağlanırsa bağlansın aynı ses geliyor; o cihaza bir şey kurmak gerekmiyor (telefon, PS5, iş bilgisayarı).
 - SteelSeries 2.4GHz ve Bluetooth için ayrı EQ profili tutuyor; güç tuşuyla mod değişince o modun profili kendiliğinden devreye giriyor.
 - Bu EQ'yu SteelSeries GG (Windows/macOS, Engine sekmesi) ya da telefondaki Arctis Companion uygulaması ayarlıyor. Linux'tan da açık kaynak [HeadsetControl](https://github.com/Sapd/HeadsetControl) ile yazılabiliyor (Linux, Windows, macOS'ta çalışıyor).
+- Kulaklık düzeltmesi tabanı da bu dosyalarda var; her dosya 7-9 bant, yani 10 sınırının altında.
 - `files/headset/*.txt` dosyaları HeadsetControl'ün bant biçiminde: her bant `frekans,kazanç,Q,tip`, bantlar `;` ile ayrılıyor. GG'de ya da Companion'da elle girmek istersen değerler aynı.
 
 Kurulum ve yazma (Ubuntu):
@@ -156,7 +225,7 @@ Kurulum ve yazma (Ubuntu):
 sudo add-apt-repository ppa:sapd/headsetcontrol
 sudo apt update && sudo apt install headsetcontrol
 # USB-C alıcıyı tak, kulaklığı 2.4GHz modunda aç
-headsetcontrol --parametric-equalizer "$(cat files/headset/Rap.txt)"
+headsetcontrol --parametric-equalizer "$(cat "files/headset/Türkçe Rap.txt")"
 # Düz (EQ'suz) hale döndürmek için:
 headsetcontrol --parametric-equalizer reset
 ```
@@ -167,7 +236,7 @@ Sınırlar:
 - HeadsetControl kulaklığa USB-C alıcı üzerinden ulaşıyor; Bluetooth üzerinden çalışmıyor. Kulaklık açık ve 2.4GHz modunda olmalı.
 - Alıcı üzerinden yazılan EQ'nun sadece 2.4GHz profiline mi, Bluetooth profiline de mi gittiği henüz **test edilmedi**. Denemek için: yazdıktan sonra kulaklığı Bluetooth'a geçir, Linux'ta EasyEffects'i kapat (`easyeffects -q`) ve dinle. Bas belirgin şekilde artmışsa Bluetooth profili de değişmiş demektir; o zaman Linux'ta EasyEffects ile birlikte kullanma.
 - Kulaklıkta compressor ve limiter yok, girişte ses kısma (preamp) da yok. Linux'taki zincirin sadece EQ kısmı taşınıyor; çok yüksek seste basta bozulma duyarsan kulaklıkta düz EQ'ya dön.
-- 20 Hz altı desteklenmiyor; Genel'deki 18 Hz'lik filtre kulaklıkta 20 Hz'e çekiliyor (duyulur fark yok).
+- 20 Hz altı desteklenmiyor; presetlerdeki en düşük filtre 20 Hz olduğu için bir şey kaybolmuyor.
 - GG ya da Companion'da EQ'yu değiştirirsen kulaklıktaki ayar onunla değişir.
 
 ### Windows: Equalizer APO
@@ -176,9 +245,11 @@ Sınırlar:
 
 Adımlar:
 1. Equalizer APO'yu kur; kurulumda açılan Configurator'da kulaklığı (Bluetooth ve/veya USB alıcı cihazı) işaretle, sonra yeniden başlat.
-2. `files/equalizer-apo/` içindeki 4 dosyayı `C:\Program Files\EqualizerAPO\config\` klasörüne kopyala.
-3. Aynı klasördeki `config.txt`'nin içeriğini tek satır yap: `Include: Rap.txt`
+2. `files/equalizer-apo/` içindeki 101 dosyayı `C:\Program Files\EqualizerAPO\config\` klasörüne kopyala.
+3. Aynı klasördeki `config.txt`'nin içeriğini tek satır yap: `Include: Türkçe Rap.txt`
 4. Preset değiştirmek için bu satırdaki dosya adını değiştirip kaydet; Equalizer APO dosyayı kendisi yeniden yüklüyor.
+
+Windows için otomatik sürüm (Windows medya arayüzü + Equalizer APO + tepsi menüsü) planlandı, henüz yok.
 
 ### macOS
 
@@ -217,10 +288,13 @@ files/
 │   └── spotify-genre-preset       # Spotify'daki türe göre preseti değiştiren servis
 ├── easyeffects/
 │   ├── make_presets.py            # presetleri (EasyEffects, Equalizer APO, kulaklık) üreten ve şema aralıklarını doğrulayan script
-│   ├── output/*.json              # Rap, Tekno - Rave, Deep House, Genel
+│   ├── output/*.json              # 101 preset
 │   └── autostart/                 # EasyEffects'i oturum açılışında servis olarak başlatır
 ├── equalizer-apo/*.txt            # Windows Equalizer APO karşılıkları (make_presets.py üretir)
-├── gnome/dynamic-music-pill.ini   # Dynamic Music Pill ayarları (dconf)
+├── genres.json                    # 100 türün kataloğu: ad, aile, MusicBrainz anahtar kelimeleri, Deezer eşlemesi, Türkçe karşılıklar, varsayılan 5 (make_presets.py üretir)
+├── gnome/
+│   ├── dynamic-music-pill.ini     # Dynamic Music Pill ayarları (dconf)
+│   └── arctis-preset-menu@muhammetaliyoldar/  # üst bar menüsü: tür, kilit, kaynak seçimi, sabit 5 tür (tür takibiyle kurulur)
 ├── headset/*.txt                  # kulaklığın kendi EQ'su için HeadsetControl bantları (make_presets.py üretir)
 ├── modprobe/                      # btusb.conf, rtw88.conf
 ├── networkmanager/                # wifi-powersave-off.conf
