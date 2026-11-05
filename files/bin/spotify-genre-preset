@@ -56,7 +56,6 @@ CONFIG, SPOTIFY = os.path.join(CONFIG_DIR, "config.json"), os.path.join(CONFIG_D
 EE_OUTPUT = (os.path.join(GLib.get_user_config_dir(), "easyeffects", "output"),  # native, flatpak
              os.path.expanduser("~/.var/app/com.github.wwmm.easyeffects/config/easyeffects/output"))
 REDIRECT = "http://127.0.0.1:8888/callback"
-EE_PRESET = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ee-preset")
 MPRIS = "org.mpris.MediaPlayer2.spotify"
 
 
@@ -363,7 +362,7 @@ class Follower:
             print(f"{target} preseti EasyEffects'te yok, Genel kullanılıyor", flush=True)
             target = GENEL
         if target != current:
-            subprocess.run([EE_PRESET, target], check=False)
+            subprocess.run(["easyeffects", "-l", target], check=False)  # ee-preset değil: şarkı değişiminde bildirim çıkmasın
         self.current = {"genre": genre, "preset": target, "track": f"{artist} - {title}", "locked": bool(locked)}
         self.write_state()
 
