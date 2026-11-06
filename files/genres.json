@@ -456,7 +456,14 @@
     "K''st",
     "Grogi",
     "Stap",
-    "Yung Ouzo"
+    "Yung Ouzo",
+    "PAN",
+    "Istanbul Trip",
+    "Jefe",
+    "Motive",
+    "Bixi Blake",
+    "Gxblin",
+    "GRi"
    ]
   },
   {
@@ -477,7 +484,14 @@
     "İndigo",
     "Redo",
     "Fredd",
-    "İmpala"
+    "İmpala",
+    "Harim",
+    "memzst",
+    "Savai",
+    "Kelanei",
+    "Siirbaz",
+    "90 BPM",
+    "Spade427"
    ]
   },
   {
@@ -490,7 +504,12 @@
     "M Lisa",
     "Diyar Pala",
     "Şiir!",
-    "Deniz Gürzumar"
+    "Deniz Gürzumar",
+    "Laçin",
+    "Murda",
+    "Sin4Hood",
+    "Artz",
+    "Stabil"
    ]
   },
   {
@@ -501,7 +520,9 @@
     "Tahribad-ı İsyan",
     "Da Poet",
     "Hidra",
-    "Maestro"
+    "Maestro",
+    "Contra",
+    "Cash Flow"
    ]
   },
   {
@@ -511,7 +532,8 @@
     "Ceza",
     "Ceg",
     "İstanbul Attack",
-    "Beta Berk Bayındır"
+    "Beta Berk Bayındır",
+    "DJ Sivo"
    ]
   },
   {
@@ -520,6 +542,63 @@
    "artists": [
     "Ağaçkakan",
     "Çiğ"
+   ]
+  },
+  {
+   "name": "Yabancı Melodik Rap",
+   "parent": "Hip Hop",
+   "artists": [
+    "Yenlik",
+    "Ruhsora Emm",
+    "Connor Price",
+    "ния",
+    "R-Kap"
+   ]
+  },
+  {
+   "name": "Alternatif Hip Hop",
+   "parent": "Hip Hop",
+   "artists": [
+    "Gorillaz",
+    "Bloody Immigrants",
+    "Chefket",
+    "Mac Miller",
+    "Kendrick Lamar"
+   ]
+  },
+  {
+   "name": "Cloud Rap",
+   "parent": "Hip Hop",
+   "artists": [
+    "Derek Pope",
+    "IVOXYGEN",
+    "BONES",
+    "Biv"
+   ]
+  },
+  {
+   "name": "Neo-Psikedelik",
+   "parent": "Indie",
+   "artists": [
+    "Tame Impala",
+    "Dolphin Love"
+   ]
+  },
+  {
+   "name": "Indie Elektronik",
+   "parent": "Indie",
+   "artists": [
+    "Kid Francescoli",
+    "Nova Norda",
+    "Lin Pesto"
+   ]
+  },
+  {
+   "name": "Rüya Pop",
+   "parent": "Indie",
+   "artists": [
+    "Lana Del Rey",
+    "Still Corners"
    ]
   }
  ],

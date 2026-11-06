@@ -302,33 +302,70 @@ SUBGENRES = [
      {"ls": 3.0, "mud": -3.5, "mid": 1.5, "presence": 3.5, "air": -3.5, "hp": 20.0,
       "bells": [(40, 4.0, 0.9), (1500, 1.5, 1.0)], "comp": OFF, "fx": {"bass_enhancer#0": bass_enhancer(-6.0, 100.0)}},
      ["Şam", "Lil Zey", "UZI", "Ati242", "AGAB", "Kozmos", "Anıl Piyancı", "Wegh", "Volta Show", "K''st", "Grogi",
-      "Stap", "Yung Ouzo"]),
+      "Stap", "Yung Ouzo", "PAN", "Istanbul Trip", "Jefe", "Motive", "Bixi Blake", "Gxblin", "GRi"]),
     # kick 50-60 Hz, snare gövdesi 125-200 Hz +1.5, sample tizi koyu (10-16 kHz -1.5..-3), dinamik geniş (crest 12)
     ("Türkçe Boom Bap", "Türkçe Rap",
      {"ls": 2.5, "mud": -3.0, "mid": 2.0, "presence": 4.0, "air": -3.0,
       "bells": [(60, 3.5, 1.0), (2200, 1.0, 1.0)]},
      ["Kamufle", "Allame", "Farazi", "Hayki", "Şehinşah", "Sagopa Kajmer", "Killa Hakan", "Mode XL", "Çağrı Sinci",
-      "Kayra", "Sürveyan", "İndigo", "Redo", "Fredd", "İmpala"]),
+      "Kayra", "Sürveyan", "İndigo", "Redo", "Fredd", "İmpala", "Harim", "memzst", "Savai", "Kelanei", "Siirbaz",
+      "90 BPM", "Spade427"]),
     # bas hafif (80-160 Hz -2), vokal/melodi önde (630 Hz-2 kHz +1..+2): sıcak, yumuşak tepe
     ("Türkçe Melodik Rap", "Türkçe Rap",
      {"ls": 2.0, "mud": -3.0, "presence": 3.0, "air": -4.0,
       "bells": [(60, 2.5, 0.9), (300, 1.0, 1.0)], "comp": GLUE},
-     ["No.1", "Ahiyan", "Ezhel", "M Lisa", "Diyar Pala", "Şiir!", "Deniz Gürzumar"]),
+     ["No.1", "Ahiyan", "Ezhel", "M Lisa", "Diyar Pala", "Şiir!", "Deniz Gürzumar", "Laçin", "Murda", "Sin4Hood", "Artz",
+      "Stabil"]),
     # sub yok (31-50 Hz -4), kick 53-67 Hz, 2-12 kHz +1.5..+2 (parlak, kirli), en yoğun dinamik: kick yumruğu, tiz yormasın
     ("Türkçe Sert Rap", "Türkçe Rap",
      {"ls": 2.5, "mud": -4.0, "mid": 2.0, "presence": 3.0, "air": -5.0, "hp": 25.0,
       "bells": [(65, 3.5, 1.0), (1000, 1.0, 1.0)], "comp": OFF},
-     ["Sansar Salvo", "Tahribad-ı İsyan", "Da Poet", "Hidra", "Maestro"]),
+     ["Sansar Salvo", "Tahribad-ı İsyan", "Da Poet", "Hidra", "Maestro", "Contra", "Cash Flow"]),
     # 40 Hz altı -9..-11 dB (sub hiç yok: şişirilmez, hp yukarıda), 8-16 kHz +1..+6 (hışırtı), en az sıkıştırılmış
     ("Türkçe Old School", "Türkçe Rap",
      {"ls": 3.0, "mud": -3.0, "mid": 2.0, "presence": 3.0, "air": -5.5, "hp": 30.0,
       "bells": [(70, 3.0, 1.0), (13000, -2.0, 0.9)]},
-     ["Ceza", "Ceg", "İstanbul Attack", "Beta Berk Bayındır"]),
+     ["Ceza", "Ceg", "İstanbul Attack", "Beta Berk Bayındır", "DJ Sivo"]),
     # 31-40 Hz +6, tiz koyu (5-16 kHz -2..-3), tizde en geniş stereo: derin sub, açık tiz, biraz daha geniş
     ("Türkçe Deneysel Rap", "Türkçe Rap",
      {"ls": 2.5, "mud": -4.0, "presence": 3.5, "air": -3.0, "hp": 20.0,
       "bells": [(40, 3.0, 0.9)], "comp": OFF, "fx": {"stereo_tools#0": stereo_tools(0.15)}},
      ["Ağaçkakan", "Çiğ"]),
+    # Hip Hop ve Indie: farklar kendi ana türlerinin ölçülen ortalamasına göre (Hip Hop 14, Indie 10 parça)
+    # 808 tam 50 Hz (+3), 315-400 Hz +2 (vokal gövdesi), 1-2.5 kHz -1, tiz temiz, dinamik geniş (9.7):
+    # 808 odakta, vokal öne (2 kHz), tiz açık, hafif yapıştırma
+    ("Yabancı Melodik Rap", "Hip Hop",
+     {"ls": 2.0, "mud": -3.0, "presence": 3.5, "air": -3.0, "hp": 20.0,
+      "bells": [(50, 3.0, 1.0), (2000, 1.5, 1.0)], "comp": GLUE},
+     ["Yenlik", "Ruhsora Emm", "Connor Price", "ния", "R-Kap"]),
+    # sub az (25-50 Hz -3), kick/bas gövdesi 60-80 Hz, 1-2 kHz +1..+1.7 (canlı enstrüman, vokal), az sıkıştırılmış
+    # (crest 11.6): olmayan sub şişirilmez, gövde ve orta öne
+    ("Alternatif Hip Hop", "Hip Hop",
+     {"ls": 2.0, "mud": -3.5, "mid": 2.5, "presence": 3.5, "air": -4.0, "hp": 25.0,
+      "bells": [(70, 2.5, 1.0), (1500, 1.5, 1.0)]},
+     ["Gorillaz", "Bloody Immigrants", "Chefket", "Mac Miller", "Kendrick Lamar"]),
+    # 25-40 Hz +3..+6 (en derin sub), 10-16 kHz -2.4..-6 (buğulu), en sıkıştırılmış (crest 8.7), ortada en geniş
+    # stereo (reverb): Türkçe Trap gibi derin 808 + Bass Enhancer, koyu tiz biraz açılır, compressor yok
+    ("Cloud Rap", "Hip Hop",
+     {"ls": 3.0, "mud": -4.0, "mid": 1.5, "presence": 3.0, "air": -3.0, "hp": 20.0,
+      "bells": [(40, 4.0, 0.9)], "comp": OFF, "fx": {"bass_enhancer#0": bass_enhancer(-6.0, 100.0)}},
+     ["Derek Pope", "IVOXYGEN", "BONES", "Biv"]),
+    # bas gitar/synth bas 57-85 Hz, 31-50 Hz -2..-3 (sub az), yüksek ve sıkıştırılmış master (RMS -9.5, crest 9.3),
+    # bas bile stereo: groove 80 Hz'de, alt-orta sıcak kalsın (çamur az kesilir), tiz yumuşak
+    ("Neo-Psikedelik", "Indie",
+     {"ls": 2.0, "mud": -2.5, "mid": 2.5, "air": -4.0, "hp": 25.0, "bells": [(80, 2.5, 0.9)]},
+     ["Tame Impala", "Dolphin Love"]),
+    # 25-50 Hz +5..+9.5 (synth/808 sub), 80 Hz -3, 2.5-16 kHz -3..-5.6 (koyu), tizde çok geniş stereo:
+    # derin sub, koyu tiz biraz açılır
+    ("Indie Elektronik", "Indie",
+     {"ls": 3.0, "mud": -3.5, "mid": 2.0, "presence": 3.5, "air": -2.5, "hp": 20.0, "bells": [(40, 3.5, 0.9)]},
+     ["Kid Francescoli", "Nova Norda", "Lin Pesto"]),
+    # tek ölçüm (Lana Del Rey West Coast): bas az (25-125 Hz -1.3..-7.6), 400 Hz-1.25 kHz +1.5..+5.5 (vokal,
+    # reverb'lü gitar), 10-12.5 kHz +4 (parıltı): orta zaten dolu (mid az), 250 Hz sıcaklık, parıltı açık
+    ("Rüya Pop", "Indie",
+     {"ls": 1.5, "mud": -2.5, "mid": 1.5, "presence": 3.5, "air": -2.5, "hp": 25.0,
+      "bells": [(250, 1.5, 0.9)], "comp": GLUE},
+     ["Lana Del Rey", "Still Corners"]),
 ]
 
 
