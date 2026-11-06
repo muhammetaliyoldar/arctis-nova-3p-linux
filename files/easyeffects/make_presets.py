@@ -3,9 +3,9 @@
 
 Kullanım: python3 make_presets.py [çıktı_klasörü] [--check]
   --check: her presetin EQ eğrisinin tepe noktalarını yazdırır (dosya yazmaz)
-Aynı EQ eğrilerini ../equalizer-apo (Windows) ve ../headset (kulaklığın kendi EQ'su,
-headsetcontrol) klasörlerine de yazar; compressor/limiter oralara taşınmaz. Katalogdan çıkmış
-türlerin eski dosyaları bu iki klasörden ve varsayılan çıktı klasöründen (output) silinir;
+Aynı EQ eğrilerini ../equalizer-apo (Windows), ../camilladsp (macOS) ve ../headset (kulaklığın kendi
+EQ'su, headsetcontrol) klasörlerine de yazar; compressor/limiter oralara taşınmaz. Katalogdan çıkmış
+türlerin eski dosyaları bu üç klasörden ve varsayılan çıktı klasöründen (output) silinir;
 başka bir çıktı klasörü verilirse orada silme yapılmaz.
 
 Katalog (GENRES): her tür bir ailenin şablonundan (FAMILIES) ve küçük farklardan oluşur.
@@ -636,6 +636,7 @@ CATALOG = {"genres": [{"name": n, "family": f, "keywords": k, "turkish": n in TU
 
 APO_TYPES = {"Hi-pass": "HPQ", "Bell": "PK", "Lo-shelf": "LSC", "Hi-shelf": "HSC"}
 HEADSET_TYPES = {"Hi-pass": "highpass", "Bell": "peaking", "Lo-shelf": "lowshelf", "Hi-shelf": "highshelf"}
+CAMILLA_TYPES = {"Hi-pass": "Highpass", "Bell": "Peaking", "Lo-shelf": "Lowshelf", "Hi-shelf": "Highshelf"}
 
 
 def single_slope(bands):
@@ -649,6 +650,20 @@ def apo_config(bands, preamp):
     for i, b in enumerate(single_slope(bands), 1):
         gain = "" if b["type"] == "Hi-pass" else f" Gain {b['gain']:.1f} dB"
         lines.append(f"Filter {i}: ON {APO_TYPES[b['type']]} Fc {b['frequency']:g} Hz{gain} Q {b['q']:.2f}")
+    return "\n".join(lines) + "\n"
+
+
+def camilla_config(bands, preamp):
+    """macOS CamillaDSP config'inin filters + pipeline kısmı; devices'ı ön yüz o an bağlı kulaklıkla başa ekler.
+    Biquad'lar APO'nunkiyle aynı RBJ formülleri (CamillaDSP src/filters/biquad.rs)."""
+    lines = ["filters:", "  preamp:", "    type: Gain", f"    parameters: {{gain: {preamp:.1f}, scale: dB}}"]
+    names = ["preamp"]
+    for i, b in enumerate(single_slope(bands), 1):
+        gain = "" if b["type"] == "Hi-pass" else f", gain: {b['gain']:.1f}"
+        lines += [f"  f{i}:", "    type: Biquad",
+                  f"    parameters: {{type: {CAMILLA_TYPES[b['type']]}, freq: {b['frequency']:g}{gain}, q: {b['q']:.2f}}}"]
+        names.append(f"f{i}")
+    lines += ["pipeline:", "  - type: Filter", "    channels: [0, 1]", f"    names: [{', '.join(names)}]"]
     return "\n".join(lines) + "\n"
 
 
@@ -801,9 +816,10 @@ if __name__ == "__main__":
         with open(os.path.join(out, f"{name}.json"), "w") as fh:
             json.dump(data, fh, indent=4)
         print(f"yazıldı: {os.path.join(out, name)}.json")
-        for folder, text in (("equalizer-apo", apo_config(bands, eq["input-gain"])),
-                             ("headset", headset_bands(bands))):
-            path = os.path.normpath(os.path.join(here, "..", folder, f"{name}.txt"))
+        for folder, ext, text in (("equalizer-apo", ".txt", apo_config(bands, eq["input-gain"])),
+                                  ("camilladsp", ".yml", camilla_config(bands, eq["input-gain"])),
+                                  ("headset", ".txt", headset_bands(bands))):
+            path = os.path.normpath(os.path.join(here, "..", folder, name + ext))
             os.makedirs(os.path.dirname(path), exist_ok=True)
             with open(path, "w") as fh:
                 fh.write(text)
@@ -813,7 +829,8 @@ if __name__ == "__main__":
         with open(path, "w", encoding="utf-8") as fh:
             json.dump(CATALOG, fh, ensure_ascii=False, indent=1)
         print(f"yazıldı: {path}")
-        stale = [(os.path.normpath(os.path.join(here, "..", d)), ".txt") for d in ("equalizer-apo", "headset")]
+        stale = [(os.path.normpath(os.path.join(here, "..", d)), ext)
+                 for d, ext in (("equalizer-apo", ".txt"), ("camilladsp", ".yml"), ("headset", ".txt"))]
         if os.path.realpath(out) == os.path.realpath(default_out):
             stale.append((out, ".json"))
         for folder, ext in stale:  # katalogdan çıkmış türlerin eski dosyaları

@@ -1,0 +1,32 @@
+filters:
+  preamp:
+    type: Gain
+    parameters: {gain: -5.0, scale: dB}
+  f1:
+    type: Biquad
+    parameters: {type: Highpass, freq: 25, q: 0.70}
+  f2:
+    type: Biquad
+    parameters: {type: Highpass, freq: 25, q: 0.70}
+  f3:
+    type: Biquad
+    parameters: {type: Lowshelf, freq: 105, gain: 2.5, q: 0.70}
+  f4:
+    type: Biquad
+    parameters: {type: Peaking, freq: 160, gain: -3.0, q: 0.70}
+  f5:
+    type: Biquad
+    parameters: {type: Peaking, freq: 500, gain: 2.5, q: 1.00}
+  f6:
+    type: Biquad
+    parameters: {type: Peaking, freq: 4300, gain: 3.0, q: 2.50}
+  f7:
+    type: Biquad
+    parameters: {type: Peaking, freq: 9000, gain: -3.0, q: 1.20}
+  f8:
+    type: Biquad
+    parameters: {type: Peaking, freq: 65, gain: 2.5, q: 0.90}
+pipeline:
+  - type: Filter
+    channels: [0, 1]
+    names: [preamp, f1, f2, f3, f4, f5, f6, f7, f8]

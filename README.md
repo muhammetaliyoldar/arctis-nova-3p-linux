@@ -1,6 +1,6 @@
 # Arctis Nova 3P Wireless: Ubuntu Bluetooth Düzeltmeleri
 
-SteelSeries Arctis Nova 3P Wireless kulaklığı Ubuntu'da (PipeWire + WirePlumber) Bluetooth ile sorunsuz kullanmak için gereken ayarlar. Yanında Genel, 24 ana tür ve 38 alt tür için toplam 63 EasyEffects presetleri var (5 ana tür Türkçe; alt türlerin bir kısmı da Türkçe). Çalan şarkının türüne göre preset kendiliğinden değişiyor, istersen tek tuşla elle de geçebilirsin.
+SteelSeries Arctis Nova 3P Wireless kulaklığı Ubuntu'da (PipeWire + WirePlumber) Bluetooth ile sorunsuz kullanmak için gereken ayarlar. Yanında Genel, 24 ana tür ve 38 alt tür için toplam 63 EasyEffects preseti var (5 ana tür Türkçe; alt türlerin bir kısmı da Türkçe). Çalan şarkının türüne göre preset kendiliğinden değişiyor, istersen tek tuşla elle de geçebilirsin. Windows ve macOS için de türe göre EQ (tür takibi + menü) sürümü var; ikisi henüz gerçek cihazda denenmedi. Ayrıntı için "Diğer cihazlar" bölümüne bak.
 
 ## Kurulum
 
@@ -31,6 +31,8 @@ Notlar:
 - Music pill kurulduktan sonra üst barda görünmezse oturumu kapatıp aç. Wayland'de yeni kurulan uzantılar ancak bir sonraki oturumda yükleniyor.
 - Kulaklığı önce Bluetooth'tan eşleştirmen iyi olur. Eşleştirmeden kurarsan, eşleştirdikten sonra scripti bir kez daha çalıştır; böylece otomatik preset yüklemesi de ayarlanır.
 - Kaldırmak için: `./uninstall.sh`
+
+Windows ve macOS kurulumu aşağıda "Diğer cihazlar" bölümünde.
 
 ## Belirtiler ve sebepleri
 
@@ -105,7 +107,7 @@ Her ana türün eğrisi, o gruptaki en çok dinlenen alt türün eski eğrisinde
 
 Dosya adında "/" olamadığı için birleşik adlar " - " ile yazılıyor: "Türk Halk - Sanat", "Folk - Akustik", "Ambient - Lo-fi".
 
-Alt türler (38 preset alt türü dışında, aşağıda) preset olarak kaldırıldı ama tanınmaya devam ediyor: MusicBrainz'deki kelimeler ana türe yönleniyor (örn. "uk garage" → Bass Müziği, "dream pop" → Indie).
+Aşağıdaki 38 alt tür dışındaki alt türler preset olarak kaldırıldı ama tanınmaya devam ediyor: MusicBrainz'deki kelimeler ana türe yönleniyor (örn. "uk garage" → Bass Müziği, "dream pop" → Indie).
 
 | Ana tür | İçine katılanlar |
 |---|---|
@@ -142,7 +144,7 @@ Kısayollar: `Ctrl+Alt+1..7` üst bar menüsündeki 1.-7. satır (sıra dinlemen
 
 Preset değişince ekranda bildirim çıkıyor. Ayrıca üst bardaki menüden fareyle de seçebilirsin (tür takibi kuruluysa kendi menümüz, değilse EasyEffects Preset Selector). Terminalden geçmek için: `ee-preset "Türkçe Rap"`, `ee-preset next`.
 
-**Zincir:** Presetlerin hepsinde **Equalizer → Compressor → Limiter** var; compressor her türde aynı değil: kimisinde kapalı, kimisinde hafif yapıştırma, rapte punch ayarı var. Equalizer, Compressor ve Limiter LSP eklentisi. Beş preset araya Calf eklentisi alıyor: Türkçe Trap, Cloud Rap ve Festival Trap'e **Bass Enhancer**, Türkçe Deneysel Rap ve Anadolu Klasikleri'ne **Stereo Tools** (Equalizer → Bass Enhancer / Stereo Tools → Compressor → Limiter). `install.sh` bunlar için `calf-plugins` paketini kuruyor; Calf yoksa EasyEffects o eklentiyi atlıyor, preset yine yükleniyor. Windows (Equalizer APO) ve kulaklığın kendi EQ'su dosyalarına yalnız EQ taşınıyor.
+**Zincir:** Presetlerin hepsinde **Equalizer → Compressor → Limiter** var; compressor her türde aynı değil: kimisinde kapalı, kimisinde hafif yapıştırma, rapte punch ayarı var. Equalizer, Compressor ve Limiter LSP eklentisi. Beş preset araya Calf eklentisi alıyor: Türkçe Trap, Cloud Rap ve Festival Trap'e **Bass Enhancer**, Türkçe Deneysel Rap ve Anadolu Klasikleri'ne **Stereo Tools** (Equalizer → Bass Enhancer / Stereo Tools → Compressor → Limiter). `install.sh` bunlar için `calf-plugins` paketini kuruyor; Calf yoksa EasyEffects o eklentiyi atlıyor, preset yine yükleniyor. Windows'a (Equalizer APO), macOS'a (CamillaDSP) ve kulaklığın kendi EQ'suna yalnız EQ taşınıyor.
 - **Equalizer:** Her presette aynı kulaklık düzeltmesi tabanı var: 105 Hz bas rafı +2.5, 160 Hz -4 (kulaklığın 100-250 Hz'teki çamur tümseği), 500 Hz +2, 4.3 kHz +4 (kulaklığın 4-5 kHz çukuru: vokal ve atak), 9 kHz -3.5 (8-10 kHz sertliği). Nova 3P'nin yayımlanmış ölçümü yok; taban, kardeş modeller Nova 3 ve Nova 5'in AutoEq/rtings ölçümlerinin Harman OE 2018 hedefinden farkına göre yumuşatıldı. SBC codec 12 kHz üstünü bozduğu için oraya yükseltme yok. Türler tabanın üstüne kendi bantlarını ekliyor (en fazla 2 Bell). Filtreler "APO (DR)" modunda; Windows'taki Equalizer APO ile birebir aynı eğri. Girişteki ses kısma otomatik: eğrinin tepesi + 1 dB. Böylece equalizer'ın kendisi clipping yapmıyor (`python3 files/easyeffects/make_presets.py --check` ile eğriler kontrol edilebilir).
 - **Compressor:** Attack 30 ms, sidechain 100 Hz high-pass: 808 bütün mixi pompalamasın. Kick'in ve 808'in ilk vuruşu ezilmeden geçiyor. Techno, house, bass müziği, EDM, pop, rock, metal, indie gibi türlerde kapalı, çünkü bu türlerin masterları zaten çok sıkıştırılmış; ikinci compressor onları ezer. Klasik, caz ve akustikte de kapalı, dinamik korunuyor. R&B, soul, reggae, Arabesk gibi dinamik kayıtlarda hafif yapıştırma açık.
 - **Limiter:** -1 dB'de tavan yapıyor, ama sadece güvenlik ağı. EasyEffects 7.x'te limiter'ın release süresi en fazla 20 ms olabiliyor. 50 Hz'lik bir bas dalgası da 20 ms sürdüğü için limiter her devreye girdiğinde sesi bas dalgasının *içinde* açıp kısıyor ve basta bozulma yapıyor. Bu yüzden compressor'de çıkış artırması (makeup) yok ve EQ girişi eğrinin tepesi + 1 dB kadar kısılıyor; sinyal limiter'a nadiren ulaşıyor. Ses biraz kısık gelirse kulaklığın tekerinden aç.
@@ -246,9 +248,9 @@ Sınırlar:
 - Test: servis birim testleri 61/61, giriş 7/7. Kilit, elle seçim ve kulaklık yeniden bağlanınca geri dönme gibi davranışlar sahte Spotify ile uçtan uca 3 senaryoda denendi. Menü, ekransız ayrı bir GNOME Shell 46'da sanal fareyle denendi. Spotify girişi ve hesaptan en çok dinlenen 50 parçanın çekilmesi gerçek hesapla denendi.
 - Gerçek hesapla top 50 sınıflandırması: Türkçe Rap (Kayra, Lil Zey, Kamufle, Sürveyan, AGAB, Sansar Salvo...), Hip Hop (Gorillaz), Indie (Lana Del Rey, Tame Impala, Mac DeMarco), Pop (Metronomy), House (Daft Punk, The Blaze, French 79, Parcels, L'Impératrice), Bass Müziği (Fred again..), Reggae (Genjah), Türkçe Pop (M Lisa, Sezen Aksu), Techno (Charlotte de Witte), Metal (Metallica), Arabesk (Müslüm Gürses). Underground isimlerin bir kısmı (hacibab, memzst...) Genel'e düşüyor.
 
-## Diğer cihazlar: Windows ve kulaklığın kendi EQ'su
+## Diğer cihazlar: Windows, macOS ve kulaklığın kendi EQ'su
 
-Linux'taki ayarlar diğer cihazlara taşınmıyor. Aynı eğriler (63 preset) iki yoldan başka cihazlarda kullanılabilir. EQ'yu tek yerde aç: kulaklığın EQ'su ile EasyEffects ya da Equalizer APO aynı anda açıksa yükseltmeler toplanır (örn. +3 dB'lik bir bas yükseltmesi iki kez = +6 dB), bas patlar.
+Bağlantı düzeltmeleri ve EasyEffects zinciri (compressor, limiter, Calf) yalnız Linux'ta. Aynı eğriler (63 preset) üç yoldan başka cihazlarda kullanılabilir: Windows'ta Equalizer APO, macOS'ta CamillaDSP, her cihazda kulaklığın kendi EQ'su. EQ'yu tek yerde aç: kulaklığın EQ'su ile EasyEffects, Equalizer APO ya da CamillaDSP aynı anda açıksa yükseltmeler toplanır (örn. +3 dB'lik bir bas yükseltmesi iki kez = +6 dB), bas patlar.
 
 ### Kulaklığın kendi EQ'su (her cihazda geçerli)
 
@@ -280,19 +282,88 @@ Sınırlar:
 
 ### Windows: Equalizer APO
 
-- `files/equalizer-apo/*.txt` dosyaları [Equalizer APO](https://sourceforge.net/projects/equalizerapo/) biçiminde. Girişteki ses kısma (Preamp) Linux'takiyle aynı, eğri clipping yapmıyor. Compressor ve limiter yok.
+> Ubuntu'da yazıldı, gerçek bir Windows cihazında **henüz denenmedi**.
 
-Adımlar:
-1. Equalizer APO'yu kur; kurulumda açılan Configurator'da kulaklığı (Bluetooth ve/veya USB alıcı cihazı) işaretle, sonra yeniden başlat.
-2. `files/equalizer-apo/` içindeki 63 dosyayı `C:\Program Files\EqualizerAPO\config\` klasörüne kopyala.
-3. Aynı klasördeki `config.txt`'nin içeriğini tek satır yap: `Include: Türkçe Rap.txt`
-4. Preset değiştirmek için bu satırdaki dosya adını değiştirip kaydet; Equalizer APO dosyayı kendisi yeniden yüklüyor.
+Ne yapar: Linux'taki tür takibinin aynısı. Spotify'da çalan şarkı Windows'un medya oturumundan (SMTC) 2 saniyede bir okunuyor, türün preseti Equalizer APO'nun `config.txt` dosyasına yazılıyor, APO dosyayı kendisi yeniden yüklüyor. `config.txt`'nin ilk satırındaki yorum yüklü presetin adı.
 
-Windows için otomatik sürüm (Windows medya arayüzü + Equalizer APO + tepsi menüsü) planlandı, henüz yok.
+Önce:
+- [Equalizer APO](https://sourceforge.net/projects/equalizerapo/) kurulu olmalı. Configurator'da kulaklığın iki cihazı da (Bluetooth ve USB alıcı) işaretli olmalı ve bilgisayar yeniden başlatılmış olmalı.
+- SteelSeries GG'de Sonar kapalı, Engine'deki EQ (Bluetooth ve 2.4GHz profili) düz olmalı; yoksa EQ'lar toplanır.
+
+Kurulum: normal kullanıcı olarak (yönetici olarak **değil**):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File install.ps1
+```
+
+- APO config klasörüne yazma izni için bir kez yönetici onayı istiyor.
+- Python 3.11+ yoksa winget ile Python 3.12 kuruyor.
+- Dosyaları `%LOCALAPPDATA%\spotify-genre-preset` klasörüne koyuyor (venv, presets, program); pystray, Pillow ve winrt paketlerini kuruyor.
+- Eski `config.txt`'yi `config.txt.arctis-yedek` olarak yedekliyor.
+- Spotify hesabını bağlamayı öneriyor.
+- Başlangıç klasörüne "Arctis Preset" kısayolu ekleyip uygulamayı başlatıyor.
+
+Kullanım: Tepside kulaklık simgesi var, kilitliyken turuncu. Üzerine gelince yüklü preset görünüyor, sağ tıklayınca menü açılıyor. Menü GNOME menüsüyle aynı:
+- En çok dinlenen 5 tür, Genel ve çalan alt tür.
+- Kilitle alt menüsü (GNOME'daki satır başı kilit düğmesinin yerine).
+- Kaynak, Dönem, İstatistik, Menüde sabitle, Menüde gizle.
+- Çıkış.
+
+Günlük: `%LOCALAPPDATA%\spotify-genre-preset\gunluk.txt`. Denemek için (Spotify çalarken) `install.ps1`'in sonunda yazdırdığı `--dene` komutunu aynen kullan.
+
+Kaldırma: `powershell -ExecutionPolicy Bypass -File uninstall.ps1`. Uygulamayı, kısayolu ve program dosyalarını siliyor, `config.txt`'yi geri koyuyor. Ayarlar, Spotify girişi ve dinleme geçmişi kalıyor; Equalizer APO ve Python kaldırılmıyor.
+
+Sınırlar:
+- Yalnız EQ ve preamp taşınıyor; Linux zincirindeki compressor, limiter, Bass Enhancer ve stereo genişlik yok.
+- Spotify girişi her cihazda ayrı yapılıyor (aynı Client ID kullanılabilir).
+
+Elle kullanım (otomatik sürümü istemiyorsan): `files/equalizer-apo/*.txt` dosyalarını `C:\Program Files\EqualizerAPO\config\` klasörüne kopyala, aynı klasördeki `config.txt`'nin içeriğini tek satır yap: `Include: Türkçe Rap.txt`. Preset değiştirmek için dosya adını değiştirip kaydet; Equalizer APO dosyayı kendisi yeniden yüklüyor.
 
 ### macOS
 
-Hazır dosya yok; en kolayı kulaklığın kendi EQ'su (yukarıda) ya da GG.
+> Ubuntu'da yazıldı, gerçek bir Mac'te **henüz denenmedi**. İlk denemede iki şeye bak: kulaklıkta ses geliyor mu (mikrofon izni) ve kulaklık takılıp çıkarılınca çıkış doğru cihaza geçiyor mu.
+
+Ses zinciri: sistem çıkışı BlackHole 2ch (sanal ses kartı) → CamillaDSP (EQ) → kulaklık. Kulaklık, adında "Arctis" geçen çıkış cihazı (Bluetooth ya da USB-C alıcı). Presetler `files/camilladsp/*.yml` (`make_presets.py` üretiyor, eğriler Equalizer APO'dakiyle aynı).
+
+Önce:
+- Homebrew kurulu olmalı.
+- Kulaklığın kendi EQ'su (GG/Companion) düz olmalı; yoksa EQ'lar toplanır.
+
+Kurulum: normal kullanıcı olarak (`sudo` ile **değil**):
+
+```bash
+bash install-mac.sh
+```
+
+- Homebrew ile `blackhole-2ch` (yönetici şifresi soruyor), `switchaudio-osx` ve `python@3.12` kuruyor.
+- CamillaDSP v4.1.3'ü GitHub'dan indiriyor (Apple Silicon ya da Intel'e göre kendisi seçiyor).
+- venv'e rumps 0.4.0 kuruyor.
+- Dosyalar `~/Library/Application Support/spotify-genre-preset` klasörüne gidiyor.
+- Spotify hesabını bağlamayı öneriyor.
+- LaunchAgent ekliyor: oturum açılınca başlıyor; menüden Çıkış dersen yeniden başlatılmıyor, çökerse başlatılıyor.
+
+Nasıl davranır:
+- Kulaklık ses çıkışı olunca (bağlanınca macOS kendisi seçiyor) CamillaDSP başlıyor ve çıkış BlackHole'a alınıyor. Kulaklık gidince çıkış önceki cihaza dönüyor.
+- Başka bir çıkışı kendin seçersen EQ devreden çıkıyor, uygulama karışmıyor.
+- CamillaDSP kulaklığı açamazsa (önce 48 kHz, sonra 44.1 kHz dener) ses EQ'suz olarak kulaklıktan geliyor.
+- Uygulama kapanırken çıkış BlackHole'dan geri alınıyor.
+- Çalan şarkı Spotify'ın AppleScript'inden 2 saniyede bir okunuyor.
+- Ses tuşları EQ öncesi seviyeyi (BlackHole) değiştiriyor; kulaklığın kendi tekerleği her zaman çalışıyor.
+
+Menü çubuğu: 🎧 ve yüklü preset adı, kilitliyken 🔒. Menü Windows'takiyle aynı öğelerden oluşuyor.
+
+İzinler: İlk açılışta macOS iki izin sorabilir: Python'un Spotify'ı denetlemesi ve mikrofon erişimi (CamillaDSP sesi BlackHole'dan kaydediyor). Mikrofon izni yoksa kulaklıkta ses **kesilir** ve hata mesajı çıkmaz. Çözüm: Sistem Ayarları > Gizlilik ve Güvenlik > Mikrofon'da Python'u aç. Listede yoksa:
+
+```bash
+tccutil reset Microphone
+launchctl kickstart -k gui/$(id -u)/com.github.muhammetaliyoldar.spotify-genre-preset
+```
+
+Günlük: `~/Library/Application Support/spotify-genre-preset/gunluk.txt`. Denemek için (Spotify çalarken) `install-mac.sh`'nin sonunda yazdırdığı `--dene` komutunu kullan.
+
+Kaldırma: `bash uninstall-mac.sh`. LaunchAgent'ı, CamillaDSP'yi, program dosyalarını ve presetleri siliyor. Ayarlar, Spotify girişi ve dinleme geçmişi kalıyor; Homebrew paketleri kaldırılmıyor. Çıkış hâlâ BlackHole'daysa uyarıyor.
+
+Sınırlar: Yalnız EQ ve preamp taşınıyor (compressor, limiter, Bass Enhancer, stereo yok).
 
 ## Dynamic Music Pill
 
@@ -315,20 +386,28 @@ Hazır dosya yok; en kolayı kulaklığın kendi EQ'su (yukarıda) ya da GG.
 
 Ubuntu 24.04, kernel 7.0, PipeWire 1.0.5, WirePlumber 0.4.17, BlueZ 5.72, EasyEffects 7.1.6, Realtek RTL8821CE (WiFi + Bluetooth).
 
+Windows (`install.ps1`) ve macOS (`install-mac.sh`) sürümleri henüz gerçek bir Windows ya da Mac cihazında denenmedi. Yalnızca Ubuntu'da, taklit edilen testlerle denendi.
+
 ## Klasör yapısı
 
 ```
 install.sh                         # düzeltmeleri, presetleri ve uzantıları (istediğini seçerek) kurar
 uninstall.sh                       # kurulanları kaldırır (presetler ve GNOME uzantıları kalır)
+install.ps1                        # Windows: tür takibi + tepsi menüsü kurar
+uninstall.ps1                      # Windows: tür takibini ve tepsi menüsünü kaldırır
+install-mac.sh                     # macOS: BlackHole + CamillaDSP + menü çubuğu kurar
+uninstall-mac.sh                   # macOS: bunları kaldırır
 LICENSE                            # MIT
 files/
 ├── bin/
 │   ├── ee-preset                  # preset değiştirici (ee-preset <ad> | next)
 │   └── spotify-genre-preset       # Spotify'daki türe göre preseti değiştiren servis (Linux ön yüzü: MPRIS + EasyEffects)
+├── camilladsp/*.yml               # macOS CamillaDSP karşılıkları (make_presets.py üretir)
 ├── core/
-│   └── genre_core.py              # tür bulma, Spotify hesabı, geçmiş, dönem, istatistik, menü mantığı; platformdan bağımsız (Windows/macOS sürümleri de kullanacak)
+│   ├── genre_core.py              # tür bulma, Spotify hesabı, geçmiş, dönem, istatistik, menü mantığı; platformdan bağımsız, Linux, Windows ve macOS ortak kullanıyor
+│   └── tray_menu.py               # Windows ve macOS'un ortak menü ağacı ve şarkı takip döngüsü
 ├── easyeffects/
-│   ├── make_presets.py            # presetleri (EasyEffects, Equalizer APO, kulaklık) üreten ve şema aralıklarını doğrulayan script
+│   ├── make_presets.py            # presetleri (EasyEffects, Equalizer APO, CamillaDSP, kulaklık) üreten ve şema aralıklarını doğrulayan script
 │   ├── output/*.json              # 63 preset
 │   └── autostart/                 # EasyEffects'i oturum açılışında servis olarak başlatır
 ├── equalizer-apo/*.txt            # Windows Equalizer APO karşılıkları (make_presets.py üretir)
@@ -337,15 +416,19 @@ files/
 │   ├── dynamic-music-pill.ini     # Dynamic Music Pill ayarları (dconf)
 │   └── arctis-preset-menu@muhammetaliyoldar/  # üst bar menüsü: preset, kilit, kaynak, dönem, istatistik, sabitle/gizle (tür takibiyle kurulur)
 ├── headset/*.txt                  # kulaklığın kendi EQ'su için HeadsetControl bantları (make_presets.py üretir)
+├── mac/
+│   └── spotify-genre-preset.py    # macOS ön yüzü (AppleScript + CamillaDSP + rumps menü çubuğu)
 ├── modprobe/                      # btusb.conf, rtw88.conf
 ├── networkmanager/                # wifi-powersave-off.conf
 ├── systemd/                       # arctis-autoconnect (otomatik bağlanma) ve spotify-genre-preset (tür takibi) kullanıcı servisleri
+├── windows/
+│   └── spotify-genre-preset.pyw   # Windows ön yüzü (SMTC + Equalizer APO + pystray tepsi menüsü)
 └── wireplumber/                   # 51-arctis-a2dp-only (mikrofon kapalı) ve 51-arctis-sbc-only (mikrofon açık); her biri .lua (0.4) ve .conf (0.5+)
 ```
 
 ## Proje durumu
 
-Repo 23 Ekim 2026'da oluşturuldu ve aynı gün dört commit ile bugünkü hâline getirildi. Yukarıdaki test ortamında günlük kullanımda.
+Repo 23 Ekim 2026'da oluşturuldu. Linux (Ubuntu) tarafı yukarıdaki test ortamında günlük kullanımda. 6 Kasım 2026'da Windows (Equalizer APO + tepsi menüsü) ve macOS (BlackHole + CamillaDSP + menü çubuğu) sürümleri eklendi. Üçü de aynı tür takibi çekirdeğini (`files/core/genre_core.py`) kullanıyor. Windows ve macOS sürümleri henüz gerçek cihazda denenmedi.
 
 ## Lisans
 
