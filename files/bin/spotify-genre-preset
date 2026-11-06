@@ -3,6 +3,8 @@
 
 Türler genres.json'da (24 ana tür; her türün aynı adlı bir preseti var, uymayan her şey Genel):
 ~/.local/share/spotify-genre-preset/genres.json, yoksa betiğin yanındaki ../genres.json.
+Alt tür: sanatçı genres.json "subgenres" listesindeyse ağ sorgusu yapılmadan alt türün preseti çalar
+(preset dosyası yoksa ana türünki); listede yoksa aşağıdaki gibi ana tür. Sıralama ve sayım ana tür düzeyinde.
 Tür (anahtar gerekmez): Deezer albüm türü ve MusicBrainz sanatçı etiketleri. Etiketler oy sırasıyla
 taranır, ilk eşleşen etikette en uzun anahtar kelime kazanır ("deep house" > "house"). Etiket türü,
 Deezer türü yoksa, aynı ailedense ya da Deezer türü genişse (pop, dance, elektro, alternatif,
@@ -59,6 +61,11 @@ REDIRECT = "http://127.0.0.1:8888/callback"
 MPRIS = "org.mpris.MediaPlayer2.spotify"
 
 
+def norm(s):
+    """Ad karşılaştırması için: harf ve rakam dışı her şey atılır, "İ" = "i" (make_presets.py'deki ile aynı)."""
+    return "".join(c for c in unicodedata.normalize("NFKD", s.casefold()) if c.isalnum())
+
+
 def load_genres():
     """genres.json + aramalar için türetilen tablolar: family (tür -> aile), keywords (kelime -> tür)."""
     for path in (os.path.join(GLib.get_user_data_dir(), "spotify-genre-preset", "genres.json"),
@@ -70,6 +77,8 @@ def load_genres():
             continue
         cat["family"] = {g["name"]: g["family"] for g in cat["genres"]}
         cat["keywords"] = {k: g["name"] for g in cat["genres"] for k in g["keywords"]}
+        cat["parent"] = {s["name"]: s["parent"] for s in cat.get("subgenres", [])}
+        cat["artist_sub"] = {norm(a): s["name"] for s in cat.get("subgenres", []) for a in s["artists"]}
         return cat
     sys.exit("genres.json bulunamadı: ~/.local/share/spotify-genre-preset/genres.json yok "
              "(install.sh kurar; repodan çalıştırırken files/genres.json olmalı)")
@@ -91,8 +100,7 @@ def get_json(url, tries=3):
 
 
 def same_name(a, b):
-    """"Siyasiyabend" = "Siya siyabend", "AGAB" = "Aga B", "İ" = "i": harf ve rakam dışı her şey atılır."""
-    norm = lambda s: "".join(c for c in unicodedata.normalize("NFKD", s.casefold()) if c.isalnum())
+    """"Siyasiyabend" = "Siya siyabend", "AGAB" = "Aga B", "İ" = "i"."""
     return norm(a) == norm(b)
 
 
@@ -163,8 +171,14 @@ def classify(artist, title):
     return decide(deezer_genres(artist, title), musicbrainz_tags(artist), artist, title)
 
 
+def main_genre(genre):
+    """Alt türün ana türü (sayım, sıralama); ana tür ve Genel aynen döner."""
+    return CAT["parent"].get(genre, genre)
+
+
 def menu_for(cfg, st):
-    """state.json "menu": mod listesinin ilk 5 türü (eksikse defaults'tan), Genel, 5'te değilse çalan preset."""
+    """state.json "menu": mod listesinin ilk 5 türü (eksikse defaults'tan), Genel, 5'te değilse çalan preset
+    (alt tür de olabilir)."""
     source = {"sabit": cfg["sabit"], "cihaz": st.get("top_cihaz"),
               "hesap": st.get("top_hesap") or st.get("top_cihaz")}.get(cfg["mode"]) or []
     top = []
@@ -173,7 +187,7 @@ def menu_for(cfg, st):
             top.append(g)
     menu = top[:5] + [GENEL]
     playing = (st.get("current") or {}).get("preset")
-    if playing in CAT["family"] and playing not in menu:
+    if (playing in CAT["family"] or playing in CAT["parent"]) and playing not in menu:
         menu.append(playing)
     return menu
 
@@ -308,6 +322,9 @@ class Follower:
         save(STATE, st)
 
     def genre_for(self, artist, album, title):
+        sub = CAT["artist_sub"].get(norm(artist))
+        if sub:  # listedeki sanatçı: önbellek ve ağ yok, liste değişince hemen geçerli
+            return sub
         key = f"{artist}\t{album}"
         with self.lock:
             genre = self.cache.get(key)
@@ -335,6 +352,7 @@ class Follower:
                 print(f"{t['artists'][0]['name']} - {t['name']}: tür alınamadı ({e})", flush=True)
                 continue
             if genre != GENEL:
+                genre = main_genre(genre)
                 score[genre] = score.get(genre, 0) + len(items) - rank
         self.top_hesap = sorted(score, key=lambda g: -score[g])
         GLib.idle_add(self.write_state)  # state.json'u yalnız ana döngü yazar
@@ -351,16 +369,17 @@ class Follower:
         try:
             genre = self.genre_for(artist, md.get("xesam:album", ""), title)
             if genre != GENEL:
-                self.counts[genre] = self.counts.get(genre, 0) + 1
+                self.counts[main_genre(genre)] = self.counts.get(main_genre(genre), 0) + 1
         except (OSError, ValueError, KeyError) as e:
             print(f"{artist} - {title}: tür alınamadı ({e}), preset değişmedi", flush=True)
             genre = current
         locked = locked_preset()
         target = locked or genre
         print(f"{artist} - {title}: {genre}" + (f" (kilit: {locked})" if locked else ""), flush=True)
-        if not has_preset(target):
-            print(f"{target} preseti EasyEffects'te yok, Genel kullanılıyor", flush=True)
-            target = GENEL
+        if not has_preset(target):  # alt türün dosyası yoksa ana türünkine, o da yoksa Genel'e
+            fallback = main_genre(target) if has_preset(main_genre(target)) else GENEL
+            print(f"{target} preseti EasyEffects'te yok, {fallback} kullanılıyor", flush=True)
+            target = fallback
         if target != current:
             subprocess.run(["easyeffects", "-l", target], check=False)  # ee-preset değil: şarkı değişiminde bildirim çıkmasın
         self.current = {"genre": genre, "preset": target, "track": f"{artist} - {title}", "locked": bool(locked)}

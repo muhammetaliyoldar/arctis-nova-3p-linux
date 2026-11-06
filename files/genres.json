@@ -439,6 +439,87 @@
    "turkish": false
   }
  ],
+ "subgenres": [
+  {
+   "name": "Türkçe Trap",
+   "parent": "Türkçe Rap",
+   "artists": [
+    "Şam",
+    "Lil Zey",
+    "UZI",
+    "Ati242",
+    "AGAB",
+    "Kozmos",
+    "Anıl Piyancı",
+    "Wegh",
+    "Volta Show",
+    "K''st",
+    "Grogi",
+    "Stap"
+   ]
+  },
+  {
+   "name": "Türkçe Boom Bap",
+   "parent": "Türkçe Rap",
+   "artists": [
+    "Kamufle",
+    "Allame",
+    "Farazi",
+    "Hayki",
+    "Şehinşah",
+    "Sagopa Kajmer",
+    "Killa Hakan",
+    "Mode XL",
+    "Çağrı Sinci",
+    "Kayra",
+    "Sürveyan",
+    "İndigo",
+    "Redo"
+   ]
+  },
+  {
+   "name": "Türkçe Melodik Rap",
+   "parent": "Türkçe Rap",
+   "artists": [
+    "No.1",
+    "Ahiyan",
+    "Ezhel",
+    "M Lisa",
+    "Diyar Pala",
+    "Şiir!",
+    "Deniz Gürzumar"
+   ]
+  },
+  {
+   "name": "Türkçe Sert Rap",
+   "parent": "Türkçe Rap",
+   "artists": [
+    "Sansar Salvo",
+    "Tahribad-ı İsyan",
+    "Da Poet",
+    "Hidra",
+    "Maestro"
+   ]
+  },
+  {
+   "name": "Türkçe Old School",
+   "parent": "Türkçe Rap",
+   "artists": [
+    "Ceza",
+    "Ceg",
+    "İstanbul Attack",
+    "Beta Berk Bayındır"
+   ]
+  },
+  {
+   "name": "Türkçe Deneysel Rap",
+   "parent": "Türkçe Rap",
+   "artists": [
+    "Ağaçkakan",
+    "Çiğ"
+   ]
+  }
+ ],
  "deezer": {
   "132": "Pop",
   "116": "Hip Hop",

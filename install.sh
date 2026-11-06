@@ -43,6 +43,11 @@ if [ -n "$DO_EE" ] && ! command -v easyeffects >/dev/null && ! flatpak info com.
         warn "apt yok: EasyEffects'i ve lsp-plugins'i dağıtımının paket yöneticisiyle kur, sonra scripti tekrar çalıştır"
     fi
 fi
+# Bazı alt tür presetlerindeki Bass Enhancer ve Stereo Tools Calf eklentisi; yoksa EasyEffects onları atlar
+if [ -n "$DO_EE" ] && command -v apt-get >/dev/null && ! dpkg -s calf-plugins >/dev/null 2>&1; then
+    say "Calf eklentileri kuruluyor (sudo gerekli): alt tür presetlerinde bass enhancer ve stereo genişlik"
+    sudo apt-get install -y calf-plugins
+fi
 
 if [ -n "$DO_BT" ]; then
     # 1) Güç tasarrufu

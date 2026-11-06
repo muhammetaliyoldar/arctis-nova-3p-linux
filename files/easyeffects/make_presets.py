@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""EasyEffects 7.x presetlerini ve tür kataloğunu (../genres.json) üretir: Genel + 24 ana tür.
+"""EasyEffects 7.x presetlerini ve tür kataloğunu (../genres.json) üretir: Genel + 24 ana tür + alt türler.
 
 Kullanım: python3 make_presets.py [çıktı_klasörü] [--check]
   --check: her presetin EQ eğrisinin tepe noktalarını yazdırır (dosya yazmaz)
@@ -17,7 +17,13 @@ Ana türün eğrisi, gruptaki en çok dinlenen alt türün eski eğrisidir. Eski
 kalkan adların hangi ana türe katıldığı MERGED'dedir (merged): install.sh eski preset dosyalarını
 kenara alır, sabit listeyi ve kilidi yeni adlara çevirir.
 
-Zincir: Equalizer -> Compressor -> Limiter
+Alt türler (SUBGENRES, genres.json "subgenres"): en çok dinlenen ana türlerin içinde, kullanıcının
+dinlediği sanatçılarla tanınan alt türler (Türkçe trap/boom bap'i hiçbir tür kaynağı ayırmıyor).
+Servis sanatçı listede ise alt türün presetini, değilse ana türünkini çalar; ara katman yok.
+Eğriler kullanıcının parçalarının ölçümünden (2026-11-06, EQ öncesi kayıt): hafızada
+"Arctis- Türkçe Rap alt türleri ses ölçümü ve eğri önerisi".
+
+Zincir: Equalizer -> [Bass Enhancer, Stereo Tools: yalnız bazı alt türlerde, Calf] -> Compressor -> Limiter
 - EQ: her presette aynı kulaklık düzeltmesi (nova()) + türün bantları (en fazla 2 Bell: nova
   kulaklıkta 7 bant tutar, kulaklık 10 bant alır). Filtreler "APO (DR)" modunda: Equalizer APO
   ve response_db ile birebir aynı eğri. 12 kHz üstüne yükseltme yok (SBC orayı bozuyor).
@@ -35,6 +41,7 @@ import json
 import math
 import os
 import sys
+import unicodedata
 
 
 def band(type_, freq, gain=0.0, q=0.7, slope="x1"):
@@ -78,11 +85,25 @@ SLOW = compressor(threshold=-18.0, ratio=1.8, release=400.0, knee=-9.0)  # uzun 
 PUNCH = compressor(threshold=-16.0, ratio=1.8, release=200.0)  # vuruşlar arasında toparlanır
 
 
-def preset(bands, comp):
-    """input-gain aşağıda, PRESETS tanımlandıktan sonra eğrinin tepesinden hesaplanır."""
+def bass_enhancer(amount, scope=100.0, output_gain=-2.0):
+    """Calf Bass Enhancer: scope altındaki basın harmoniklerini ekler (sub küçük kulaklıkta da duyulur).
+    Harmonikler tepeyi yükseltir; çıkış kısılır ki limiter basta devreye girip bozmasın."""
+    return {"bypass": False, "input-gain": 0.0, "output-gain": output_gain, "amount": amount,
+            "harmonics": 8.5, "scope": scope, "floor": 20.0, "floor-active": True, "blend": 0.0, "listen": False}
+
+
+def stereo_tools(base):
+    """Calf Stereo Tools: yalnız stereo genişlik (stereo-base > 0 açar); diğer alanlar EasyEffects varsayılanı."""
+    return {"bypass": False, "input-gain": 0.0, "output-gain": 0.0, "stereo-base": base}
+
+
+def preset(bands, comp, fx=None):
+    """input-gain aşağıda, PRESETS tanımlandıktan sonra eğrinin tepesinden hesaplanır.
+    fx: EQ ile compressor arasına girecek eklentiler, {"bass_enhancer#0": {...}, ...}."""
+    fx = fx or {}
     return {"output": {"blocklist": [],
-                       "plugins_order": ["equalizer#0", "compressor#0", "limiter#0"],
-                       "equalizer#0": equalizer(bands, 0.0),
+                       "plugins_order": ["equalizer#0", *fx, "compressor#0", "limiter#0"],
+                       "equalizer#0": equalizer(bands, 0.0), **fx,
                        "compressor#0": comp, "limiter#0": limiter()}}
 
 
@@ -272,19 +293,61 @@ MERGED = {
     "Dancehall": "Reggae", "Amapiano": "Afrobeats", "Arap Müziği": "Arabesk", "Fantezi": "Arabesk",
 }
 
+# (ad, ana tür, aileden farklar, sanatçılar). Ölçüm: Türkçe Rap ortalamasında bas tepesi 50-63 Hz;
+# alt türlerin ortalamadan farkı yorumda. Sanatçı adları Spotify'daki gibi (servis harf/rakam dışını atıp karşılaştırır).
+SUBGENRES = [
+    # 808 32-60 Hz, 25-40 Hz ortalamadan +6..+8 dB, vokal bölgesi (0.8-3 kHz) -2; en sıkıştırılmış master (crest 9):
+    # 808 göğüste, 808 harmonikleri (100-200 Hz) kalsın, vokal 808'in üstüne, hi-hat'e yer; compressor yok
+    ("Türkçe Trap", "Türkçe Rap",
+     {"ls": 3.0, "mud": -3.5, "mid": 1.5, "presence": 3.5, "air": -3.5, "hp": 20.0,
+      "bells": [(40, 4.0, 0.9), (1500, 1.5, 1.0)], "comp": OFF, "fx": {"bass_enhancer#0": bass_enhancer(-6.0, 100.0)}},
+     ["Şam", "Lil Zey", "UZI", "Ati242", "AGAB", "Kozmos", "Anıl Piyancı", "Wegh", "Volta Show", "K''st", "Grogi",
+      "Stap"]),
+    # kick 50-60 Hz, snare gövdesi 125-200 Hz +1.5, sample tizi koyu (10-16 kHz -1.5..-3), dinamik geniş (crest 12)
+    ("Türkçe Boom Bap", "Türkçe Rap",
+     {"ls": 2.5, "mud": -3.0, "mid": 2.0, "presence": 4.0, "air": -3.0,
+      "bells": [(60, 3.5, 1.0), (2200, 1.0, 1.0)]},
+     ["Kamufle", "Allame", "Farazi", "Hayki", "Şehinşah", "Sagopa Kajmer", "Killa Hakan", "Mode XL", "Çağrı Sinci",
+      "Kayra", "Sürveyan", "İndigo", "Redo"]),
+    # bas hafif (80-160 Hz -2), vokal/melodi önde (630 Hz-2 kHz +1..+2): sıcak, yumuşak tepe
+    ("Türkçe Melodik Rap", "Türkçe Rap",
+     {"ls": 2.0, "mud": -3.0, "presence": 3.0, "air": -4.0,
+      "bells": [(60, 2.5, 0.9), (300, 1.0, 1.0)], "comp": GLUE},
+     ["No.1", "Ahiyan", "Ezhel", "M Lisa", "Diyar Pala", "Şiir!", "Deniz Gürzumar"]),
+    # sub yok (31-50 Hz -4), kick 53-67 Hz, 2-12 kHz +1.5..+2 (parlak, kirli), en yoğun dinamik: kick yumruğu, tiz yormasın
+    ("Türkçe Sert Rap", "Türkçe Rap",
+     {"ls": 2.5, "mud": -4.0, "mid": 2.0, "presence": 3.0, "air": -5.0, "hp": 25.0,
+      "bells": [(65, 3.5, 1.0), (1000, 1.0, 1.0)], "comp": OFF},
+     ["Sansar Salvo", "Tahribad-ı İsyan", "Da Poet", "Hidra", "Maestro"]),
+    # 40 Hz altı -9..-11 dB (sub hiç yok: şişirilmez, hp yukarıda), 8-16 kHz +1..+6 (hışırtı), en az sıkıştırılmış
+    ("Türkçe Old School", "Türkçe Rap",
+     {"ls": 3.0, "mud": -3.0, "mid": 2.0, "presence": 3.0, "air": -5.5, "hp": 30.0,
+      "bells": [(70, 3.0, 1.0), (13000, -2.0, 0.9)]},
+     ["Ceza", "Ceg", "İstanbul Attack", "Beta Berk Bayındır"]),
+    # 31-40 Hz +6, tiz koyu (5-16 kHz -2..-3), tizde en geniş stereo: derin sub, açık tiz, biraz daha geniş
+    ("Türkçe Deneysel Rap", "Türkçe Rap",
+     {"ls": 2.5, "mud": -4.0, "presence": 3.5, "air": -3.0, "hp": 20.0,
+      "bells": [(40, 3.0, 0.9)], "comp": OFF, "fx": {"stereo_tools#0": stereo_tools(0.15)}},
+     ["Ağaçkakan", "Çiğ"]),
+]
+
 
 def genre_preset(family, diff):
-    """Aile şablonu + türün farkları; "bells" ve "comp" verilirse ailedekinin yerine geçer."""
+    """Aile şablonu + türün farkları; "bells" ve "comp" verilirse ailedekinin yerine geçer, "fx" eklenir."""
     kw, bells, comp = FAMILIES[family]
-    kw = {**kw, **{k: v for k, v in diff.items() if k not in ("bells", "comp")}}
+    kw = {**kw, **{k: v for k, v in diff.items() if k not in ("bells", "comp", "fx")}}
     return preset(nova(**kw) + [band("Bell", float(f), g, q) for f, g, q in diff.get("bells", bells)],
-                  diff.get("comp", comp))
+                  diff.get("comp", comp), diff.get("fx"))
 
 
+FAMILY_OF = {name: family for name, family, _, _ in GENRES}
 # Her türe uyan Harman eğrisi; tanınmayan türler buna düşer
 PRESETS = {"Genel": preset(nova(), GLUE)}
 PRESETS.update((name, genre_preset(family, diff)) for name, family, _, diff in GENRES)
+PRESETS.update((name, genre_preset(FAMILY_OF[parent], diff)) for name, parent, diff, _ in SUBGENRES
+               if parent in FAMILY_OF)  # ana türü olmayan alt tür check_catalog'da hata
 CATALOG = {"genres": [{"name": n, "family": f, "keywords": k, "turkish": n in TURKISH} for n, f, k, _ in GENRES],
+           "subgenres": [{"name": n, "parent": p, "artists": a} for n, p, _, a in SUBGENRES],
            "deezer": {str(k): v for k, v in DEEZER.items()},
            "turkish_variant": TURKISH_VARIANT, "defaults": DEFAULTS, "generic": GENERIC, "merged": MERGED}
 
@@ -372,12 +435,15 @@ def schema_ranges(name):
     return out
 
 
+PLUGIN_SCHEMA = {"equalizer": "equalizer", "compressor": "compressor", "limiter": "limiter",
+                 "bass_enhancer": "bassenhancer", "stereo_tools": "stereotools"}
+
+
 def validate(name, data):
     """Aralık dışı değerleri EasyEffects sessizce reddeder; bunları yakala."""
     errors = []
-    for plugin, schema in (("compressor#0", "compressor"), ("limiter#0", "limiter"),
-                           ("equalizer#0", "equalizer")):
-        ranges = schema_ranges(schema)
+    for plugin in data["output"]["plugins_order"]:
+        ranges = schema_ranges(PLUGIN_SCHEMA[plugin.split("#")[0]])
         for key, val in data["output"][plugin].items():
             if isinstance(val, (int, float)) and not isinstance(val, bool) and key in ranges:
                 lo, hi = ranges[key]
@@ -405,6 +471,15 @@ def check_catalog():
                for k, v in TURKISH_VARIANT.items() if v not in TURKISH or family.get(v) != k]
     if len(DEFAULTS) != 5:
         errors.append(f"defaults {len(DEFAULTS)} tür, 5 olmalı")
+    subs = [s[0] for s in SUBGENRES]
+    errors += [f"alt tür adı iki kez ya da ana türle aynı: {n}" for n in sorted({n for n in subs
+                                                                               if (subs + names).count(n) > 1})]
+    errors += [f"geçersiz alt tür adı: {n}" for n in subs if "/" in n or n == "Genel" or n in MERGED]
+    errors += [f"{n}: ana tür {p} katalogda yok" for n, p, _, _ in SUBGENRES if p not in family]
+    norm = lambda s: "".join(c for c in unicodedata.normalize("NFKD", s.casefold()) if c.isalnum())  # servisle aynı
+    artists = [norm(a) for s in SUBGENRES for a in s[3]]
+    errors += [f"sanatçı iki kez geçiyor: {a}" for a in sorted({a for a in artists if artists.count(a) > 1})]
+    errors += [f"{n}: sanatçı listesi boş ya da boş ad var" for n, _, _, a in SUBGENRES if not a or not all(map(norm, a))]
     for name, data in PRESETS.items():
         eq = data["output"]["equalizer#0"]
         bands = list(eq["left"].values())
@@ -433,7 +508,7 @@ if __name__ == "__main__":
         bands = list(eq["left"].values())
         if "--check" in sys.argv:
             fmax, gmax = peak(bands)
-            print(f"{name:17s} tepe {gmax:+.1f} dB @ {fmax:6.0f} Hz | input-gain {eq['input-gain']:+.1f}"
+            print(f"{name:19s} tepe {gmax:+.1f} dB @ {fmax:6.0f} Hz | input-gain {eq['input-gain']:+.1f}"
                   f" | net tepe {gmax + eq['input-gain']:+.1f} dB | "
                   + " ".join(f"{int(f)}:{response_db(bands, f):+.1f}" for f in (40, 60, 100, 200, 300, 1000, 3000, 6500, 12000)))
             continue
