@@ -25,11 +25,11 @@ ask "Ses presetleri: EasyEffects, tür presetleri ve Ctrl+Alt kısayolları" && 
 [ -n "$DO_EE" ] && ask "  Spotify'da çalan şarkının türüne göre preset kendiliğinden değişsin mi? (sanatçı ve şarkı adı Deezer ve MusicBrainz'e sorulur)" && DO_GENRE=1
 if [ -n "$DO_GENRE" ]; then
     # Menüdeki "en çok dinlenen 5" nereden gelsin; sonradan menüdeki "Kaynak"tan değiştirilebilir
-    [ -f ~/.config/spotify-genre-preset/spotify.json ] && MODE_DEFAULT=3 || MODE_DEFAULT=2
-    echo "    Menüdeki 'en çok dinlenen 5' nereden gelsin?"
-    echo "      1) Sabit 5 tür (menüden seçersin)  2) Bu bilgisayardaki dinlemelerim  3) Spotify hesabım (tüm cihazlar, Premium)"
+    [ -f ~/.config/spotify-genre-preset/spotify.json ] && MODE_DEFAULT=2 || MODE_DEFAULT=1
+    echo "    Menüdeki 'en çok dinlenen 5' nereden gelsin? (istediğin türü sonra menüden sabitleyebilirsin)"
+    echo "      1) Bu bilgisayardaki dinlemelerim  2) Spotify hesabım (tüm cihazlar, Premium)"
     read -rp $'\033[1;36m??\033[0m '"  Seçim [$MODE_DEFAULT]: " c || c=""
-    case "${c:-$MODE_DEFAULT}" in 1) MODE=sabit ;; 3) MODE=hesap ;; *) MODE=cihaz ;; esac
+    case "${c:-$MODE_DEFAULT}" in 2) MODE=hesap ;; *) MODE=cihaz ;; esac
 fi
 command -v gnome-shell >/dev/null && ask "Dynamic Music Pill: üst barda şarkı kontrolü ve görselleştirici" && DO_PILL=1
 
@@ -128,7 +128,10 @@ if [ -n "$EE_DIR" ]; then
     [ "$MOVED" -gt 0 ] && say "$MOVED eski preset kenara alındı: $EE_DIR/eski-presetler/"
 
     MAC=$(bluetoothctl devices 2>/dev/null | grep -i 'Arctis Nova 3P' | awk '{print $2}' | head -1)
-    if [ -n "$MAC" ]; then
+    if [ -n "$DO_GENRE" ]; then  # preseti şarkı seçiyor; kulaklık kopup bağlanınca Genel'e dönmesin
+        rm -f "$EE_DIR"/autoload/output/bluez_output.*:headphone-output.json
+        say "Kulaklık bağlanınca preset değişmeyecek: çalan şarkının preseti kalır"
+    elif [ -n "$MAC" ]; then
         NODE="bluez_output.${MAC//:/_}.1"
         cat > "$EE_DIR/autoload/output/$NODE:headphone-output.json" <<EOF
 {
@@ -182,13 +185,14 @@ import json, os, sys
 mode, path, genres, lock = sys.argv[1:5]
 cat = json.load(open(genres))
 old = json.load(open(path)) if os.path.exists(path) else {}
-sabit = []
-for name in old.get("sabit") or cat["defaults"]:  # 100 türlük sürümün adları ana türe çevrilir
+sabit = old.pop("sabit", None) or []  # kaldırılan "Sabit 5 tür" modunun listesi; diğer modlarda kullanılmıyordu
+sabitle = []
+for name in old.get("sabitle", sabit if old.get("mode") == "sabit" else []):  # 100 türlük sürümün adları ana türe
     name = cat["merged"].get(name, name)
-    if name not in sabit:
-        sabit.append(name)
+    if name not in sabitle:
+        sabitle.append(name)
 os.makedirs(os.path.dirname(path), exist_ok=True)
-json.dump({"mode": mode, "sabit": sabit}, open(path, "w"), ensure_ascii=False, indent=1)
+json.dump({**old, "mode": mode, "sabitle": sabitle}, open(path, "w"), ensure_ascii=False, indent=1)  # gizli vb. korunur
 if os.path.exists(lock):  # kilitli preset de
     name = open(lock).read().strip()
     if name in cat["merged"]:

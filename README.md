@@ -19,7 +19,7 @@ Script başta hangi parçaların kurulacağını soruyor (Enter = evet, `h` = ha
    - **Otomatik bağlanma:** Oturum açıldıktan sonra kulaklığa kendisi bağlanmayı deneyen servisi kuruyor.
 2. **Bluetooth mikrofonu kapatılsın mı?** Sadece 1. soruya evet dersen soruluyor. Evet (varsayılan) HFP/HSP'yi kapatıyor; bugüne kadar test edilen ayar bu. Hayır dersen mikrofon açık kalıyor, ama kopmalar geri gelebilir (aşağıda "Belirtiler" altında 1. maddeye bak).
 3. **Ses presetleri:** Kurulu değilse EasyEffects'i ve LSP eklentilerini, ayrıca Calf eklentilerini (`calf-plugins`) kuruyor (apt, sudo ister). 63 preseti ekliyor (100 türlük sürümden kalan presetleri ve v1'in Rap, Tekno - Rave, House - Disco presetlerini EasyEffects'te eski-presetler klasörüne alıyor; kendi presetlerine dokunmuyor), açılışta ve kulaklık bağlanınca **Genel**'in otomatik yüklenmesini ve EasyEffects'in her açılışta arka planda başlamasını ayarlıyor. Ctrl+Alt kısayollarını da bu kuruyor. Üst bar preset menüsü olarak 4. soruya hayır dersen EasyEffects Preset Selector uzantısı, evet dersen kendi menümüz kuruluyor.
-4. **Spotify'daki türe göre otomatik preset:** Sadece 3. soruya evet dersen soruluyor. Spotify'da şarkı değişince türüne bakıp o türün presetine kendisi geçiyor. Ardından en çok dinlenen türlerin kaynağını soruyor: 1) sabit 5 tür, 2) bu bilgisayardaki dinlemelerin, 3) Spotify hesabın (Enter: Spotify bağlıysa 3, değilse 2; sonra menüden değişir). Ayrıca üst bara çalan türü, kilidi ve en çok dinlenen türleri gösteren kendi menümüzü kuruyor (ayrıntı aşağıda "Spotify'daki türe göre otomatik preset" altında; Spotify hesabını bağlamak için "Spotify hesabını bağlama" bölümüne bak).
+4. **Spotify'daki türe göre otomatik preset:** Sadece 3. soruya evet dersen soruluyor. Spotify'da şarkı değişince türüne bakıp o türün presetine kendisi geçiyor. Ardından en çok dinlenen türlerin kaynağını soruyor: 1) bu bilgisayardaki dinlemelerin, 2) Spotify hesabın (Enter: Spotify bağlıysa 2, değilse 1; sonra menüden değişir). Ayrıca üst bara çalan türü, kilidi ve en çok dinlenen türleri gösteren kendi menümüzü kuruyor (ayrıntı aşağıda "Spotify'daki türe göre otomatik preset" altında; Spotify hesabını bağlamak için "Spotify hesabını bağlama" bölümüne bak).
 5. **Dynamic Music Pill:** Sadece GNOME varsa soruluyor. Üst barda şarkıyı yönetmeye yarayan uzantıyı indirip kuruyor ve ayarlarını (görünüm, görselleştirici, şeffaflık) yüklüyor.
 
 Notlar:
@@ -99,7 +99,7 @@ Kulaklık açılınca bilgisayara bağlanmayı deniyor. Bilgisayar o sırada hen
 
 ## EasyEffects presetleri
 
-63 preset var: **Genel**, 24 ana tür (`files/genres.json`) ve 38 alt tür (aşağıda "Alt türler"). **Genel** varsayılan; açılışta ve kulaklık bağlanınca yükleniyor, sadece kulaklık düzeltmesi tabanı var. Türlerin hepsi aynı kulaklık düzeltmesi tabanı üstüne kendi farklarını ekliyor.
+63 preset var: **Genel**, 24 ana tür (`files/genres.json`) ve 38 alt tür (aşağıda "Alt türler"). **Genel** varsayılan; açılışta ve (tür takibi kurulu değilse) kulaklık bağlanınca yükleniyor; tür takibi kuruluysa kulaklık kopup bağlanınca çalan şarkının preseti kalıyor, sadece kulaklık düzeltmesi tabanı var. Türlerin hepsi aynı kulaklık düzeltmesi tabanı üstüne kendi farklarını ekliyor.
 
 Her ana türün eğrisi, o gruptaki en çok dinlenen alt türün eski eğrisinden başlıyor: Pop ← Synthpop, House ← genel/tech house eğrisi (kick 55 Hz, tiz biraz daha kısık; eski French House eğrisi Fransız House alt türünde), Bass Müziği ← UK Garage, Latin ← Latin Pop, Türk Halk - Sanat ← Türk Halk; diğerleri kendi adlı eski eğrisi. En çok dinlenen türlerden altısı (Türkçe Rap, Hip Hop, Elektronik, Bass Müziği, Indie, Folk - Akustik) dinlenen sanatçıların prodüktör ve mix mühendislerinin anlattıklarına göre 0.5-1 dB ayarlandı; hiçbiri henüz kulakla denenmedi.
 
@@ -196,11 +196,14 @@ Spotify masaüstü uygulamasında şarkı değişince servis sanatçı ve şark�
 - **Türkçe:** sanatçı ya da şarkı adında ğ, ı, ş, İ varsa, MusicBrainz'de "turkish" etiketi varsa ya da sanatçının ülkesi TR ise, bulunan tür Türkçe karşılığına çevriliyor (Hip Hop → Türkçe Rap, Pop → Türkçe Pop, Rock → Türkçe Rock, Folk - Akustik → Türk Halk - Sanat).
 - Ad farkları (Siyasiyabend = "Siya siyabend", AGAB = "Aga B") ve "- Live Session" gibi ekler tolere ediliyor. Hiçbir yerde bulunamayan underground isimler Genel'e düşer.
 
-**Üst bar menüsü:** Kendi uzantımız (`arctis-preset-menu`), tür takibi kurulunca EasyEffects Preset Selector'ın yerine geçiyor (Selector kapatılıyor). Simgenin yanında çalan tür yazıyor; kilitliyken simge kilit oluyor. Menü simgenin ortasından açılıyor. Sırayla en çok dinlenen 5 tür var, altında sabit **Genel**; çalan tür (alt tür dahil) bunlarda yoksa en altta geçici bir satır olarak görünüyor. En fazla 7 satır.
+**Üst bar menüsü:** Kendi uzantımız (`arctis-preset-menu`), tür takibi kurulunca EasyEffects Preset Selector'ın yerine geçiyor (Selector kapatılıyor). Simgenin yanında yüklü preset yazıyor (menüde noktalı olan; elle seçtiğinde o); kilitliyken simge kilit oluyor. Menü simgenin ortasından açılıyor. En çok dinlenen 5 tür (sabitlediklerin dahil) dinlenme sırasıyla var, altında her zaman **Genel**; çalan tür (alt tür dahil) bunlarda yoksa en altta geçici bir satır olarak görünüyor. En fazla 7 satır.
 
-Menüde iki alt menü daha var:
-- **Kaynak:** "Sabit 5 tür" / "Bu cihazdaki dinlemelerim" / "Spotify hesabım (tüm cihazlar)". Hesap seçiliyken giriş yoksa "Spotify hesabını bağla…" terminalde girişi açıyor.
-- **Sabit 5 türü seç:** 24 tür alfabetik. 5 tür seçiliyken yenisi en eskisinin yerine geçiyor. Seçerken menü kapanmıyor.
+Menüde beş alt menü daha var:
+- **Kaynak:** "Bu cihazdaki dinlemelerim" / "Spotify hesabım (tüm cihazlar)". Hesap seçiliyken giriş yoksa "Spotify hesabını bağla…" terminalde girişi açıyor. Eski girişte "son çalınanlar" izni yoksa "Spotify hesabını yeniden bağla…" çıkıyor.
+- **Dönem:** son 1 gün / 1 hafta / 1 ay (varsayılan) / 3 ay / 6 ay / 1 yıl. En çok dinlenen 5 tür ve istatistik bu döneme göre hesaplanıyor (aşağıdaki tablo).
+- **İstatistik:** Seçili kaynak ve dönemde ana türlerin yüzdesi; ilk satır verinin nereden geldiğini yazıyor. %1'in altındaki türler yazılmıyor.
+- **Menüde sabitle:** 24 tür alfabetik. İşaretlediğin tür hemen menüye giriyor: 5 türün en az dinleneninin yerine geçiyor, ikinci sabitlediğin ondan önceki türün yerine, böyle sırayla. Menü yine dinlenme sırasında; hiç dinlemediğin sabit tür en altta. 5 tür sabitlersen menü tamamen sabit; 6.'yı işaretlersen en eski sabitlediğin çıkıyor. Seçerken menü kapanmıyor. Hem sabitlenip hem gizlenen tür menüde görünüyor.
+- **Menüde gizle:** İşaretlenen türler en çok dinlenenler listesine girmiyor, yerine sıradaki geliyor. Çalınca yine kendi presetiyle çalıyor, istatistikte de görünüyor.
 
 Uzantıyı X11'de yüklemek ya da yenilemek için Alt+F2 → `r` → Enter; Wayland'de oturumu kapatıp aç.
 
@@ -211,13 +214,12 @@ Uzantıyı X11'de yüklemek ya da yenilemek için Alt+F2 → `r` → Enter; Wayl
 
 **Elle seçim:** Kilit yokken menüden ya da kısayolla seçtiğin preset sadece o şarkı boyunca kalıyor. Sonraki şarkıda türün presetine otomatik dönülüyor.
 
-**"En çok dinlenen" listesi** için üç kaynak modu var:
+**"En çok dinlenen" listesi** için iki kaynak modu var:
 
 | Mod | Liste |
 |---|---|
-| Sabit | Menüden seçtiğin 5 tür (varsayılan: Türkçe Rap, Indie, Elektronik, Türkçe Rock, R&B) |
-| Cihaz | Bu bilgisayardaki dinlemeler, bulunan tür sayılıyor ve birikiyor |
-| Hesap | Spotify hesabının son ~6 ayda en çok dinlenen 50 parçası, telefon dahil tüm cihazlar. 6 saatte bir güncelleniyor, hata olursa 5 dakika sonra tekrar deneniyor. Aynı hesabı bağlayan her bilgisayarda aynı liste çıkıyor, ayrıca senkron gerekmiyor |
+| Cihaz | Bu bilgisayarda seçili dönemde çalan şarkıların türü. Her şarkı saatlik geçmişe yazılıyor (`~/.local/state/spotify-genre-preset/gecmis.json`, 1 yıldan eskisi siliniyor). Dönemde hiç dinleme yoksa tüm zamanların sayımı kullanılıyor |
+| Hesap | Telefon dahil tüm cihazlar. 1 ay, 6 ay ve 1 yıl için Spotify'ın kendi ~4 hafta / ~6 ay / ~1 yıl listesindeki en çok dinlenen 50 parça (6 saatte bir). Spotify 1 gün, 1 hafta ve 3 ay vermiyor: bunlar için servis "son çalınanlar"ı (son 50 parça) yarım saatte bir çekip geçmişi kendisi biriktiriyor. Geçmiş dönemi henüz kapsamıyorsa (ör. 3 ay için ilk 3 ay) dönemi kapsayan en kısa Spotify listesi kullanılıyor. Hata olursa yarım saat sonra tekrar deneniyor |
 
 Mod kurulumda soruluyor, sonra menüdeki **Kaynak**'tan değişiyor. Ayarlar `~/.config/spotify-genre-preset/config.json`, durum `~/.local/state/spotify-genre-preset/state.json` dosyasında.
 
@@ -226,7 +228,7 @@ Mod kurulumda soruluyor, sonra menüdeki **Kaynak**'tan değişiyor. Ayarlar `~/
 Uygulamanın sahibinin Spotify Premium'u olmalı (Spotify'ın Şubat 2026 kuralı).
 
 1. https://developer.spotify.com/dashboard adresinde **Create app** de. Redirect URI tam olarak `http://127.0.0.1:8888/callback` olmalı (localhost değil). "Web API"yi işaretle, **Save** de, Client ID'yi kopyala.
-2. `spotify-genre-preset --login` komutunu çalıştır (Client ID'yi kendisi soruyor) ya da menüden "Spotify hesabını bağla…" de. Tarayıcıda Kabul et; "Spotify hesabı bağlandı" yazısını görünce `systemctl --user restart spotify-genre-preset` çalıştır. Sadece yenileme anahtarı `~/.config/spotify-genre-preset/spotify.json` dosyasına 600 izinle kaydediliyor; istenen tek yetki `user-top-read`.
+2. `spotify-genre-preset --login` komutunu çalıştır (Client ID'yi kendisi soruyor) ya da menüden "Spotify hesabını bağla…" de. Tarayıcıda Kabul et; "Spotify hesabı bağlandı" yazısını görünce `systemctl --user restart spotify-genre-preset` çalıştır. Sadece yenileme anahtarı `~/.config/spotify-genre-preset/spotify.json` dosyasına 600 izinle kaydediliyor; istenen yetkiler `user-top-read` (en çok dinlenenler) ve `user-read-recently-played` (son çalınanlar). Bu ikinci yetki sonradan eklendi; eski girişle 1 gün / 1 hafta / 3 ay Spotify listesine düşer, bir kez yeniden giriş yap (Client ID kayıtlıysa tekrar sorulmaz).
 3. Diğer bilgisayarlarında aynı Client ID ile bir kez giriş yap. Dosyayı kopyalama: Spotify anahtarı yenileyince eski kopya geçersiz kalabilir.
 
 Bir başkası ya kendi uygulamasını açar ya da sen onu uygulamanın User Management sekmesine (ad + Spotify e-postası) eklersin ve senin Client ID'nle giriş yapar. Uygulama başına en fazla 5 kişi.
@@ -331,7 +333,7 @@ files/
 ├── genres.json                    # 24 ana türün kataloğu ve alt türleri (subgenres: ad, ana tür, sanatçılar, keywords): ad, aile, MusicBrainz anahtar kelimeleri, Deezer eşlemesi, Türkçe karşılıklar, varsayılan 5, genel türler, eski adların ana türe eşlemesi (make_presets.py üretir)
 ├── gnome/
 │   ├── dynamic-music-pill.ini     # Dynamic Music Pill ayarları (dconf)
-│   └── arctis-preset-menu@muhammetaliyoldar/  # üst bar menüsü: tür, kilit, kaynak seçimi, sabit 5 tür (tür takibiyle kurulur)
+│   └── arctis-preset-menu@muhammetaliyoldar/  # üst bar menüsü: preset, kilit, kaynak, dönem, istatistik, sabitle/gizle (tür takibiyle kurulur)
 ├── headset/*.txt                  # kulaklığın kendi EQ'su için HeadsetControl bantları (make_presets.py üretir)
 ├── modprobe/                      # btusb.conf, rtw88.conf
 ├── networkmanager/                # wifi-powersave-off.conf

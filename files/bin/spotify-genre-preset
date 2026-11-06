@@ -18,13 +18,17 @@ Her şarkı değişiminde türün presetine geçilir (preset dosyası yoksa Gene
 şarkı boyunca kalır. ~/.local/state/spotify-genre-preset/kilit dosyasında bir preset adı varsa (üst bar
 menüsündeki kilit) türden bağımsız hep o preset çalar. Ağ hatasında preset değişmez.
 Üst bar menüsü ~/.local/state/spotify-genre-preset/state.json'u okur (menü sırası, çalan tür,
-sıralamalar). Menünün 5 türü ~/.config/spotify-genre-preset/config.json'daki moda göre: "sabit"
-(seçilen 5 tür), "cihaz" (bu bilgisayarda her şarkıda bulunan türün sayımı), "hesap" (Spotify hesabının
-son ~6 aydaki en çok dinlenen 50 parçası, 6 saatte bir; telefon dahil, her cihazda aynı). config.json
-değişince menü hemen yeniden hesaplanır.
+sıralamalar, istatistik). Menünün 5 türü ~/.config/spotify-genre-preset/config.json'daki moda ve
+"donem"e (gün: 1, 7, 30, 90, 180, 365; varsayılan 30) göre: "cihaz" (bu bilgisayarda
+dönem içinde çalan şarkıların türü; saatlik geçmiş gecmis.json'da, dönemde dinleme yoksa tüm zamanlar),
+"hesap" (Spotify, telefon dahil tüm cihazlar: 1 ay/6 ay/1 yıl için Spotify'ın ~4 hafta/~6 ay/~1 yıl
+listesindeki en çok dinlenen 50 parça, 6 saatte bir; 1 gün/1 hafta/3 ay için yarım saatte bir çekilen son
+çalınanlardan biriken geçmiş, geçmiş dönemi henüz kapsamıyorsa dönemi kapsayan en kısa Spotify listesi).
+config.json "sabitle" listesindeki türler (en fazla 5) sıralamadaki en az dinlenenlerin yerine geçer, "gizli"
+listesindekiler menüye girmez. config.json değişince menü hemen yeniden hesaplanır.
 
 Kullanım: spotify-genre-preset                      (servis)
-          spotify-genre-preset --login [CLIENT_ID]  (Spotify hesabını bir kez bağlar; ID verilmezse sorar)
+          spotify-genre-preset --login [CLIENT_ID]  (Spotify hesabını bağlar; ID verilmezse kayıtlı olan, o da yoksa sorar)
 """
 import base64
 import hashlib
@@ -38,6 +42,7 @@ import threading
 import time
 import unicodedata
 import webbrowser
+from datetime import datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import urllib.error
 import urllib.parse
@@ -55,12 +60,16 @@ UA = "arctis-nova-3p-linux (https://github.com/muhammetaliyoldar/arctis-nova-3p-
 CACHE = os.path.join(GLib.get_user_cache_dir(), "spotify-genre-preset.json")
 STATE_DIR = os.path.join(GLib.get_user_state_dir(), "spotify-genre-preset")
 STATE, LOCK = os.path.join(STATE_DIR, "state.json"), os.path.join(STATE_DIR, "kilit")
+HISTORY = os.path.join(STATE_DIR, "gecmis.json")
 CONFIG_DIR = os.path.join(GLib.get_user_config_dir(), "spotify-genre-preset")
 CONFIG, SPOTIFY = os.path.join(CONFIG_DIR, "config.json"), os.path.join(CONFIG_DIR, "spotify.json")
 EE_OUTPUT = (os.path.join(GLib.get_user_config_dir(), "easyeffects", "output"),  # native, flatpak
              os.path.expanduser("~/.var/app/com.github.wwmm.easyeffects/config/easyeffects/output"))
 REDIRECT = "http://127.0.0.1:8888/callback"
 MPRIS = "org.mpris.MediaPlayer2.spotify"
+DONEMLER = (1, 7, 30, 90, 180, 365)  # menüdeki dönemler (gün)
+WINDOWS = {30: "short_term", 180: "medium_term", 365: "long_term"}  # Spotify'ın kendi dönemleri, kısadan uzuna
+WINDOW_TEXT = {"short_term": "~4 haftalık", "medium_term": "~6 aylık", "long_term": "~1 yıllık"}
 
 
 def norm(s):
@@ -192,16 +201,45 @@ def main_genre(genre):
     return CAT["parent"].get(genre, genre)
 
 
+def hour_now():
+    return int(time.time() // 3600)
+
+
+def add_play(buckets, ts, genre):
+    """Saatlik kovaya ({saat: {tür: dinleme}}) bir dinleme ekler; 366 günden eski kovalar silinir."""
+    bucket = buckets.setdefault(str(int(ts // 3600)), {})
+    bucket[genre] = bucket.get(genre, 0) + 1
+    for h in [h for h in buckets if int(h) < hour_now() - 366 * 24]:
+        del buckets[h]
+
+
+def since(buckets, days):
+    """Son days günün kovalarındaki dinlemelerin tür toplamı (katalogdan çıkan türler atlanır)."""
+    start, total = hour_now() - days * 24, {}
+    for h, genres in buckets.items():
+        if int(h) >= start:
+            for g, n in genres.items():
+                if g in CAT["family"]:
+                    total[g] = total.get(g, 0) + n
+    return total
+
+
+def ranked(scores):
+    return sorted(scores, key=lambda g: -scores[g])
+
+
 def menu_for(cfg, st):
-    """state.json "menu": mod listesinin ilk 5 türü (eksikse defaults'tan), Genel, 5'te değilse çalan preset
-    (alt tür de olabilir)."""
-    source = {"sabit": cfg["sabit"], "cihaz": st.get("top_cihaz"),
-              "hesap": st.get("top_hesap") or st.get("top_cihaz")}.get(cfg["mode"]) or []
-    top = []
+    """state.json "menu": sabitlenen türler ve modun sıralamasından kalan yerler (eksikse defaults'tan) toplam 5
+    tür; sabitlenen tür en az dinlenenin yerine geçer. Dinlenme sırasında (dinlenmeyen sabitler sonda), sonra Genel,
+    5'te değilse çalan preset (alt tür de olabilir)."""
+    source = {"cihaz": st.get("top_cihaz"), "hesap": st.get("top_hesap") or st.get("top_cihaz")}.get(cfg["mode"]) or []
+    order, hidden = [], set(cfg.get("gizli") or [])
     for g in source + CAT["defaults"]:
-        if g in CAT["family"] and g not in top:  # Genel ve katalogda olmayan adlar atlanır
-            top.append(g)
-    menu = top[:5] + [GENEL]
+        if g in CAT["family"] and g not in order and g not in hidden:  # Genel, katalog dışı ve gizlenen atlanır
+            order.append(g)
+    pins = [g for g in dict.fromkeys(cfg.get("sabitle") or []) if g in CAT["family"]][:5]
+    top = pins + [g for g in order if g not in pins][:5 - len(pins)]
+    menu = sorted(top, key=lambda g: order.index(g) if g in order else len(order)) + [GENEL]
     playing = (st.get("current") or {}).get("preset")
     if (playing in CAT["family"] or playing in CAT["parent"]) and playing not in menu:
         menu.append(playing)
@@ -278,7 +316,8 @@ def login(client_id):
 
     server = HTTPServer(("127.0.0.1", 8888), Callback)
     url = "https://accounts.spotify.com/authorize?" + urllib.parse.urlencode({
-        "client_id": client_id, "response_type": "code", "redirect_uri": REDIRECT, "scope": "user-top-read",
+        "client_id": client_id, "response_type": "code", "redirect_uri": REDIRECT,
+        "scope": "user-top-read user-read-recently-played",
         "code_challenge_method": "S256", "code_challenge": challenge, "state": state})
     print("Tarayıcıda Spotify girişi açılıyor. Açılmazsa bu adresi aç:\n" + url, flush=True)
     webbrowser.open(url)
@@ -290,22 +329,34 @@ def login(client_id):
                          "client_id": client_id, "code_verifier": verifier})
     save(SPOTIFY, {"client_id": client_id, "refresh_token": tok["refresh_token"]}, 0o600)
     if not os.path.exists(CONFIG):
-        save(CONFIG, {"mode": "hesap", "sabit": CAT["defaults"]})
+        save(CONFIG, {"mode": "hesap"})
     subprocess.run(["systemctl", "--user", "try-restart", "spotify-genre-preset.service"], check=False)
     print("Spotify hesabı bağlandı; servis çalışıyorsa yeniden başlatıldı.")
 
 
-def spotify_top_tracks(cfg):
-    """Hesabın son ~6 ayda en çok dinlediği 50 parça (tüm cihazlar)."""
+def access_token(cfg):
     tok = token_request({"grant_type": "refresh_token", "refresh_token": cfg["refresh_token"],
                          "client_id": cfg["client_id"]})
     if "refresh_token" in tok:  # Spotify bazen yenisini veriyor; eskisi geçersizleşir
         cfg["refresh_token"] = tok["refresh_token"]
         save(SPOTIFY, cfg, 0o600)
-    req = urllib.request.Request("https://api.spotify.com/v1/me/top/tracks?time_range=medium_term&limit=50",
-                                 headers={"Authorization": f"Bearer {tok['access_token']}"})
+    return tok["access_token"]
+
+
+def spotify_get(token, path):
+    req = urllib.request.Request("https://api.spotify.com/v1/" + path, headers={"Authorization": f"Bearer {token}"})
     with urllib.request.urlopen(req, timeout=10) as r:
-        return json.load(r)["items"]
+        return json.load(r)
+
+
+def recently_played(token):
+    """Hesabın son çalınan 50 parçası (tüm cihazlar); eski girişte bu izin yoksa None."""
+    try:
+        return spotify_get(token, "me/player/recently-played?limit=50")["items"]
+    except urllib.error.HTTPError as e:
+        if e.code in (401, 403):
+            return None
+        raise
 
 
 class Follower:
@@ -315,8 +366,11 @@ class Follower:
         st = load(STATE, {})
         self.counts = {g: n for g, n in st.get("counts", {}).items() if g in CAT["family"]}  # eski aile adları atılır
         self.current = st.get("current")
+        # {"cihaz"|"hesap": {saat: {ana tür: dinleme}}, "hesap_son": geçmişe eklenen son parçanın played_at'i}
+        self.history = {"cihaz": {}, "hesap": {}, **load(HISTORY, {})}
         self.spotify = load(SPOTIFY, None)
-        self.top_hesap = st.get("top_hesap") if self.spotify else None
+        self.top_windows = st.get("hesap_donemler", {}) if self.spotify else None  # {dönem: {ana tür: puan}}
+        self.need_login = False  # Spotify girişinde son çalınanlar izni yok
         self.read_config()
         self.lock = threading.Lock()  # önbellek servis ve sıralama iş parçacığı arasında ortak
 
@@ -326,14 +380,45 @@ class Follower:
         except ValueError as e:
             print(f"config.json okunamadı ({e}), varsayılan mod kullanılıyor", flush=True)
             cfg = {}
-        self.config = {"mode": cfg.get("mode") or ("hesap" if self.spotify else "cihaz"),
-                       "sabit": cfg.get("sabit") or CAT["defaults"]}
+        mode = cfg.get("mode") if cfg.get("mode") in ("cihaz", "hesap") else None  # eski "sabit" modu kaldırıldı
+        self.config = {"mode": mode or ("hesap" if self.spotify else "cihaz"),
+                       "sabitle": cfg.get("sabitle") or [], "gizli": cfg.get("gizli") or [],
+                       "donem": cfg.get("donem") if cfg.get("donem") in DONEMLER else 30}
+
+    def device_scores(self, days):
+        """Bu cihazda dönem içinde dinlenen ana türler ({tür: dinleme}) ve açıklaması."""
+        scores = since(self.history["cihaz"], days)
+        return (scores, "bu cihaz") if scores else (self.counts, "bu cihaz, tüm zamanlar (dönemde dinleme yok)")
+
+    def account_scores(self, days):
+        """Spotify'ın kendi dönemiyse onun ilk 50 parçasının puanı; değilse biriken son çalınanlar geçmişi,
+        geçmiş dönemi kapsamıyor ya da boşsa dönemi kapsayan en kısa Spotify dönemi."""
+        note = ""
+        if days not in WINDOWS:
+            buckets = self.history["hesap"]
+            if buckets and int(min(buckets, key=int)) <= hour_now() - days * 24:
+                scores = since(buckets, days)
+                if scores:
+                    return scores, "Spotify geçmişi, tüm cihazlar"
+                note = " (dönemde dinleme yok)"
+            else:
+                note = " (hesabı yeniden bağla)" if self.need_login else " (geçmiş birikiyor)"
+        window = next(w for d, w in WINDOWS.items() if days <= d)
+        return self.top_windows.get(window, {}), f"Spotify'ın {WINDOW_TEXT[window]} ilk 50 parçası{note}"
 
     def write_state(self):
-        st = {"mode": self.config["mode"], "current": self.current,
-              "top_cihaz": sorted(self.counts, key=lambda g: -self.counts[g]), "counts": self.counts}
-        if self.top_hesap is not None:  # hesap bağlı değilse anahtar yok
-            st["top_hesap"] = self.top_hesap
+        days = self.config["donem"]
+        scores, text = self.device_scores(days)
+        st = {"mode": self.config["mode"], "donem": days, "current": self.current,
+              "top_cihaz": ranked(scores), "counts": self.counts}
+        if self.top_windows is not None:  # hesap bağlı değilse anahtarlar yok
+            hesap, hesap_text = self.account_scores(days)
+            st.update(top_hesap=ranked(hesap), hesap_donemler=self.top_windows, izin_eksik=self.need_login)
+            if self.config["mode"] == "hesap":  # istatistik seçili kaynaktan
+                scores, text = hesap, hesap_text
+        total = sum(scores.values())
+        rows = [[g, round(100 * scores[g] / total)] for g in ranked(scores)]
+        st["istatistik"] = {"aciklama": text, "turler": [r for r in rows if r[1]]}  # %1'in altı gösterilmez
         st["menu"] = menu_for(self.config, st)
         save(STATE, st)
 
@@ -354,25 +439,54 @@ class Follower:
             save(CACHE, self.cache)
         return genre
 
-    def refresh_top(self):
+    def track_genre(self, t):
+        """Spotify parçasının ana türü; Genel ya da tür alınamadıysa None."""
         try:
-            items = spotify_top_tracks(self.spotify)
+            genre = self.genre_for(t["artists"][0]["name"], t["album"]["name"], t["name"])
+        except (OSError, ValueError, KeyError) as e:  # en çok dinlenenlerde sonraki güncellemede tekrar denenir
+            print(f"{t['artists'][0]['name']} - {t['name']}: tür alınamadı ({e})", flush=True)
+            return None
+        return None if genre == GENEL else main_genre(genre)
+
+    def refresh_spotify(self, top):
+        """Arka planda: son çalınanların yenilerini hesap geçmişine ekler; top ise Spotify'ın 3 dönemindeki en çok
+        dinlenen 50 parçayı da puanlar (1. parça 50 puan, 50. parça 1 puan). Ağ hatasında False."""
+        try:
+            token = access_token(self.spotify)
+            recent = recently_played(token)
+            tops = {w: spotify_get(token, f"me/top/tracks?time_range={w}&limit=50")["items"]
+                    for w in WINDOWS.values()} if top else {}
         except (OSError, ValueError, KeyError) as e:
-            print(f"Spotify sıralaması alınamadı ({e}); 400 ya da 401 ise tekrar --login yap", flush=True)
+            print(f"Spotify'dan alınamadı ({e}); 400 ya da 401 ise tekrar --login yap", flush=True)
             return False
-        score = {}
-        for rank, t in enumerate(items):  # 1. parça 50 puan, 50. parça 1 puan
-            try:
-                genre = self.genre_for(t["artists"][0]["name"], t["album"]["name"], t["name"])
-            except (OSError, ValueError, KeyError) as e:  # bir sonraki güncellemede tekrar denenir
-                print(f"{t['artists'][0]['name']} - {t['name']}: tür alınamadı ({e})", flush=True)
-                continue
-            if genre != GENEL:
-                genre = main_genre(genre)
-                score[genre] = score.get(genre, 0) + len(items) - rank
-        self.top_hesap = sorted(score, key=lambda g: -score[g])
-        GLib.idle_add(self.write_state)  # state.json'u yalnız ana döngü yazar
-        print("Spotify'a göre en çok dinlenen: " + ", ".join(self.top_hesap[:5]), flush=True)
+        last = self.history.get("hesap_son", 0)
+        plays = [(ts, self.track_genre(i["track"])) for i in recent or []
+                 if (ts := datetime.fromisoformat(i["played_at"]).timestamp()) > last]
+        windows = {}
+        for w, items in tops.items():
+            score = windows[w] = {}
+            for rank, t in enumerate(items):
+                genre = self.track_genre(t)
+                if genre:
+                    score[genre] = score.get(genre, 0) + len(items) - rank
+
+        def apply():  # geçmiş ve state.json'u yalnız ana döngü yazar
+            self.need_login = recent is None
+            self.top_windows.update(windows)
+            if plays:
+                for ts, genre in plays:
+                    if genre:
+                        add_play(self.history["hesap"], ts, genre)
+                self.history["hesap_son"] = max(ts for ts, _ in plays)
+                save(HISTORY, self.history)
+            self.write_state()
+        GLib.idle_add(apply)
+        msg = f"Spotify: {len(plays)} yeni dinleme"
+        if top:
+            msg += ", ~4 haftada en çok dinlenen: " + ", ".join(ranked(windows["short_term"])[:5])
+        if recent is None:
+            msg += " (son çalınanlar izni yok, --login gerekli)"
+        print(msg, flush=True)
         return True
 
     def on_metadata(self, md):
@@ -386,6 +500,7 @@ class Follower:
             genre = self.genre_for(artist, md.get("xesam:album", ""), title)
             if genre != GENEL:
                 self.counts[main_genre(genre)] = self.counts.get(main_genre(genre), 0) + 1
+                add_play(self.history["cihaz"], time.time(), main_genre(genre))
         except (OSError, ValueError, KeyError) as e:
             print(f"{artist} - {title}: tür alınamadı ({e}), preset değişmedi", flush=True)
             genre = current
@@ -399,6 +514,7 @@ class Follower:
         if target != current:
             subprocess.run(["easyeffects", "-l", target], check=False)  # ee-preset değil: şarkı değişiminde bildirim çıkmasın
         self.current = {"genre": genre, "preset": target, "track": f"{artist} - {title}", "locked": bool(locked)}
+        save(HISTORY, self.history)
         self.write_state()
 
 
@@ -431,23 +547,27 @@ def main():
     except GLib.Error:
         print("Spotify kapalı, açılması bekleniyor", flush=True)
     if f.spotify:
-        def retry():
-            refresh()
-            return False  # tek seferlik
+        busy, top_at = threading.Lock(), [float("-inf")]
 
-        def refresh():
-            def run():
-                if not f.refresh_top():  # açılışta ağ henüz hazır değilse 5 dk sonra tekrar
-                    GLib.timeout_add_seconds(300, retry)
-            threading.Thread(target=run, daemon=True).start()
-            return True  # 6 saatlik zamanlayıcı tekrarlasın
+        def run():
+            try:
+                top = time.monotonic() - top_at[0] >= 6 * 3600
+                if f.refresh_spotify(top) and top:
+                    top_at[0] = time.monotonic()
+            finally:
+                busy.release()
+
+        def refresh():  # son çalınanlar yarım saatte bir, en çok dinlenenler 6 saatte bir; hata olursa sonraki turda
+            if busy.acquire(blocking=False):  # önceki tur sürüyorsa atla (refresh token aynı anda iki kez yenilenmesin)
+                threading.Thread(target=run, daemon=True).start()
+            return True
         refresh()
-        GLib.timeout_add_seconds(6 * 3600, refresh)
+        GLib.timeout_add_seconds(1800, refresh)
     GLib.MainLoop().run()
 
 
 if __name__ == "__main__":
     if sys.argv[1:2] == ["--login"]:
-        login(sys.argv[2] if len(sys.argv) > 2 else ask_client_id())
+        login(sys.argv[2] if len(sys.argv) > 2 else (load(SPOTIFY, None) or {}).get("client_id") or ask_client_id())
     else:
         main()

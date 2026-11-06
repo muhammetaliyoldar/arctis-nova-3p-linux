@@ -1,8 +1,9 @@
-// Üst bar menüsü: panelde çalan tür; menüde servisin hesapladığı satırlar (en çok dinlenen 5 tür, Genel,
+// Üst bar menüsü: panelde yüklü preset (yoksa çalan tür); menüde servisin hesapladığı satırlar (en çok dinlenen 5 tür, Genel,
 // listede yoksa çalan tür) ve EasyEffects'te yüklü preset listede yoksa en altta o. Her satırdaki kilit o
 // preseti sabitler: tür ne olursa olsun sonraki şarkılar o presette çalar.
-// Sıralamayı spotify-genre-preset servisi state.json'a yazar; kilit dosyası kilitli presetin adını tutar.
-// "Kaynak" ve "Sabit 5 türü seç" config.json'a yazar; servis onu izleyip menüyü yeniden hesaplar.
+// Sıralamayı ve istatistiği spotify-genre-preset servisi state.json'a yazar; kilit dosyası kilitli presetin adını
+// tutar. "Kaynak", "Dönem", "Menüde sabitle" ve "Menüde gizle" config.json'a yazar; servis onu izleyip menüyü
+// yeniden hesaplar.
 import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
@@ -26,10 +27,11 @@ const SERVICE = GLib.build_filenamev([GLib.get_home_dir(), '.local', 'bin', APP]
 const EE_SCHEMA = 'com.github.wwmm.easyeffects';
 const GENEL = 'Genel';
 const MODES = [
-    ['sabit', 'Sabit 5 tür'],
     ['cihaz', 'Bu cihazdaki dinlemelerim'],
     ['hesap', 'Spotify hesabım (tüm cihazlar)'],
 ];
+const DONEMLER = [[1, 'Son 1 gün'], [7, 'Son 1 hafta'], [30, 'Son 1 ay'], [90, 'Son 3 ay'], [180, 'Son 6 ay'],
+    [365, 'Son 1 yıl']];
 
 function readText(path) {
     try {
@@ -52,10 +54,10 @@ function readJson(path) {
     }
 }
 
-// config.json yoksa: Spotify bağlıysa hesap, değilse cihaz modu; sabit liste genres.json'daki varsayılanlar
-function readConfig(genres) {
+// config.json yoksa: Spotify bağlıysa hesap, değilse cihaz modu
+function readConfig() {
     const mode = GLib.file_test(SPOTIFY, GLib.FileTest.EXISTS) ? 'hesap' : 'cihaz';
-    return {mode, sabit: genres?.defaults ?? [], ...readJson(CONFIG)};
+    return {mode, sabitle: [], gizli: [], donem: 30, ...readJson(CONFIG)};
 }
 
 function writeConfig(config) {
@@ -81,8 +83,6 @@ class Indicator extends PanelMenu.Button {
         this._settings = settings;
         this._rows = [];
         this._rowsKey = null;
-        this._sabitKey = null;
-        this._sabitItems = new Map();
 
         const box = new St.BoxLayout({style_class: 'panel-status-menu-box'});
         this._icon = new St.Icon({style_class: 'system-status-icon'});
@@ -96,8 +96,17 @@ class Indicator extends PanelMenu.Button {
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         this._source = new PopupMenu.PopupSubMenuMenuItem('Kaynak');
         this.menu.addMenuItem(this._source);
-        this._sabit = new PopupMenu.PopupSubMenuMenuItem('Sabit 5 türü seç');
-        this.menu.addMenuItem(this._sabit);
+        this._donem = new PopupMenu.PopupSubMenuMenuItem('Dönem');
+        this.menu.addMenuItem(this._donem);
+        this._stats = new PopupMenu.PopupSubMenuMenuItem('İstatistik');
+        this.menu.addMenuItem(this._stats);
+        // tür listeleri: config[key]'deki türler işaretli; en fazla max tür, fazlasında en eski seçim düşer.
+        // Sabitlenen tür menüde en az dinlenenin yerine geçer (servis hesaplar).
+        this._lists = [['sabitle', 'Menüde sabitle', 5], ['gizli', 'Menüde gizle', Infinity]].map(([key, text, max]) => {
+            const submenu = new PopupMenu.PopupSubMenuMenuItem(text);
+            this.menu.addMenuItem(submenu);
+            return {key, max, submenu, names: null, items: new Map()};
+        });
 
         // GNOME boş menüyü açmıyor (open-state-changed de gelmiyor); satırları baştan doldur
         this._update();
@@ -154,10 +163,11 @@ class Indicator extends PanelMenu.Button {
 
     _update() {
         const state = readJson(STATE);
-        this._label.text = state?.current?.genre ?? '';
+        const loaded = this._settings?.get_string('last-used-output-preset') ?? '';
+        // elle seçilen preset de yazsın: menüdeki noktayla aynı
+        this._label.text = loaded || (state?.current?.genre ?? '');
         this._label.visible = this._label.text !== '';
 
-        const loaded = this._settings?.get_string('last-used-output-preset') ?? '';
         const names = state?.menu ?? [...(readJson(GENRES)?.defaults ?? []), GENEL];
         if (loaded && !names.includes(loaded))
             names.push(loaded);
@@ -191,51 +201,85 @@ class Indicator extends PanelMenu.Button {
 
     _fillSubmenus() {
         const genres = readJson(GENRES);
-        const config = readConfig(genres);
+        const config = readConfig();
+        const state = readJson(STATE);
 
-        this._source.menu.removeAll();
-        for (const [mode, text] of MODES) {
-            const item = new PopupMenu.PopupMenuItem(text);
-            item.setOrnament(config.mode === mode ? PopupMenu.Ornament.DOT : PopupMenu.Ornament.NONE);
-            // menü açıkken sabit liste değişmiş olabilir; yazmadan önce dosyayı yeniden oku
-            item.connect('activate', () => writeConfig({...readConfig(readJson(GENRES)), mode}));
-            this._source.menu.addMenuItem(item);
-        }
+        this._fillChoice(this._source, MODES, 'mode', config);
         if (config.mode === 'hesap' && !GLib.file_test(SPOTIFY, GLib.FileTest.EXISTS))
             this._source.menu.addAction('Spotify hesabını bağla…', openLogin).setOrnament(PopupMenu.Ornament.NONE);
+        else if (state?.izin_eksik) // eski girişte son çalınanlar izni yok
+            this._source.menu.addAction('Spotify hesabını yeniden bağla…', openLogin).setOrnament(PopupMenu.Ornament.NONE);
+        this._fillChoice(this._donem, DONEMLER, 'donem', config);
+        this._fillStats(state);
 
         const names = (genres?.genres ?? []).map(g => g.name).sort((a, b) => a.localeCompare(b, 'tr'));
+        for (const list of this._lists)
+            this._fillList(list, names, config);
+    }
+
+    // tek seçimli alt menü: config[key] değeri noktalı; tıklama config.json'a yazar
+    _fillChoice(submenu, options, key, config) {
+        submenu.menu.removeAll();
+        for (const [value, text] of options) {
+            const item = new PopupMenu.PopupMenuItem(text);
+            item.setOrnament(config[key] === value ? PopupMenu.Ornament.DOT : PopupMenu.Ornament.NONE);
+            // menü açıkken listeler değişmiş olabilir; yazmadan önce dosyayı yeniden oku
+            item.connect('activate', () => writeConfig({...readConfig(), [key]: value}));
+            submenu.menu.addMenuItem(item);
+        }
+    }
+
+    // servisin hesapladığı dönem ve kaynakta ana türlerin yüzdesi
+    _fillStats(state) {
+        const stats = state?.istatistik;
+        const donem = DONEMLER.find(([days]) => days === state?.donem)?.[1];
+        this._stats.label.text = donem ? `İstatistik · ${donem}` : 'İstatistik';
+        this._stats.menu.removeAll();
+        const info = text => this._stats.menu.addMenuItem(new PopupMenu.PopupMenuItem(text, {reactive: false}));
+        if (!stats)
+            return info('Tür takibi servisi henüz yazmadı');
+        info(stats.aciklama);
+        if (!stats.turler.length)
+            info('Bu dönemde dinleme yok');
+        for (const [name, pct] of stats.turler) {
+            const item = new PopupMenu.PopupMenuItem(name, {reactive: false});
+            item.label.x_expand = true;
+            item.add_child(new St.Label({text: `%${pct}`, y_align: Clutter.ActorAlign.CENTER}));
+            this._stats.menu.addMenuItem(item);
+        }
+    }
+
+    _fillList(list, names, config) {
         const key = names.join('\n');
-        if (key !== this._sabitKey) {
-            this._sabitKey = key;
-            this._sabit.menu.removeAll();
-            this._sabitItems.clear();
+        if (key !== list.names) {
+            list.names = key;
+            list.submenu.menu.removeAll();
+            list.items.clear();
             if (!names.length)
-                this._sabit.menu.addMenuItem(new PopupMenu.PopupMenuItem('Tür listesi bulunamadı', {reactive: false}));
+                list.submenu.menu.addMenuItem(new PopupMenu.PopupMenuItem('Tür listesi bulunamadı', {reactive: false}));
             for (const name of names) {
                 const item = new PopupMenu.PopupMenuItem(name);
                 // activate sinyali yayılmadığı için menü kapanmaz, art arda tür seçilebilir (PopupSwitchMenuItem gibi)
-                item.activate = () => this._toggleSabit(name);
-                this._sabit.menu.addMenuItem(item);
-                this._sabitItems.set(name, item);
+                item.activate = () => this._toggle(list, name);
+                list.submenu.menu.addMenuItem(item);
+                list.items.set(name, item);
             }
         }
-        this._markSabit(config.sabit);
+        this._mark(list, config[list.key]);
     }
 
-    // seçili türü kaldırır, değilse ekler; 5 seçiliyken eklenen türe yer açmak için en eski seçim düşer
-    _toggleSabit(name) {
-        const config = readConfig(readJson(GENRES));
-        const sabit = config.sabit.includes(name)
-            ? config.sabit.filter(n => n !== name)
-            : [...config.sabit, name].slice(-5);
-        writeConfig({...config, sabit});
-        this._markSabit(sabit);
+    // seçili türü kaldırır, değilse ekler; liste doluysa eklenen türe yer açmak için en eski seçim düşer
+    _toggle(list, name) {
+        const config = readConfig();
+        const old = config[list.key];
+        const selected = old.includes(name) ? old.filter(n => n !== name) : [...old, name].slice(-list.max);
+        writeConfig({...config, [list.key]: selected});
+        this._mark(list, selected);
     }
 
-    _markSabit(sabit) {
-        for (const [name, item] of this._sabitItems)
-            item.setOrnament(sabit.includes(name) ? PopupMenu.Ornament.CHECK : PopupMenu.Ornament.NONE);
+    _mark(list, selected) {
+        for (const [name, item] of list.items)
+            item.setOrnament(selected.includes(name) ? PopupMenu.Ornament.CHECK : PopupMenu.Ornament.NONE);
     }
 });
 

@@ -22,7 +22,7 @@ fi
 # geçmemesi her durumda zararsız ve çoğu sistemde zaten istenen ayar.
 
 # Preset menüsü (Spotify tür takibiyle geliyor); yerine Preset Selector geri açılır.
-# Dinleme sayıları (~/.local/state/spotify-genre-preset/state.json) bilerek bırakılıyor.
+# Dinleme sayıları ve geçmişi (~/.local/state/spotify-genre-preset/state.json, gecmis.json) bilerek bırakılıyor.
 MENU=arctis-preset-menu@muhammetaliyoldar
 gsettings set org.gnome.shell enabled-extensions "$(gsettings get org.gnome.shell enabled-extensions | python3 -c "
 import ast,sys; l=ast.literal_eval(sys.stdin.read().replace('@as ','')); print([e for e in l if e != '$MENU'])")"
