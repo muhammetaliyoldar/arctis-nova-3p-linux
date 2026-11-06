@@ -177,6 +177,7 @@ import ast,sys; l=ast.literal_eval(sys.stdin.read().replace('@as ','')); '$path'
     if [ -n "$DO_GENRE" ]; then
         say "Spotify tür takibi kuruluyor"
         install -Dm 755 "$DIR/bin/spotify-genre-preset" ~/.local/bin/spotify-genre-preset
+        install -Dm 644 "$DIR/core/genre_core.py" ~/.local/share/spotify-genre-preset/genre_core.py  # tür mantığı (Windows/macOS ile ortak)
         install -Dm 644 "$DIR/systemd/spotify-genre-preset.service" ~/.config/systemd/user/spotify-genre-preset.service
         rm -f ~/.cache/spotify-genre-preset.json   # tür eşlemesi değişmiş olabilir, baştan sorulsun
         python3 - "$MODE" ~/.config/spotify-genre-preset/config.json ~/.local/share/spotify-genre-preset/genres.json \

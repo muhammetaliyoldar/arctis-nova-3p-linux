@@ -324,7 +324,9 @@ LICENSE                            # MIT
 files/
 ├── bin/
 │   ├── ee-preset                  # preset değiştirici (ee-preset <ad> | next)
-│   └── spotify-genre-preset       # Spotify'daki türe göre preseti değiştiren servis
+│   └── spotify-genre-preset       # Spotify'daki türe göre preseti değiştiren servis (Linux ön yüzü: MPRIS + EasyEffects)
+├── core/
+│   └── genre_core.py              # tür bulma, Spotify hesabı, geçmiş, dönem, istatistik, menü mantığı; platformdan bağımsız (Windows/macOS sürümleri de kullanacak)
 ├── easyeffects/
 │   ├── make_presets.py            # presetleri (EasyEffects, Equalizer APO, kulaklık) üreten ve şema aralıklarını doğrulayan script
 │   ├── output/*.json              # 63 preset
