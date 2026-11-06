@@ -243,7 +243,10 @@
     "uk garage",
     "2-step",
     "speed garage",
-    "bassline"
+    "bassline",
+    "trap edm",
+    "festival trap",
+    "hybrid trap"
    ],
    "turkish": false
   },
@@ -278,7 +281,8 @@
     "darksynth",
     "downtempo",
     "trip hop",
-    "trip-hop"
+    "trip-hop",
+    "witch house"
    ],
    "turkish": false
   },
@@ -384,7 +388,8 @@
     "turkish classical",
     "türk sanat",
     "sanat müziği",
-    "fasıl"
+    "fasıl",
+    "classical turkish"
    ],
    "turkish": true
   },
@@ -463,7 +468,25 @@
     "Motive",
     "Bixi Blake",
     "Gxblin",
-    "GRi"
+    "GRi",
+    "BLOK3",
+    "Lvbel C5",
+    "Reckol",
+    "Ben Fero",
+    "Khontkar",
+    "Batuflex",
+    "Era7capone",
+    "Heijan",
+    "Muti",
+    "Poizi",
+    "Burry Soprano",
+    "KÖK$VL",
+    "13 Killoki"
+   ],
+   "keywords": [
+    "trap",
+    "drill",
+    "cloud rap"
    ]
   },
   {
@@ -491,7 +514,16 @@
     "Kelanei",
     "Siirbaz",
     "90 BPM",
-    "Spade427"
+    "Spade427",
+    "Şanışer",
+    "Ayben",
+    "Kolera",
+    "Sokrat St"
+   ],
+   "keywords": [
+    "boom bap",
+    "boom-bap",
+    "conscious"
    ]
   },
   {
@@ -509,7 +541,22 @@
     "Murda",
     "Sin4Hood",
     "Artz",
-    "Stabil"
+    "Stabil",
+    "Taladro",
+    "Yener Çevik",
+    "Eypio",
+    "Canbay & Wolker",
+    "Arsız Bela",
+    "Sefo",
+    "Reynmen"
+   ],
+   "keywords": [
+    "pop rap",
+    "pop-rap",
+    "melodic rap",
+    "emo rap",
+    "r&b",
+    "arabesk"
    ]
   },
   {
@@ -522,7 +569,16 @@
     "Hidra",
     "Maestro",
     "Contra",
-    "Cash Flow"
+    "Cash Flow",
+    "Defkhan",
+    "Massaka",
+    "Zen-G",
+    "Saian"
+   ],
+   "keywords": [
+    "hardcore",
+    "horrorcore",
+    "gangsta"
    ]
   },
   {
@@ -533,7 +589,22 @@
     "Ceg",
     "İstanbul Attack",
     "Beta Berk Bayındır",
-    "DJ Sivo"
+    "DJ Sivo",
+    "Karakan",
+    "Islamic Force",
+    "Erci E",
+    "Fuat Ergin",
+    "Dr. Fuchs",
+    "Silahsız Kuvvet",
+    "Hedef 12",
+    "Rapozof",
+    "Da Crime Posse",
+    "Sert Müslümanlar"
+   ],
+   "keywords": [
+    "old school",
+    "old-school",
+    "oldschool"
    ]
   },
   {
@@ -541,7 +612,15 @@
    "parent": "Türkçe Rap",
    "artists": [
     "Ağaçkakan",
-    "Çiğ"
+    "Çiğ",
+    "Ethnique Punch",
+    "roadside.picnic"
+   ],
+   "keywords": [
+    "experimental",
+    "abstract",
+    "left-field",
+    "leftfield"
    ]
   },
   {
@@ -552,7 +631,28 @@
     "Ruhsora Emm",
     "Connor Price",
     "ния",
-    "R-Kap"
+    "R-Kap",
+    "Juice WRLD",
+    "Rod Wave",
+    "Polo G",
+    "Lil Tecca",
+    "iann dior",
+    "A Boogie Wit da Hoodie",
+    "Lil Tjay",
+    "Toosii",
+    "Roddy Ricch",
+    "Lil Mosey",
+    "MACAN",
+    "Jah Khalib",
+    "HammAli & Navai",
+    "Miyagi & Эндшпиль",
+    "Xcho"
+   ],
+   "keywords": [
+    "melodic rap",
+    "pop rap",
+    "pop-rap",
+    "emo rap"
    ]
   },
   {
@@ -563,7 +663,37 @@
     "Bloody Immigrants",
     "Chefket",
     "Mac Miller",
-    "Kendrick Lamar"
+    "Kendrick Lamar",
+    "OutKast",
+    "A Tribe Called Quest",
+    "The Roots",
+    "Little Simz",
+    "Earl Sweatshirt",
+    "Joey Bada$$",
+    "MF DOOM",
+    "Madvillain",
+    "Freddie Gibbs",
+    "Isaiah Rashad",
+    "De La Soul",
+    "The Pharcyde",
+    "Lupe Fiasco",
+    "Aesop Rock",
+    "Loyle Carner",
+    "Yasiin Bey",
+    "Скриптонит"
+   ],
+   "keywords": [
+    "alternative hip hop",
+    "alternative hip-hop",
+    "alternative rap",
+    "conscious",
+    "jazz",
+    "abstract",
+    "boom bap",
+    "boom-bap",
+    "golden age",
+    "underground hip hop",
+    "political"
    ]
   },
   {
@@ -573,7 +703,23 @@
     "Derek Pope",
     "IVOXYGEN",
     "BONES",
-    "Biv"
+    "Biv",
+    "Yung Lean",
+    "Bladee",
+    "Ecco2k",
+    "Thaiboy Digital",
+    "Lil Peep",
+    "Xavier Wulf",
+    "Clams Casino",
+    "Lil Tracy",
+    "Black Kray",
+    "Night Lovell",
+    "Main Attrakionz",
+    "$uicideboy$"
+   ],
+   "keywords": [
+    "cloud rap",
+    "cloud-rap"
    ]
   },
   {
@@ -581,7 +727,19 @@
    "parent": "Indie",
    "artists": [
     "Tame Impala",
-    "Dolphin Love"
+    "Dolphin Love",
+    "MGMT",
+    "Unknown Mortal Orchestra",
+    "Khruangbin",
+    "The Flaming Lips",
+    "Boogarins",
+    "Mild High Club",
+    "Connan Mockasin",
+    "Jacco Gardner",
+    "Babe Rainbow"
+   ],
+   "keywords": [
+    "psych"
    ]
   },
   {
@@ -590,7 +748,29 @@
    "artists": [
     "Kid Francescoli",
     "Nova Norda",
-    "Lin Pesto"
+    "Lin Pesto",
+    "Sylvan Esso",
+    "Purity Ring",
+    "The Postal Service",
+    "Little Dragon",
+    "The xx",
+    "Glass Animals",
+    "SOHN",
+    "Phantogram",
+    "James Blake",
+    "Polo & Pan",
+    "Petit Biscuit",
+    "Fakear",
+    "Lewis OfMan"
+   ],
+   "keywords": [
+    "indietronica",
+    "inditronica",
+    "indie electronic",
+    "trip hop",
+    "trip-hop",
+    "witch house",
+    "chillwave"
    ]
   },
   {
@@ -598,7 +778,759 @@
    "parent": "Indie",
    "artists": [
     "Lana Del Rey",
-    "Still Corners"
+    "Still Corners",
+    "Beach House",
+    "Cigarettes After Sex",
+    "Cocteau Twins",
+    "Mazzy Star",
+    "Slowdive",
+    "Men I Trust",
+    "Galaxie 500",
+    "Julee Cruise",
+    "Hope Sandoval & The Warm Inventions",
+    "The Marías",
+    "Alvvays",
+    "Wild Nothing",
+    "Vansire",
+    "Melody's Echo Chamber"
+   ],
+   "keywords": [
+    "dream pop",
+    "dreampop",
+    "dream-pop",
+    "ethereal",
+    "slowcore"
+   ]
+  },
+  {
+   "name": "Liquid DnB",
+   "parent": "Bass Müziği",
+   "artists": [
+    "Hybrid Minds",
+    "Fred V",
+    "Lenzman",
+    "Etherwood",
+    "Monrroe",
+    "Technimatic",
+    "Hugh Hardie",
+    "Pola & Bryson",
+    "Maduk",
+    "BCee",
+    "Dawn Wall",
+    "GLXY",
+    "Krakota",
+    "Anile",
+    "Satl",
+    "London Elektricity",
+    "Lexurus",
+    "Flowidus",
+    "Mohican Sun",
+    "SpectraSoul"
+   ],
+   "keywords": [
+    "liquid funk",
+    "liquid drum and bass",
+    "liquid",
+    "atmospheric drum and bass"
+   ]
+  },
+  {
+   "name": "Neurofunk - Jump Up",
+   "parent": "Bass Müziği",
+   "artists": [
+    "Noisia",
+    "Phace",
+    "Mefjus",
+    "Black Sun Empire",
+    "Current Value",
+    "Gydra",
+    "Agressor Bunx",
+    "Teddy Killerz",
+    "InsideInfo",
+    "The Upbeats",
+    "Billain",
+    "Neonlight",
+    "Ed Rush & Optical",
+    "Optiv & BTK",
+    "Hedex",
+    "Macky Gee",
+    "Turno",
+    "Darkzy",
+    "Annix",
+    "Mob Tactics",
+    "Pythius",
+    "Disphonia"
+   ],
+   "keywords": [
+    "neurofunk",
+    "techstep",
+    "darkstep",
+    "skullstep",
+    "jump up"
+   ]
+  },
+  {
+   "name": "Dubstep - Riddim",
+   "parent": "Bass Müziği",
+   "artists": [
+    "Excision",
+    "Subtronics",
+    "Svdden Death",
+    "Marauda",
+    "Zomboy",
+    "Kai Wachi",
+    "Barely Alive",
+    "PEEKABOO",
+    "Wooli",
+    "Riot Ten",
+    "Ray Volpe",
+    "Kompany",
+    "Sullivan King",
+    "Ganja White Night",
+    "Borgore",
+    "12th Planet",
+    "Doctor P",
+    "Flux Pavilion",
+    "Datsik",
+    "Must Die!",
+    "Spag Heddy",
+    "Jessica Audiffred",
+    "Bear Grillz"
+   ],
+   "keywords": [
+    "riddim",
+    "brostep",
+    "tearout",
+    "deathstep"
+   ]
+  },
+  {
+   "name": "Melodik Dubstep",
+   "parent": "Bass Müziği",
+   "artists": [
+    "Seven Lions",
+    "Dabin",
+    "Crystal Skies",
+    "MitiS",
+    "Last Heroes",
+    "Trivecta",
+    "Nurko",
+    "Blanke",
+    "Au5",
+    "ARMNHMR",
+    "Codeko",
+    "Adventure Club"
+   ],
+   "keywords": [
+    "melodic dubstep",
+    "progressive dubstep",
+    "chillstep"
+   ]
+  },
+  {
+   "name": "Festival Trap",
+   "parent": "Bass Müziği",
+   "artists": [
+    "Yellow Claw",
+    "RL Grime",
+    "Baauer",
+    "Flosstradamus",
+    "TroyBoi",
+    "Hucci",
+    "NGHTMRE",
+    "Boombox Cartel",
+    "Ape Drums",
+    "Party Favor",
+    "LOUDPVCK",
+    "Gent & Jawns",
+    "Herobust",
+    "Bro Safari",
+    "Keys N Krates",
+    "Cesqeaux",
+    "Aazar"
+   ],
+   "keywords": [
+    "trap edm",
+    "festival trap",
+    "hybrid trap",
+    "moombahton"
+   ]
+  },
+  {
+   "name": "Hypertechno",
+   "parent": "Elektronik",
+   "artists": [
+    "ILYAA",
+    "THNDERZ",
+    "Neptunica",
+    "Tiscore",
+    "Beachbag",
+    "Luca-Dante Spadafora",
+    "Valexus",
+    "KYANU",
+    "PAZOO",
+    "Zombic",
+    "Ely Oaks",
+    "HyperTechno",
+    "KXXMA",
+    "MITCH DB",
+    "Naeleck",
+    "TECHNO KING"
+   ],
+   "keywords": [
+    "hypertechno"
+   ]
+  },
+  {
+   "name": "Darksynth",
+   "parent": "Elektronik",
+   "artists": [
+    "Perturbator",
+    "Carpenter Brut",
+    "GosT",
+    "Dance With the Dead",
+    "Daniel Deluxe",
+    "Volkor X",
+    "Dan Terminus",
+    "Street Cleaner",
+    "Hubrid",
+    "Mega Drive",
+    "Lazerpunk",
+    "Magic Sword",
+    "Irving Force",
+    "Midnight Danger"
+   ],
+   "keywords": [
+    "darksynth",
+    "dark synthwave"
+   ]
+  },
+  {
+   "name": "Art Pop Elektronik",
+   "parent": "Elektronik",
+   "artists": [
+    "Noga Erez",
+    "Björk",
+    "FKA twigs",
+    "Sevdaliza",
+    "Fever Ray",
+    "The Knife",
+    "Eartheater",
+    "Jessy Lanza",
+    "Holly Herndon",
+    "Smerz",
+    "Oklou"
+   ],
+   "keywords": [
+    "art pop",
+    "avant-garde pop",
+    "experimental pop"
+   ]
+  },
+  {
+   "name": "Fransız House",
+   "parent": "House",
+   "artists": [
+    "Daft Punk",
+    "French 79",
+    "The Blaze",
+    "Cassius",
+    "Modjo",
+    "Alan Braxe",
+    "Étienne de Crécy",
+    "Thomas Bangalter",
+    "DJ Falcon",
+    "Braxe + Falcon",
+    "The Supermen Lovers",
+    "Fred Falke",
+    "Le Knight Club",
+    "Kartell",
+    "Superfunk",
+    "Motorbass"
+   ],
+   "keywords": [
+    "french house",
+    "french touch",
+    "filter house"
+   ]
+  },
+  {
+   "name": "Disko Funk",
+   "parent": "House",
+   "artists": [
+    "Parcels",
+    "L'Impératrice",
+    "Breakbot",
+    "Purple Disco Machine",
+    "Chromeo",
+    "Todd Terje",
+    "Lindstrøm",
+    "Prins Thomas",
+    "Crazy P",
+    "Kraak & Smaak",
+    "Dimitri From Paris",
+    "Folamour",
+    "Late Nite Tuff Guy",
+    "Satin Jackets",
+    "Poolside",
+    "Moullinex",
+    "Psychemagik",
+    "Bag Raiders"
+   ],
+   "keywords": [
+    "disco"
+   ]
+  },
+  {
+   "name": "Tropikal House",
+   "parent": "House",
+   "artists": [
+    "Kygo",
+    "Robin Schulz",
+    "Lost Frequencies",
+    "Felix Jaehn",
+    "Matoma",
+    "Thomas Jack",
+    "Klingande",
+    "Sam Feldt",
+    "Møme",
+    "Seeb",
+    "Jonas Blue",
+    "Mike Perry",
+    "Faul & Wad",
+    "Klangkarussell",
+    "Bakermat"
+   ],
+   "keywords": [
+    "tropical house"
+   ]
+  },
+  {
+   "name": "Lo-fi House",
+   "parent": "House",
+   "artists": [
+    "DJ Seinfeld",
+    "Ross From Friends",
+    "DJ Boring",
+    "Baltra",
+    "Harrison BDP",
+    "Project Pablo",
+    "Fantastic Man",
+    "Jesper Ryom",
+    "Patrick Holland",
+    "Swales",
+    "Sideluv"
+   ],
+   "keywords": [
+    "lo-fi house",
+    "lofi house",
+    "outsider house"
+   ]
+  },
+  {
+   "name": "Akustik Türkü",
+   "parent": "Türk Halk - Sanat",
+   "artists": [
+    "Kıvırcık Ali",
+    "Deniz Toprak",
+    "Selda Bağcan",
+    "Siyasiyabend",
+    "Neşet Ertaş",
+    "Musa Eroğlu",
+    "Arif Sağ",
+    "Erdal Erzincan",
+    "Cengiz Özkan",
+    "Güler Duman",
+    "Sabahat Akkiraz",
+    "Hüseyin Turan",
+    "Engin Nursani",
+    "Ender Balkır",
+    "Sevcan Orhan",
+    "Özlem Özdil",
+    "Halit Bilgiç",
+    "Tolga Sağ",
+    "Aşık Mahzuni Şerif",
+    "Ruhi Su",
+    "Grup Yorum",
+    "Kızılırmak",
+    "Onur Akın",
+    "Ezginin Günlüğü",
+    "Hasret Gültekin",
+    "Ferhat Tunç",
+    "Grup Abdal",
+    "Erkan Oğur",
+    "Kıvırcık Ali Özütemiz"
+   ],
+   "keywords": [
+    "anatolian folk",
+    "contemporary folk",
+    "singer-songwriter",
+    "protest",
+    "alevi",
+    "uzun hava",
+    "bağlama"
+   ]
+  },
+  {
+   "name": "Modern Türkü",
+   "parent": "Türk Halk - Sanat",
+   "artists": [
+    "mbnd",
+    "Zeynep Baksi Karatağ",
+    "Adanalı Ayhan",
+    "Koray Avcı",
+    "Hirai Zerdüş",
+    "Fasıl-ı Jazz",
+    "Mikail Aslan",
+    "Nazlıcan Kübra",
+    "Minor Empire",
+    "Uygar Doğanay"
+   ],
+   "keywords": [
+    "folk pop",
+    "folk rock"
+   ]
+  },
+  {
+   "name": "Oyun Havası",
+   "parent": "Türk Halk - Sanat",
+   "artists": [
+    "Ankaralı Namık",
+    "Mustafa Taş",
+    "Oğuz Yılmaz",
+    "Ankaralı İbocan",
+    "Çubuklu Yaşar",
+    "Bülent Gökçe",
+    "Coşkun Direk",
+    "Ankaralı Coşkun",
+    "Ankaralı Yasin",
+    "Ankaralı Yasemin",
+    "Samet Burak Ay",
+    "Yiğit Aktaş",
+    "Ömer Faruk Bostan",
+    "Seyit Yıldırım",
+    "Veli Erdem Karakülah",
+    "Hüsnü Şenlendirici",
+    "Selim Sesler",
+    "Fehmi Ünlüyayla",
+    "Rumeli Orhan Kemal",
+    "Deli Selim",
+    "İzmirli Taylan",
+    "Cüneyt Sepetçi"
+   ],
+   "keywords": [
+    "oyun havası",
+    "oyun havasi",
+    "roman havası",
+    "roman havasi"
+   ]
+  },
+  {
+   "name": "Folk Pop",
+   "parent": "Folk - Akustik",
+   "artists": [
+    "The Lumineers",
+    "Mumford & Sons",
+    "Noah Kahan",
+    "Of Monsters and Men",
+    "Vance Joy",
+    "The Head and the Heart",
+    "Lord Huron",
+    "Caamp",
+    "Mt. Joy",
+    "The Oh Hellos",
+    "Edward Sharpe & The Magnetic Zeros",
+    "Mighty Oaks",
+    "Bear's Den",
+    "The Avett Brothers",
+    "The Strumbellas",
+    "Judah & the Lion"
+   ],
+   "keywords": [
+    "folk pop",
+    "folk rock",
+    "stomp and holler",
+    "stomp clap"
+   ]
+  },
+  {
+   "name": "Singer-Songwriter",
+   "parent": "Folk - Akustik",
+   "artists": [
+    "Bon Iver",
+    "Phoebe Bridgers",
+    "Iron & Wine",
+    "José González",
+    "Sufjan Stevens",
+    "Fleet Foxes",
+    "Novo Amor",
+    "Damien Rice",
+    "Adrianne Lenker",
+    "Gregory Alan Isakov",
+    "The Paper Kites",
+    "Hollow Coves",
+    "Ben Howard",
+    "Elliott Smith",
+    "The Tallest Man On Earth",
+    "Nick Drake",
+    "Simon & Garfunkel",
+    "Joni Mitchell",
+    "Leonard Cohen",
+    "Angus & Julia Stone",
+    "First Aid Kit"
+   ],
+   "keywords": [
+    "singer-songwriter",
+    "singer/songwriter",
+    "singer songwriter",
+    "indie folk",
+    "chamber folk",
+    "contemporary folk"
+   ]
+  },
+  {
+   "name": "Country - Americana",
+   "parent": "Folk - Akustik",
+   "artists": [
+    "Morgan Wallen",
+    "Luke Combs",
+    "Zach Bryan",
+    "Chris Stapleton",
+    "Tyler Childers",
+    "Jason Aldean",
+    "Luke Bryan",
+    "Kane Brown",
+    "Lainey Wilson",
+    "Bailey Zimmerman",
+    "Cody Johnson",
+    "Riley Green",
+    "Megan Moroney",
+    "Thomas Rhett",
+    "Kenny Chesney",
+    "Carrie Underwood",
+    "Kacey Musgraves",
+    "Sturgill Simpson",
+    "Jason Isbell",
+    "Jason Isbell and the 400 Unit",
+    "Colter Wall",
+    "Turnpike Troubadours",
+    "Charley Crockett",
+    "Billy Strings",
+    "Sierra Ferrell"
+   ],
+   "keywords": [
+    "country",
+    "americana",
+    "bluegrass",
+    "red dirt"
+   ]
+  },
+  {
+   "name": "Alternatif Pop",
+   "parent": "Türkçe Pop",
+   "artists": [
+    "Mabel Matiz",
+    "Den Ze",
+    "KÖFN",
+    "Mert Demir",
+    "Dedublüman",
+    "İkilem",
+    "Sena Şener",
+    "Hande Mehan",
+    "Lara Di Lara",
+    "Nil Karaibrahimgil",
+    "Bedük",
+    "Serdar Ayyıldız",
+    "Aylin Aslım"
+   ],
+   "keywords": [
+    "alternative pop",
+    "indie pop"
+   ]
+  },
+  {
+   "name": "Akustik Pop",
+   "parent": "Türkçe Pop",
+   "artists": [
+    "Tuğçe Kandemir",
+    "İlyas Yalçıntaş",
+    "Mehmet Erdem",
+    "Emir Can İğrek",
+    "Gökhan Türkmen",
+    "Fettah Can",
+    "Funda Arar",
+    "Yalın",
+    "Elif Buse Doğan",
+    "Melek Mosso",
+    "Çağan Şengül",
+    "Zeynep Casalini",
+    "Cem Belevi",
+    "Göksel",
+    "Sura İskenderli",
+    "Ufuk Beydemir"
+   ],
+   "keywords": [
+    "singer-songwriter"
+   ]
+  },
+  {
+   "name": "Hareketli Pop",
+   "parent": "Türkçe Pop",
+   "artists": [
+    "Hadise",
+    "Gülşen",
+    "Simge",
+    "EDIS",
+    "Bengü",
+    "Demet Akalın",
+    "İrem Derici",
+    "Hande Yener",
+    "Ece Seçkin",
+    "Murat Boz",
+    "Sinan Akçıl",
+    "Serdar Ortaç",
+    "Aleyna Tilki",
+    "Ziynet Sali",
+    "Emrah Karaduman",
+    "Derya Uluğ",
+    "Zeynep Bastık",
+    "Tuğba Yurt",
+    "Petek Dinçöz",
+    "Ebru Polat",
+    "Feride Hilal Akın"
+   ],
+   "keywords": [
+    "dance-pop"
+   ]
+  },
+  {
+   "name": "90'lar Pop",
+   "parent": "Türkçe Pop",
+   "artists": [
+    "Yonca Evcimik",
+    "Harun Kolçak",
+    "Aşkın Nur Yengi",
+    "Hakan Peker",
+    "İzel",
+    "Bendeniz",
+    "Burak Kut",
+    "Emel Müftüoğlu",
+    "Mirkelam",
+    "Levent Yüksel",
+    "Reyhan Karaca",
+    "Ferda Anıl Yarkın",
+    "Seden Gürel",
+    "Atilla Taş",
+    "Kayahan",
+    "Nazan Öncel",
+    "Deniz Seki",
+    "Ayşegül Aldinç",
+    "Gökhan Tepe"
+   ],
+   "keywords": []
+  },
+  {
+   "name": "Anadolu Psych",
+   "parent": "Türkçe Rock",
+   "artists": [
+    "Altin Gün",
+    "Hey! Douglas",
+    "Gaye Su Akyol",
+    "Derya Yıldırım & Grup Şimşek",
+    "Lalalar",
+    "Baba Zula",
+    "Kit Sebastian",
+    "Ayyuka",
+    "Elektro Hafiz",
+    "Umut Adan",
+    "Bubituzak",
+    "The Ringo Jets",
+    "Anadol",
+    "Replikas"
+   ],
+   "keywords": [
+    "psychedelic",
+    "neo-psychedelia",
+    "turkish psych"
+   ]
+  },
+  {
+   "name": "Anadolu Klasikleri",
+   "parent": "Türkçe Rock",
+   "artists": [
+    "Barış Manço",
+    "Cem Karaca",
+    "Erkin Koray",
+    "Moğollar",
+    "Edip Akbayram",
+    "3 Hürel",
+    "Fikret Kızılok",
+    "Mustafa Özkent",
+    "Ersen ve Dadaşlar",
+    "Kardaslar",
+    "Apaşlar",
+    "Kurtalan Ekspres",
+    "Bunalımlar",
+    "Silüetler",
+    "Mavi Işıklar",
+    "Dervişan"
+   ],
+   "keywords": [
+    "folk rock",
+    "heavy psych",
+    "anatolian beat",
+    "progressive rock",
+    "classic pop and rock"
+   ]
+  },
+  {
+   "name": "Türkçe Sert Rock",
+   "parent": "Türkçe Rock",
+   "artists": [
+    "Duman",
+    "mor ve ötesi",
+    "Şebnem Ferah",
+    "Kurban",
+    "Pilli Bebek",
+    "Hayko Cepkin",
+    "Kesmeşeker",
+    "mavisakal",
+    "Ogün Sanlısoy",
+    "Yaşar Kurt",
+    "Rashit",
+    "Gece Yolcuları",
+    "Bulutsuzluk Özlemi",
+    "Cem Köksal"
+   ],
+   "keywords": [
+    "grunge",
+    "alternative rock",
+    "ska punk",
+    "pop punk"
+   ]
+  },
+  {
+   "name": "Türkçe Pop Rock",
+   "parent": "Türkçe Rock",
+   "artists": [
+    "Barış Akarsu",
+    "Teoman",
+    "Pinhani",
+    "Gripin",
+    "Yüksek Sadakat",
+    "emre aydın",
+    "Zakkum",
+    "Feridun Düzağaç",
+    "Mavi Gri",
+    "Seksendört",
+    "Kolpa",
+    "Aydilge",
+    "Fatma Turgut",
+    "Emre Fel",
+    "Gökhan Özoğuz"
+   ],
+   "keywords": [
+    "pop rock"
    ]
   }
  ],

@@ -17,9 +17,11 @@ Ana türün eğrisi, gruptaki en çok dinlenen alt türün eski eğrisidir. Eski
 kalkan adların hangi ana türe katıldığı MERGED'dedir (merged): install.sh eski preset dosyalarını
 kenara alır, sabit listeyi ve kilidi yeni adlara çevirir.
 
-Alt türler (SUBGENRES, genres.json "subgenres"): en çok dinlenen ana türlerin içinde, kullanıcının
-dinlediği sanatçılarla tanınan alt türler (Türkçe trap/boom bap'i hiçbir tür kaynağı ayırmıyor).
-Servis sanatçı listede ise alt türün presetini, değilse ana türünkini çalar; ara katman yok.
+Alt türler (SUBGENRES, genres.json "subgenres"): en çok dinlenen ana türlerin içinde, sanatçı listesiyle
+(kullanıcının dinledikleri + alt türün bilinen adları; Türkçe trap/boom bap'i hiçbir tür kaynağı ayırmıyor)
+ve MusicBrainz anahtar kelimeleriyle (yeni keşfedilen sanatçılar) tanınan alt türler. Servis sanatçı listede
+ise alt türün presetini çalar; değilse ana türü bulup etiketlerde o ana türün alt tür kelimelerini arar,
+yoksa ana türünkini çalar; ara katman yok.
 Eğriler kullanıcının parçalarının ölçümünden (2026-11-06, EQ öncesi kayıt): hafızada
 "Arctis- Türkçe Rap alt türleri ses ölçümü ve eğri önerisi".
 
@@ -198,7 +200,8 @@ GENRES = [
 
     ("House", "house", ["house", "lo-fi house", "latin house", "tech house", "progressive house", "french house",
                         "french touch", "filter house", "nu-disco", "nu disco", "indie dance", "disco house", "disco"],
-     {"mid": 2.5, "bells": [(90, 2.0, 1.0), (1000, 1.0, 1.0)]}),  # French House'tan: filtreli disco örnekleri ortada
+     # genel/tech house (ölçüm: kick 42-50 Hz, 31-50 Hz +3..+6, 6-16 kHz +4..+5.5); French House eğrisi alt türünde
+     {"air": -4.0, "bells": [(55, 2.0, 1.0)]}),
     # v1 Deep House: derin, sıcak sub ve yumuşak tizler; hafif yapıştırma, uzun setlerde yormaz
     ("Deep House", "house", ["deep house", "organic house", "afro house", "melodic house"],
      {"air": -2.5, "bells": [(60, 2.0, 0.8)], "comp": SLOW}),
@@ -206,7 +209,8 @@ GENRES = [
     ("Techno", "techno", ["techno", "rave", "hard techno", "industrial techno", "schranz", "melodic techno",
                           "trance", "psytrance", "psy-trance", "psychedelic trance", "goa trance"], {}),
     ("Bass Müziği", "bass", ["drum and bass", "drum & bass", "drum n bass", "dnb", "liquid funk", "neurofunk",
-                             "jungle", "dubstep", "brostep", "uk garage", "2-step", "speed garage", "bassline"],
+                             "jungle", "dubstep", "brostep", "uk garage", "2-step", "speed garage", "bassline",
+                             "trap edm", "festival trap", "hybrid trap"],  # "trap" (Hip Hop) kelimesini yenip buraya
      # UK Garage'dan: 2-step davullar ve vokal kesitleri; harmoniksiz sinüs sub kulaklıkta ancak temeliyle duyulur
      {"ls": 2.0, "presence": 3.5, "bells": [(55, 2.5, 1.0)]}),
     # big room kick 55 Hz, -5 LUFS masterlar
@@ -214,7 +218,8 @@ GENRES = [
                            "rawstyle", "gabber", "future bass"],
      {"ls": 2.0, "presence": 3.0, "air": -4.5, "bells": [(55, 2.5, 1.0)]}),
     ("Elektronik", "electronic", ["electronic", "electronica", "electro", "idm", "synthwave", "retrowave", "outrun",
-                                  "vaporwave", "darksynth", "downtempo", "trip hop", "trip-hop"],
+                                  "vaporwave", "darksynth", "downtempo", "trip hop", "trip-hop",
+                                  "witch house"],  # "house" içeriyor; Mr.Kitty House'a düşüyordu
      {"air": -4.0}),  # en düz eğimli (en parlak) tür: tizler kaynakta zaten yükseltilmiş
     ("Ambient - Lo-fi", "ambient", ["ambient", "new age", "meditation", "lo-fi hip hop", "lofi", "chillhop", "chill",
                                     "lounge"], {}),
@@ -233,7 +238,8 @@ GENRES = [
      {"ls": 3.0, "presence": 2.5, "air": -4.0, "bells": [(90, 1.5, 1.0)]}),
     # Türk Halk'tan: bağlama ve zurna 2-5 kHz'te zaten keskin; TRT kayıtlarının ince altı ısıtılır
     ("Türk Halk - Sanat", "folk", ["turkish folk", "türk halk", "türkü", "halk müziği", "uzun hava",
-                                   "turkish classical", "türk sanat", "sanat müziği", "fasıl"],
+                                   "turkish classical", "türk sanat", "sanat müziği", "fasıl",
+                                   "classical turkish"],  # "classical" (Klasik) içeriyor; Gönül Yazar Klasik'e düşüyordu
      {"ls": 2.5, "presence": 3.0, "air": -3.5, "bells": [(90, 1.0, 1.0)]}),
     ("Folk - Akustik", "folk", ["folk", "folk rock", "acoustic", "singer-songwriter", "singer/songwriter",
                                 "singer songwriter", "country", "bluegrass", "americana", "indie folk", "chamber folk"],
@@ -293,7 +299,7 @@ MERGED = {
     "Dancehall": "Reggae", "Amapiano": "Afrobeats", "Arap Müziği": "Arabesk", "Fantezi": "Arabesk",
 }
 
-# (ad, ana tür, aileden farklar, sanatçılar). Ölçüm: Türkçe Rap ortalamasında bas tepesi 50-63 Hz;
+# (ad, ana tür, aileden farklar, sanatçılar, MusicBrainz anahtar kelimeleri). Ölçüm: Türkçe Rap ortalamasında bas tepesi 50-63 Hz;
 # alt türlerin ortalamadan farkı yorumda. Sanatçı adları Spotify'daki gibi (servis harf/rakam dışını atıp karşılaştırır).
 SUBGENRES = [
     # 808 32-60 Hz, 25-40 Hz ortalamadan +6..+8 dB, vokal bölgesi (0.8-3 kHz) -2; en sıkıştırılmış master (crest 9):
@@ -302,70 +308,309 @@ SUBGENRES = [
      {"ls": 3.0, "mud": -3.5, "mid": 1.5, "presence": 3.5, "air": -3.5, "hp": 20.0,
       "bells": [(40, 4.0, 0.9), (1500, 1.5, 1.0)], "comp": OFF, "fx": {"bass_enhancer#0": bass_enhancer(-6.0, 100.0)}},
      ["Şam", "Lil Zey", "UZI", "Ati242", "AGAB", "Kozmos", "Anıl Piyancı", "Wegh", "Volta Show", "K''st", "Grogi",
-      "Stap", "Yung Ouzo", "PAN", "Istanbul Trip", "Jefe", "Motive", "Bixi Blake", "Gxblin", "GRi"]),
+      "Stap", "Yung Ouzo", "PAN", "Istanbul Trip", "Jefe", "Motive", "Bixi Blake", "Gxblin", "GRi", "BLOK3",
+      "Lvbel C5", "Reckol", "Ben Fero", "Khontkar", "Batuflex", "Era7capone", "Heijan", "Muti", "Poizi",
+      "Burry Soprano", "KÖK$VL", "13 Killoki"],
+     ["trap", "drill", "cloud rap"]),
     # kick 50-60 Hz, snare gövdesi 125-200 Hz +1.5, sample tizi koyu (10-16 kHz -1.5..-3), dinamik geniş (crest 12)
     ("Türkçe Boom Bap", "Türkçe Rap",
      {"ls": 2.5, "mud": -3.0, "mid": 2.0, "presence": 4.0, "air": -3.0,
       "bells": [(60, 3.5, 1.0), (2200, 1.0, 1.0)]},
      ["Kamufle", "Allame", "Farazi", "Hayki", "Şehinşah", "Sagopa Kajmer", "Killa Hakan", "Mode XL", "Çağrı Sinci",
       "Kayra", "Sürveyan", "İndigo", "Redo", "Fredd", "İmpala", "Harim", "memzst", "Savai", "Kelanei", "Siirbaz",
-      "90 BPM", "Spade427"]),
+      "90 BPM", "Spade427", "Şanışer", "Ayben", "Kolera", "Sokrat St"],
+     ["boom bap", "boom-bap", "conscious"]),
     # bas hafif (80-160 Hz -2), vokal/melodi önde (630 Hz-2 kHz +1..+2): sıcak, yumuşak tepe
     ("Türkçe Melodik Rap", "Türkçe Rap",
      {"ls": 2.0, "mud": -3.0, "presence": 3.0, "air": -4.0,
       "bells": [(60, 2.5, 0.9), (300, 1.0, 1.0)], "comp": GLUE},
-     ["No.1", "Ahiyan", "Ezhel", "M Lisa", "Diyar Pala", "Şiir!", "Deniz Gürzumar", "Laçin", "Murda", "Sin4Hood", "Artz",
-      "Stabil"]),
+     ["No.1", "Ahiyan", "Ezhel", "M Lisa", "Diyar Pala", "Şiir!", "Deniz Gürzumar", "Laçin", "Murda", "Sin4Hood",
+      "Artz", "Stabil", "Taladro", "Yener Çevik", "Eypio", "Canbay & Wolker", "Arsız Bela", "Sefo", "Reynmen"],
+     ["pop rap", "pop-rap", "melodic rap", "emo rap", "r&b", "arabesk"]),
     # sub yok (31-50 Hz -4), kick 53-67 Hz, 2-12 kHz +1.5..+2 (parlak, kirli), en yoğun dinamik: kick yumruğu, tiz yormasın
     ("Türkçe Sert Rap", "Türkçe Rap",
      {"ls": 2.5, "mud": -4.0, "mid": 2.0, "presence": 3.0, "air": -5.0, "hp": 25.0,
       "bells": [(65, 3.5, 1.0), (1000, 1.0, 1.0)], "comp": OFF},
-     ["Sansar Salvo", "Tahribad-ı İsyan", "Da Poet", "Hidra", "Maestro", "Contra", "Cash Flow"]),
+     ["Sansar Salvo", "Tahribad-ı İsyan", "Da Poet", "Hidra", "Maestro", "Contra", "Cash Flow", "Defkhan", "Massaka",
+      "Zen-G", "Saian"],
+     ["hardcore", "horrorcore", "gangsta"]),
     # 40 Hz altı -9..-11 dB (sub hiç yok: şişirilmez, hp yukarıda), 8-16 kHz +1..+6 (hışırtı), en az sıkıştırılmış
     ("Türkçe Old School", "Türkçe Rap",
      {"ls": 3.0, "mud": -3.0, "mid": 2.0, "presence": 3.0, "air": -5.5, "hp": 30.0,
       "bells": [(70, 3.0, 1.0), (13000, -2.0, 0.9)]},
-     ["Ceza", "Ceg", "İstanbul Attack", "Beta Berk Bayındır", "DJ Sivo"]),
+     ["Ceza", "Ceg", "İstanbul Attack", "Beta Berk Bayındır", "DJ Sivo", "Karakan", "Islamic Force", "Erci E",
+      "Fuat Ergin", "Dr. Fuchs", "Silahsız Kuvvet", "Hedef 12", "Rapozof", "Da Crime Posse", "Sert Müslümanlar"],
+     ["old school", "old-school", "oldschool"]),
     # 31-40 Hz +6, tiz koyu (5-16 kHz -2..-3), tizde en geniş stereo: derin sub, açık tiz, biraz daha geniş
     ("Türkçe Deneysel Rap", "Türkçe Rap",
      {"ls": 2.5, "mud": -4.0, "presence": 3.5, "air": -3.0, "hp": 20.0,
       "bells": [(40, 3.0, 0.9)], "comp": OFF, "fx": {"stereo_tools#0": stereo_tools(0.15)}},
-     ["Ağaçkakan", "Çiğ"]),
+     ["Ağaçkakan", "Çiğ", "Ethnique Punch", "roadside.picnic"],
+     ["experimental", "abstract", "left-field", "leftfield"]),
     # Hip Hop ve Indie: farklar kendi ana türlerinin ölçülen ortalamasına göre (Hip Hop 14, Indie 10 parça)
     # 808 tam 50 Hz (+3), 315-400 Hz +2 (vokal gövdesi), 1-2.5 kHz -1, tiz temiz, dinamik geniş (9.7):
     # 808 odakta, vokal öne (2 kHz), tiz açık, hafif yapıştırma
     ("Yabancı Melodik Rap", "Hip Hop",
      {"ls": 2.0, "mud": -3.0, "presence": 3.5, "air": -3.0, "hp": 20.0,
       "bells": [(50, 3.0, 1.0), (2000, 1.5, 1.0)], "comp": GLUE},
-     ["Yenlik", "Ruhsora Emm", "Connor Price", "ния", "R-Kap"]),
+     ["Yenlik", "Ruhsora Emm", "Connor Price", "ния", "R-Kap", "Juice WRLD", "Rod Wave", "Polo G", "Lil Tecca",
+      "iann dior", "A Boogie Wit da Hoodie", "Lil Tjay", "Toosii", "Roddy Ricch", "Lil Mosey", "MACAN", "Jah Khalib",
+      "HammAli & Navai", "Miyagi & Эндшпиль", "Xcho"],
+     ["melodic rap", "pop rap", "pop-rap", "emo rap"]),
     # sub az (25-50 Hz -3), kick/bas gövdesi 60-80 Hz, 1-2 kHz +1..+1.7 (canlı enstrüman, vokal), az sıkıştırılmış
     # (crest 11.6): olmayan sub şişirilmez, gövde ve orta öne
     ("Alternatif Hip Hop", "Hip Hop",
      {"ls": 2.0, "mud": -3.5, "mid": 2.5, "presence": 3.5, "air": -4.0, "hp": 25.0,
       "bells": [(70, 2.5, 1.0), (1500, 1.5, 1.0)]},
-     ["Gorillaz", "Bloody Immigrants", "Chefket", "Mac Miller", "Kendrick Lamar"]),
+     ["Gorillaz", "Bloody Immigrants", "Chefket", "Mac Miller", "Kendrick Lamar", "OutKast", "A Tribe Called Quest",
+      "The Roots", "Little Simz", "Earl Sweatshirt", "Joey Bada$$", "MF DOOM", "Madvillain", "Freddie Gibbs",
+      "Isaiah Rashad", "De La Soul", "The Pharcyde", "Lupe Fiasco", "Aesop Rock", "Loyle Carner", "Yasiin Bey",
+      "Скриптонит"],
+     ["alternative hip hop", "alternative hip-hop", "alternative rap", "conscious", "jazz", "abstract", "boom bap",
+      "boom-bap", "golden age", "underground hip hop", "political"]),
     # 25-40 Hz +3..+6 (en derin sub), 10-16 kHz -2.4..-6 (buğulu), en sıkıştırılmış (crest 8.7), ortada en geniş
     # stereo (reverb): Türkçe Trap gibi derin 808 + Bass Enhancer, koyu tiz biraz açılır, compressor yok
     ("Cloud Rap", "Hip Hop",
      {"ls": 3.0, "mud": -4.0, "mid": 1.5, "presence": 3.0, "air": -3.0, "hp": 20.0,
       "bells": [(40, 4.0, 0.9)], "comp": OFF, "fx": {"bass_enhancer#0": bass_enhancer(-6.0, 100.0)}},
-     ["Derek Pope", "IVOXYGEN", "BONES", "Biv"]),
+     ["Derek Pope", "IVOXYGEN", "BONES", "Biv", "Yung Lean", "Bladee", "Ecco2k", "Thaiboy Digital", "Lil Peep",
+      "Xavier Wulf", "Clams Casino", "Lil Tracy", "Black Kray", "Night Lovell", "Main Attrakionz", "$uicideboy$"],
+     ["cloud rap", "cloud-rap"]),
     # bas gitar/synth bas 57-85 Hz, 31-50 Hz -2..-3 (sub az), yüksek ve sıkıştırılmış master (RMS -9.5, crest 9.3),
     # bas bile stereo: groove 80 Hz'de, alt-orta sıcak kalsın (çamur az kesilir), tiz yumuşak
     ("Neo-Psikedelik", "Indie",
      {"ls": 2.0, "mud": -2.5, "mid": 2.5, "air": -4.0, "hp": 25.0, "bells": [(80, 2.5, 0.9)]},
-     ["Tame Impala", "Dolphin Love"]),
+     ["Tame Impala", "Dolphin Love", "MGMT", "Unknown Mortal Orchestra", "Khruangbin", "The Flaming Lips",
+      "Boogarins", "Mild High Club", "Connan Mockasin", "Jacco Gardner", "Babe Rainbow"],
+     ["psych"]),
     # 25-50 Hz +5..+9.5 (synth/808 sub), 80 Hz -3, 2.5-16 kHz -3..-5.6 (koyu), tizde çok geniş stereo:
     # derin sub, koyu tiz biraz açılır
     ("Indie Elektronik", "Indie",
      {"ls": 3.0, "mud": -3.5, "mid": 2.0, "presence": 3.5, "air": -2.5, "hp": 20.0, "bells": [(40, 3.5, 0.9)]},
-     ["Kid Francescoli", "Nova Norda", "Lin Pesto"]),
+     ["Kid Francescoli", "Nova Norda", "Lin Pesto", "Sylvan Esso", "Purity Ring", "The Postal Service",
+      "Little Dragon", "The xx", "Glass Animals", "SOHN", "Phantogram", "James Blake", "Polo & Pan", "Petit Biscuit",
+      "Fakear", "Lewis OfMan"],
+     ["indietronica", "inditronica", "indie electronic", "trip hop", "trip-hop", "witch house", "chillwave"]),
     # tek ölçüm (Lana Del Rey West Coast): bas az (25-125 Hz -1.3..-7.6), 400 Hz-1.25 kHz +1.5..+5.5 (vokal,
     # reverb'lü gitar), 10-12.5 kHz +4 (parıltı): orta zaten dolu (mid az), 250 Hz sıcaklık, parıltı açık
     ("Rüya Pop", "Indie",
      {"ls": 1.5, "mud": -2.5, "mid": 1.5, "presence": 3.5, "air": -2.5, "hp": 25.0,
       "bells": [(250, 1.5, 0.9)], "comp": GLUE},
-     ["Lana Del Rey", "Still Corners"]),
+     ["Lana Del Rey", "Still Corners", "Beach House", "Cigarettes After Sex", "Cocteau Twins", "Mazzy Star",
+      "Slowdive", "Men I Trust", "Galaxie 500", "Julee Cruise", "Hope Sandoval & The Warm Inventions", "The Marías",
+      "Alvvays", "Wild Nothing", "Vansire", "Melody's Echo Chamber"],
+     ["dream pop", "dreampop", "dream-pop", "ethereal", "slowcore"]),
+    # Bass Müziği: Deezer 30 sn önizlemeleri (EQ öncesi, 33 parça), farklar Bass ortalamasına göre. Ana eğri
+    # (UK Garage'dan) değişmedi; garage, bassline, genel DnB/jungle ve derin UK dubstep ana türde çalar.
+    # sub az (25-40 Hz -2..-5), bas gövdesi 63-100 Hz +1.5..+3, pad/Rhodes 200 Hz-1 kHz +1..+2, 1-5 kHz -1.5..-2
+    # (yumuşak), ride parıltısı 8-12 kHz +1..+1.6, en dinamik (crest 11.5): gövde 65 Hz, sıcaklık kalsın, parıltı açık
+    ("Liquid DnB", "Bass Müziği",
+     {"ls": 2.0, "mud": -3.0, "mid": 2.0, "presence": 3.0, "air": -3.0, "hp": 20.0, "bells": [(65, 2.0, 0.9)]},
+     ["Hybrid Minds", "Fred V", "Lenzman", "Etherwood", "Monrroe", "Technimatic", "Hugh Hardie", "Pola & Bryson",
+      "Maduk", "BCee", "Dawn Wall", "GLXY", "Krakota", "Anile", "Satl", "London Elektricity", "Lexurus", "Flowidus",
+      "Mohican Sun", "SpectraSoul"],
+     ["liquid funk", "liquid drum and bass", "liquid", "atmospheric drum and bass"]),
+    # sub az (31-63 Hz -1..-3.6), reese gövdesi 100-125 Hz +1..+1.7, distorsiyon 6-16 kHz +1..+3: sub reese'in
+    # altında ayrı dursun, reese yığılması ve 2-5 kHz snare/growl sertliği alınsın
+    ("Neurofunk - Jump Up", "Bass Müziği",
+     {"ls": 2.0, "mud": -4.5, "mid": 1.5, "presence": 2.5, "air": -4.0, "hp": 20.0, "bells": [(55, 2.0, 1.0)]},
+     ["Noisia", "Phace", "Mefjus", "Black Sun Empire", "Current Value", "Gydra", "Agressor Bunx", "Teddy Killerz",
+      "InsideInfo", "The Upbeats", "Billain", "Neonlight", "Ed Rush & Optical", "Optiv & BTK", "Hedex", "Macky Gee",
+      "Turno", "Darkzy", "Annix", "Mob Tactics", "Pythius", "Disphonia"],
+     ["neurofunk", "techstep", "darkstep", "skullstep", "jump up"]),
+    # en derin sub (25-40 Hz +6..+7.6), 250-800 Hz -1..-2.4 (oyuk orta), 1.6-16 kHz +1.5..+4.5 (screech), en yüksek ve
+    # en ezik master (RMS -7, crest 9.1, dinamik 3.8): sub göğüste, growl gövdesi temiz, çığlıklar yormasın
+    ("Dubstep - Riddim", "Bass Müziği",
+     {"ls": 2.5, "mud": -4.5, "mid": 1.5, "presence": 2.5, "air": -4.5, "hp": 20.0, "bells": [(40, 3.5, 0.9)]},
+     ["Excision", "Subtronics", "Svdden Death", "Marauda", "Zomboy", "Kai Wachi", "Barely Alive", "PEEKABOO", "Wooli",
+      "Riot Ten", "Ray Volpe", "Kompany", "Sullivan King", "Ganja White Night", "Borgore", "12th Planet", "Doctor P",
+      "Flux Pavilion", "Datsik", "Must Die!", "Spag Heddy", "Jessica Audiffred", "Bear Grillz"],
+     ["riddim", "brostep", "tearout", "deathstep"]),
+    # 315-800 Hz +1.6..+2.3 (pad, vokal), 6-16 kHz -1.4..-3.3 (koyu), en geniş stereo; önizlemelerin çoğu intro/build
+    # (sub -4..-9 o yüzden): drop'ta sub dolsun, orta zaten dolu, koyu tiz biraz açılsın; intro-drop farkı korunur
+    ("Melodik Dubstep", "Bass Müziği",
+     {"ls": 2.5, "mud": -3.5, "mid": 1.5, "presence": 3.0, "air": -3.0, "hp": 20.0, "bells": [(45, 3.0, 0.9)]},
+     ["Seven Lions", "Dabin", "Crystal Skies", "MitiS", "Last Heroes", "Trivecta", "Nurko", "Blanke", "Au5", "ARMNHMR",
+      "Codeko", "Adventure Club"],
+     ["melodic dubstep", "progressive dubstep", "chillstep"]),
+    # 808 40-80 Hz +3..+4.8 (CRUSH'ta 42 Hz: 808), brass/hat 4-8 kHz +1.2..+2: Türkçe Trap gibi 808 göğüste +
+    # Bass Enhancer, hat ruloları ve siren yormasın
+    ("Festival Trap", "Bass Müziği",
+     {"ls": 3.0, "mud": -3.5, "mid": 1.5, "presence": 3.0, "air": -4.0, "hp": 20.0,
+      "bells": [(45, 3.5, 0.9)], "comp": OFF, "fx": {"bass_enhancer#0": bass_enhancer(-6.0, 100.0)}},
+     ["Yellow Claw", "RL Grime", "Baauer", "Flosstradamus", "TroyBoi", "Hucci", "NGHTMRE", "Boombox Cartel",
+      "Ape Drums", "Party Favor", "LOUDPVCK", "Gent & Jawns", "Herobust", "Bro Safari", "Keys N Krates", "Cesqeaux",
+      "Aazar"],
+     ["trap edm", "festival trap", "hybrid trap", "moombahton"]),
+    # Elektronik (22 önizleme), House (27), Türk Halk - Sanat (18), Folk - Akustik (18): farklar kendi türlerinin
+    # ölçülen ortalamasına göre. Elektronik ana eğrisi değişmedi.
+    # kick 36-57 Hz, 25-40 Hz -2, 4-16 kHz +1.7..+7 (hızlandırılmış vokal, hat): kick temeli, parlaklık yormasın
+    ("Hypertechno", "Elektronik",
+     {"ls": 2.5, "mud": -4.0, "mid": 1.5, "presence": 2.5, "air": -4.5, "hp": 25.0, "bells": [(50, 3.0, 1.0)]},
+     ["ILYAA", "THNDERZ", "Neptunica", "Tiscore", "Beachbag", "Luca-Dante Spadafora", "Valexus", "KYANU", "PAZOO",
+      "Zombic", "Ely Oaks", "HyperTechno", "KXXMA", "MITCH DB", "Naeleck", "TECHNO KING"],
+     ["hypertechno"]),
+    # 25-40 Hz +3.5..+5.5, distorsiyonlu bas 80-200 Hz +1.7..+2.5, 400 Hz-1 kHz -1.8..-2.9 (oyuk), en ezik master
+    # (dinamik 2.4): gövde yığılması alınır, oyuk orta biraz dolar, kırpılma sertliği yormasın
+    ("Darksynth", "Elektronik",
+     {"ls": 2.0, "mud": -4.5, "mid": 2.0, "presence": 2.5, "air": -5.0, "hp": 25.0, "bells": [(55, 2.0, 1.0)]},
+     ["Perturbator", "Carpenter Brut", "GosT", "Dance With the Dead", "Daniel Deluxe", "Volkor X", "Dan Terminus",
+      "Street Cleaner", "Hubrid", "Mega Drive", "Lazerpunk", "Magic Sword", "Irving Force", "Midnight Danger"],
+     ["darksynth", "dark synthwave"]),
+    # sub az (25-40 Hz -5..-7), gövde/vokal 125-630 Hz +1.2..+2.7, 2-6 kHz -1.7..-2.8 (yumuşak), bas bile stereo:
+    # olmayan sub şişirilmez, sıcaklık kalır, yumuşak üst orta açılır
+    ("Art Pop Elektronik", "Elektronik",
+     {"ls": 2.5, "mud": -3.0, "mid": 1.5, "presence": 3.5, "air": -3.0, "hp": 20.0, "bells": [(45, 2.0, 0.9)]},
+     ["Noga Erez", "Björk", "FKA twigs", "Sevdaliza", "Fever Ray", "The Knife", "Eartheater", "Jessy Lanza",
+      "Holly Herndon", "Smerz", "Oklou"],
+     ["art pop", "avant-garde pop", "experimental pop"]),
+    # eski ana House eğrisi (French House): kick/bas 63-80 Hz +2.5..+3.8, 315-400 Hz -2.5, filtreli örnek ve vocoder
+    # ortada; 3630 pompası kaynağın parçası, compressor yok
+    ("Fransız House", "House",
+     {"mid": 2.5, "bells": [(70, 2.0, 1.0), (1000, 1.0, 1.0)]},
+     ["Daft Punk", "French 79", "The Blaze", "Cassius", "Modjo", "Alan Braxe", "Étienne de Crécy", "Thomas Bangalter",
+      "DJ Falcon", "Braxe + Falcon", "The Supermen Lovers", "Fred Falke", "Le Knight Club", "Kartell", "Superfunk",
+      "Motorbass"],
+     ["french house", "french touch", "filter house"]),
+    # 25-50 Hz +2..+4.7, bas gitar 100 Hz +1.4, orta düz, 10-16 kHz +1.5..+6 (hat, yaylı), en az dinamik (4.1):
+    # bas gitar gövdesi ve funk gitar (2.5 kHz), hafif yapıştırma
+    ("Disko Funk", "House",
+     {"ls": 2.0, "mud": -2.5, "mid": 2.0, "air": -3.0, "hp": 25.0, "bells": [(85, 2.0, 0.9), (2500, 1.0, 1.0)],
+      "comp": GLUE},
+     ["Parcels", "L'Impératrice", "Breakbot", "Purple Disco Machine", "Chromeo", "Todd Terje", "Lindstrøm",
+      "Prins Thomas", "Crazy P", "Kraak & Smaak", "Dimitri From Paris", "Folamour", "Late Nite Tuff Guy",
+      "Satin Jackets", "Poolside", "Moullinex", "Psychemagik", "Bag Raiders"],
+     ["disco"]),
+    # sub az (25-63 Hz -5..-13), piyano/pluck/vokal 250 Hz-1.25 kHz +1..+3.3, 3-5 kHz -1.4..-2 (yumuşak):
+    # ince alt biraz dolar, orta zaten dolu, yumuşak üst orta açılır
+    ("Tropikal House", "House",
+     {"ls": 2.5, "mud": -3.5, "mid": 1.5, "presence": 3.5, "air": -3.5, "hp": 20.0, "bells": [(55, 2.0, 0.9)]},
+     ["Kygo", "Robin Schulz", "Lost Frequencies", "Felix Jaehn", "Matoma", "Thomas Jack", "Klingande", "Sam Feldt",
+      "Møme", "Seeb", "Jonas Blue", "Mike Perry", "Faul & Wad", "Klangkarussell", "Bakermat"],
+     ["tropical house"]),
+    # saturasyonlu 125-400 Hz +2..+2.7, 500 Hz-1.25 kHz -2..-3.4, 6-16 kHz -2.7..-15.7 (çok koyu, vinil): çamur alınır,
+    # oyuk orta dolar, koyu kaynak daha da boğulmaz (vinil hışırtısı biraz daha duyulur)
+    ("Lo-fi House", "House",
+     {"ls": 2.5, "mud": -4.0, "mid": 2.5, "presence": 4.0, "air": -2.0, "hp": 25.0, "bells": [(60, 2.0, 1.0)]},
+     ["DJ Seinfeld", "Ross From Friends", "DJ Boring", "Baltra", "Harrison BDP", "Project Pablo", "Fantastic Man",
+      "Jesper Ryom", "Patrick Holland", "Swales", "Sideluv"],
+     ["lo-fi house", "lofi house", "outsider house"]),
+    # bas yok (40-80 Hz -5..-8), bağlama/ses gövdesi 160-400 Hz +2.3..+3.8, 2-16 kHz -2.6..-6 (koyu), dinamik (crest
+    # 13.7): olmayan bas şişirilmez, kutu tümseği alınır, koyu tiz biraz açılır. Ana tür eğrisi arşiv/TRT ve sanat için
+    ("Akustik Türkü", "Türk Halk - Sanat",
+     {"ls": 2.0, "mud": -4.0, "mid": 1.5, "presence": 3.5, "air": -2.5, "hp": 25.0, "bells": [(250, -1.0, 1.2)]},
+     ["Kıvırcık Ali", "Deniz Toprak", "Selda Bağcan", "Siyasiyabend", "Neşet Ertaş", "Musa Eroğlu", "Arif Sağ",
+      "Erdal Erzincan", "Cengiz Özkan", "Güler Duman", "Sabahat Akkiraz", "Hüseyin Turan", "Engin Nursani",
+      "Ender Balkır", "Sevcan Orhan", "Özlem Özdil", "Halit Bilgiç", "Tolga Sağ", "Aşık Mahzuni Şerif", "Ruhi Su",
+      "Grup Yorum", "Kızılırmak", "Onur Akın", "Ezginin Günlüğü", "Hasret Gültekin", "Ferhat Tunç", "Grup Abdal",
+      "Erkan Oğur", "Kıvırcık Ali Özütemiz"],
+     ["anatolian folk", "contemporary folk", "singer-songwriter", "protest", "alevi", "uzun hava", "bağlama"]),
+    # modern prodüksiyon: 40-100 Hz +5..+9.6, 400 Hz +3.4, tiz düz, dinamik geniş (12.6): kick/bas gitar göğüste,
+    # vokal bandın üstüne
+    ("Modern Türkü", "Türk Halk - Sanat",
+     {"ls": 2.0, "mud": -3.5, "mid": 2.0, "presence": 3.5, "air": -3.5, "hp": 20.0, "bells": [(60, 2.0, 0.9)]},
+     ["mbnd", "Zeynep Baksi Karatağ", "Adanalı Ayhan", "Koray Avcı", "Hirai Zerdüş", "Fasıl-ı Jazz", "Mikail Aslan",
+      "Nazlıcan Kübra", "Minor Empire", "Uygar Doğanay"],
+     ["folk pop", "folk rock"]),
+    # düm/davul 63-80 Hz +4.4..+4.8, 160-400 Hz -2.2..-4.8 (oyuk), 2-16 kHz +2.8..+7 (klarnet, zurna, zil; en parlak):
+    # vuruş göğüste, tiz yormasın
+    ("Oyun Havası", "Türk Halk - Sanat",
+     {"ls": 2.0, "mud": -2.5, "mid": 2.0, "presence": 2.5, "air": -4.5, "hp": 25.0, "bells": [(80, 2.0, 1.0)]},
+     ["Ankaralı Namık", "Mustafa Taş", "Oğuz Yılmaz", "Ankaralı İbocan", "Çubuklu Yaşar", "Bülent Gökçe",
+      "Coşkun Direk", "Ankaralı Coşkun", "Ankaralı Yasin", "Ankaralı Yasemin", "Samet Burak Ay", "Yiğit Aktaş",
+      "Ömer Faruk Bostan", "Seyit Yıldırım", "Veli Erdem Karakülah", "Hüsnü Şenlendirici", "Selim Sesler",
+      "Fehmi Ünlüyayla", "Rumeli Orhan Kemal", "Deli Selim", "İzmirli Taylan", "Cüneyt Sepetçi"],
+     ["oyun havası", "oyun havasi", "roman havası", "roman havasi"]),
+    # stomp/kick 50-63 Hz +2.8..+3.9, 80-250 Hz -1.5..-2.7, 500 Hz-2.5 kHz +1..+1.4, 6-16 kHz +1.6..+4: vuruş göğüste,
+    # orta inceltilmez
+    ("Folk Pop", "Folk - Akustik",
+     {"ls": 2.0, "mud": -2.5, "mid": 2.0, "presence": 3.5, "air": -3.0, "hp": 20.0, "bells": [(60, 1.5, 1.0)]},
+     ["The Lumineers", "Mumford & Sons", "Noah Kahan", "Of Monsters and Men", "Vance Joy", "The Head and the Heart",
+      "Lord Huron", "Caamp", "Mt. Joy", "The Oh Hellos", "Edward Sharpe & The Magnetic Zeros", "Mighty Oaks",
+      "Bear's Den", "The Avett Brothers", "The Strumbellas", "Judah & the Lion"],
+     ["folk pop", "folk rock", "stomp and holler", "stomp clap"]),
+    # bas az (25-63 Hz -3..-6), gitar/ses gövdesi 125-400 Hz +1.6..+3.7, 1-16 kHz -1..-5 (koyu): yakınlık tümseği
+    # alınır, nefes ve tel sesi açılır, dinamik korunur
+    ("Singer-Songwriter", "Folk - Akustik",
+     {"ls": 1.5, "mud": -4.0, "mid": 2.0, "presence": 3.5, "air": -2.0, "hp": 25.0, "bells": [(250, -1.0, 1.2)]},
+     ["Bon Iver", "Phoebe Bridgers", "Iron & Wine", "José González", "Sufjan Stevens", "Fleet Foxes", "Novo Amor",
+      "Damien Rice", "Adrianne Lenker", "Gregory Alan Isakov", "The Paper Kites", "Hollow Coves", "Ben Howard",
+      "Elliott Smith", "The Tallest Man On Earth", "Nick Drake", "Simon & Garfunkel", "Joni Mitchell",
+      "Leonard Cohen", "Angus & Julia Stone", "First Aid Kit"],
+     ["singer-songwriter", "singer/songwriter", "singer songwriter", "indie folk", "chamber folk", "contemporary folk"]),
+    # modern country 25-40 Hz +4.4..+6, kick/bas 80-100 Hz +1.8..+2.7, 2-3 kHz +1.1..+1.4: kick ve bas gövdesi
+    ("Country - Americana", "Folk - Akustik",
+     {"ls": 2.0, "mud": -3.0, "mid": 1.5, "presence": 3.5, "air": -3.0, "hp": 20.0, "bells": [(65, 1.5, 0.9)]},
+     ["Morgan Wallen", "Luke Combs", "Zach Bryan", "Chris Stapleton", "Tyler Childers", "Jason Aldean", "Luke Bryan",
+      "Kane Brown", "Lainey Wilson", "Bailey Zimmerman", "Cody Johnson", "Riley Green", "Megan Moroney",
+      "Thomas Rhett", "Kenny Chesney", "Carrie Underwood", "Kacey Musgraves", "Sturgill Simpson", "Jason Isbell",
+      "Jason Isbell and the 400 Unit", "Colter Wall", "Turnpike Troubadours", "Charley Crockett", "Billy Strings",
+      "Sierra Ferrell"],
+     ["country", "americana", "bluegrass", "red dirt"]),
+    # Türkçe Pop (24 önizleme) ve Türkçe Rock (22): farklar kendi türlerinin ölçülen ortalamasına göre; ana eğriler
+    # değişmedi. Türk sanatçılarda MB etiketi az, asıl tanıma sanatçı listesi.
+    # sub az (25-63 Hz -2..-4.8), synth bas/gövde 80-400 Hz +1.3..+2.5, 2.5-16 kHz -1.5..-5 (koyu): sub biraz dolar,
+    # gövde yığılması alınır, koyu tiz biraz açılır
+    ("Alternatif Pop", "Türkçe Pop",
+     {"ls": 2.0, "mud": -4.0, "mid": 2.0, "presence": 3.5, "air": -3.0, "hp": 20.0, "bells": [(50, 2.0, 0.9)]},
+     ["Mabel Matiz", "Den Ze", "KÖFN", "Mert Demir", "Dedublüman", "İkilem", "Sena Şener", "Hande Mehan",
+      "Lara Di Lara", "Nil Karaibrahimgil", "Bedük", "Serdar Ayyıldız", "Aylin Aslım"],
+     ["alternative pop", "indie pop"]),
+    # gitar/ses gövdesi 160-500 Hz +1..+1.8, tiz biraz koyu (-1..-2.4), dinamik: gövde ve tel/nefes, sub şişirilmez
+    ("Akustik Pop", "Türkçe Pop",
+     {"ls": 2.0, "mud": -3.0, "mid": 2.0, "presence": 3.5, "air": -3.0, "hp": 25.0, "bells": [(80, 1.0, 0.9)],
+      "comp": GLUE},
+     ["Tuğçe Kandemir", "İlyas Yalçıntaş", "Mehmet Erdem", "Emir Can İğrek", "Gökhan Türkmen", "Fettah Can",
+      "Funda Arar", "Yalın", "Elif Buse Doğan", "Melek Mosso", "Çağan Şengül", "Zeynep Casalini", "Cem Belevi",
+      "Göksel", "Sura İskenderli", "Ufuk Beydemir"],
+     ["singer-songwriter"]),
+    # kick 40-50 Hz +3.2..+4.6, 160-400 Hz -1.7..-2.3 (oyuk), 2-16 kHz +1.6..+5.3 (parlak, kırpılmış master):
+    # kick göğüste, oyuk orta daha kesilmez, el çırpma ve sibilans yormasın
+    ("Hareketli Pop", "Türkçe Pop",
+     {"ls": 3.0, "mud": -3.5, "mid": 2.0, "presence": 3.0, "air": -5.0, "hp": 20.0, "bells": [(50, 2.5, 0.9)]},
+     ["Hadise", "Gülşen", "Simge", "EDIS", "Bengü", "Demet Akalın", "İrem Derici", "Hande Yener", "Ece Seçkin",
+      "Murat Boz", "Sinan Akçıl", "Serdar Ortaç", "Aleyna Tilki", "Ziynet Sali", "Emrah Karaduman", "Derya Uluğ",
+      "Zeynep Bastık", "Tuğba Yurt", "Petek Dinçöz", "Ebru Polat", "Feride Hilal Akın"],
+     ["dance-pop"]),
+    # bas ince (40-100 Hz -2.8..-4.1), 5-16 kHz +1.6..+2.5, en sessiz ve dinamik (RMS -17, crest 16): kick/synth bas
+    # gövdesi, olmayan sub şişirilmez (hp 25), hafif yapıştırma
+    ("90'lar Pop", "Türkçe Pop",
+     {"ls": 3.0, "mud": -3.5, "mid": 2.0, "presence": 3.0, "air": -4.5, "hp": 25.0, "bells": [(70, 2.0, 1.0)],
+      "comp": GLUE},
+     ["Yonca Evcimik", "Harun Kolçak", "Aşkın Nur Yengi", "Hakan Peker", "İzel", "Bendeniz", "Burak Kut",
+      "Emel Müftüoğlu", "Mirkelam", "Levent Yüksel", "Reyhan Karaca", "Ferda Anıl Yarkın", "Seden Gürel",
+      "Atilla Taş", "Kayahan", "Nazan Öncel", "Deniz Seki", "Ayşegül Aldinç", "Gökhan Tepe"],
+     []),
+    # modern prodüksiyon: 31-125 Hz +3..+8.9 (bas groove), 630 Hz -2.4: groove 65 Hz, fuzz saz zaten ısırıyor
+    ("Anadolu Psych", "Türkçe Rock",
+     {"ls": 2.5, "mud": -3.0, "mid": 2.5, "presence": 3.0, "air": -3.0, "hp": 25.0, "bells": [(65, 2.5, 0.9)]},
+     ["Altin Gün", "Hey! Douglas", "Gaye Su Akyol", "Derya Yıldırım & Grup Şimşek", "Lalalar", "Baba Zula",
+      "Kit Sebastian", "Ayyuka", "Elektro Hafiz", "Umut Adan", "Bubituzak", "The Ringo Jets", "Anadol", "Replikas"],
+     ["psychedelic", "neo-psychedelia", "turkish psych"]),
+    # 60-70'ler: bas ince (31-125 Hz -4..-6), orta önde (500 Hz-2.5 kHz +1.5..+3.5), 5-16 kHz -3.5..-11 (koyu bant),
+    # bas bile sert stereo (yan/orta -11): ince bas gitarın temeli, koyu tiz daha boğulmaz, stereo biraz daralır
+    ("Anadolu Klasikleri", "Türkçe Rock",
+     {"ls": 3.0, "mud": -2.5, "mid": 1.5, "presence": 3.0, "air": -3.0, "hp": 30.0, "bells": [(90, 2.0, 1.0)],
+      "comp": GLUE, "fx": {"stereo_tools#0": stereo_tools(-0.2)}},
+     ["Barış Manço", "Cem Karaca", "Erkin Koray", "Moğollar", "Edip Akbayram", "3 Hürel", "Fikret Kızılok",
+      "Mustafa Özkent", "Ersen ve Dadaşlar", "Kardaslar", "Apaşlar", "Kurtalan Ekspres", "Bunalımlar", "Silüetler",
+      "Mavi Işıklar", "Dervişan"],
+     ["folk rock", "heavy psych", "anatolian beat", "progressive rock", "classic pop and rock"]),
+    # bas az (40-80 Hz -3..-5), 4-16 kHz +1.5..+7 (distorsiyon), en ezik (dinamik 3.5): kick yumruğu, gitar çamuru
+    # alınır, cızırtı yormasın
+    ("Türkçe Sert Rock", "Türkçe Rock",
+     {"ls": 2.5, "mud": -4.0, "mid": 1.5, "presence": 3.0, "air": -5.0, "hp": 25.0, "bells": [(75, 2.5, 1.0)]},
+     ["Duman", "mor ve ötesi", "Şebnem Ferah", "Kurban", "Pilli Bebek", "Hayko Cepkin", "Kesmeşeker", "mavisakal",
+      "Ogün Sanlısoy", "Yaşar Kurt", "Rashit", "Gece Yolcuları", "Bulutsuzluk Özlemi", "Cem Köksal"],
+     ["grunge", "alternative rock", "ska punk", "pop punk"]),
+    # gövde 63-250 Hz +1.3..+2.8, 800 Hz-2 kHz -1.3..-2.1, 5-16 kHz +2..+4.4, dinamik (baladlar): gövde fazlası
+    # alınır, vokal önde, hafif yapıştırma
+    ("Türkçe Pop Rock", "Türkçe Rock",
+     {"ls": 2.5, "mud": -3.0, "mid": 2.5, "presence": 3.5, "air": -3.5, "hp": 20.0, "bells": [(85, 1.5, 1.0)],
+      "comp": GLUE},
+     ["Barış Akarsu", "Teoman", "Pinhani", "Gripin", "Yüksek Sadakat", "emre aydın", "Zakkum", "Feridun Düzağaç",
+      "Mavi Gri", "Seksendört", "Kolpa", "Aydilge", "Fatma Turgut", "Emre Fel", "Gökhan Özoğuz"],
+     ["pop rock"]),
 ]
 
 
@@ -381,10 +626,10 @@ FAMILY_OF = {name: family for name, family, _, _ in GENRES}
 # Her türe uyan Harman eğrisi; tanınmayan türler buna düşer
 PRESETS = {"Genel": preset(nova(), GLUE)}
 PRESETS.update((name, genre_preset(family, diff)) for name, family, _, diff in GENRES)
-PRESETS.update((name, genre_preset(FAMILY_OF[parent], diff)) for name, parent, diff, _ in SUBGENRES
+PRESETS.update((name, genre_preset(FAMILY_OF[parent], diff)) for name, parent, diff, _, _ in SUBGENRES
                if parent in FAMILY_OF)  # ana türü olmayan alt tür check_catalog'da hata
 CATALOG = {"genres": [{"name": n, "family": f, "keywords": k, "turkish": n in TURKISH} for n, f, k, _ in GENRES],
-           "subgenres": [{"name": n, "parent": p, "artists": a} for n, p, _, a in SUBGENRES],
+           "subgenres": [{"name": n, "parent": p, "artists": a, "keywords": k} for n, p, _, a, k in SUBGENRES],
            "deezer": {str(k): v for k, v in DEEZER.items()},
            "turkish_variant": TURKISH_VARIANT, "defaults": DEFAULTS, "generic": GENERIC, "merged": MERGED}
 
@@ -512,11 +757,14 @@ def check_catalog():
     errors += [f"alt tür adı iki kez ya da ana türle aynı: {n}" for n in sorted({n for n in subs
                                                                                if (subs + names).count(n) > 1})]
     errors += [f"geçersiz alt tür adı: {n}" for n in subs if "/" in n or n == "Genel" or n in MERGED]
-    errors += [f"{n}: ana tür {p} katalogda yok" for n, p, _, _ in SUBGENRES if p not in family]
+    errors += [f"{n}: ana tür {p} katalogda yok" for n, p, _, _, _ in SUBGENRES if p not in family]
+    sub_words = [(p, w) for _, p, _, _, k in SUBGENRES for w in k]  # servis kelimeyi ana türün alt türlerinde arar
+    errors += [f"{p}: alt tür kelimesi iki kez geçiyor: {w}" for p, w in sorted(set(sub_words)) if sub_words.count((p, w)) > 1]
+    errors += [f"alt tür kelimesi küçük harf değil ya da boş: {w!r}" for _, w in sub_words if w != w.lower() or not w.strip()]
     norm = lambda s: "".join(c for c in unicodedata.normalize("NFKD", s.casefold()) if c.isalnum())  # servisle aynı
     artists = [norm(a) for s in SUBGENRES for a in s[3]]
     errors += [f"sanatçı iki kez geçiyor: {a}" for a in sorted({a for a in artists if artists.count(a) > 1})]
-    errors += [f"{n}: sanatçı listesi boş ya da boş ad var" for n, _, _, a in SUBGENRES if not a or not all(map(norm, a))]
+    errors += [f"{n}: sanatçı listesi boş ya da boş ad var" for n, _, _, a, _ in SUBGENRES if not a or not all(map(norm, a))]
     for name, data in PRESETS.items():
         eq = data["output"]["equalizer#0"]
         bands = list(eq["left"].values())

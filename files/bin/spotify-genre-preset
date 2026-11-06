@@ -4,7 +4,9 @@
 Türler genres.json'da (24 ana tür; her türün aynı adlı bir preseti var, uymayan her şey Genel):
 ~/.local/share/spotify-genre-preset/genres.json, yoksa betiğin yanındaki ../genres.json.
 Alt tür: sanatçı genres.json "subgenres" listesindeyse ağ sorgusu yapılmadan alt türün preseti çalar
-(preset dosyası yoksa ana türünki); listede yoksa aşağıdaki gibi ana tür. Sıralama ve sayım ana tür düzeyinde.
+(preset dosyası yoksa ana türünki); listede yoksa aşağıdaki gibi ana tür bulunur, sonra MusicBrainz etiketleri
+oy sırasıyla taranır: o ana türün bir alt türünün anahtar kelimesini içeren ilk etiket (en uzun kelime) alt türü
+seçer (yeni keşfedilen sanatçılar için); hiçbiri yoksa ana tür. Sıralama ve sayım ana tür düzeyinde.
 Tür (anahtar gerekmez): Deezer albüm türü ve MusicBrainz sanatçı etiketleri. Etiketler oy sırasıyla
 taranır, ilk eşleşen etikette en uzun anahtar kelime kazanır ("deep house" > "house"). Etiket türü,
 Deezer türü yoksa, aynı ailedense ya da Deezer türü genişse (pop, dance, elektro, alternatif,
@@ -79,6 +81,9 @@ def load_genres():
         cat["keywords"] = {k: g["name"] for g in cat["genres"] for k in g["keywords"]}
         cat["parent"] = {s["name"]: s["parent"] for s in cat.get("subgenres", [])}
         cat["artist_sub"] = {norm(a): s["name"] for s in cat.get("subgenres", []) for a in s["artists"]}
+        cat["sub_keywords"] = {}  # ana tür -> {kelime: alt tür}
+        for s in cat.get("subgenres", []):
+            cat["sub_keywords"].setdefault(s["parent"], {}).update((k, s["name"]) for k in s.get("keywords", []))
         return cat
     sys.exit("genres.json bulunamadı: ~/.local/share/spotify-genre-preset/genres.json yok "
              "(install.sh kurar; repodan çalıştırırken files/genres.json olmalı)")
@@ -150,8 +155,18 @@ def genre_from_tags(tags):
     return (pick[1], pick[2]) if pick else (None, None)
 
 
+def sub_from_tags(genre, tags):
+    """Etiketlerde oy sırasıyla, türün bir alt türünün kelimesini içeren ilk etiketin alt türü (en uzun kelime)."""
+    words = CAT["sub_keywords"].get(genre, {})
+    for t in tags:
+        hits = [w for w in words if w in t]
+        if hits:
+            return words[max(hits, key=len)]
+    return None
+
+
 def decide(deezer_ids, tags, artist, title):
-    """Deezer albüm tür numaraları ve MusicBrainz etiketlerinden tür adı (ya da Genel)."""
+    """Deezer albüm tür numaraları ve MusicBrainz etiketlerinden tür ya da alt tür adı (ya da Genel)."""
     family = CAT["family"]
     tagged, word = genre_from_tags(tags)
     dz_id = next((str(i) for i in deezer_ids if str(i) in CAT["deezer"]), None)
@@ -164,7 +179,8 @@ def decide(deezer_ids, tags, artist, title):
     else:
         return GENEL
     turkish = any(c in TURKISH_LETTERS for c in artist + title) or any("turkish" in t or "türk" in t for t in tags)
-    return CAT["turkish_variant"].get(family.get(genre), genre) if turkish and general else genre
+    genre = CAT["turkish_variant"].get(family.get(genre), genre) if turkish and general else genre
+    return sub_from_tags(genre, tags) or genre
 
 
 def classify(artist, title):
@@ -328,7 +344,7 @@ class Follower:
         key = f"{artist}\t{album}"
         with self.lock:
             genre = self.cache.get(key)
-        if genre == GENEL or genre in CAT["family"]:
+        if genre == GENEL or genre in CAT["family"] or genre in CAT["parent"]:
             return genre
         # Kayıt yok ya da eski sürümün aile adı. Ağ sorgusu kilit dışında: arka plandaki sıralama
         # 50 parçayı sorgularken çalan şarkının türü beklemesin.
