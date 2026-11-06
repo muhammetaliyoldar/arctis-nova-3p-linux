@@ -302,13 +302,13 @@ SUBGENRES = [
      {"ls": 3.0, "mud": -3.5, "mid": 1.5, "presence": 3.5, "air": -3.5, "hp": 20.0,
       "bells": [(40, 4.0, 0.9), (1500, 1.5, 1.0)], "comp": OFF, "fx": {"bass_enhancer#0": bass_enhancer(-6.0, 100.0)}},
      ["Şam", "Lil Zey", "UZI", "Ati242", "AGAB", "Kozmos", "Anıl Piyancı", "Wegh", "Volta Show", "K''st", "Grogi",
-      "Stap"]),
+      "Stap", "Yung Ouzo"]),
     # kick 50-60 Hz, snare gövdesi 125-200 Hz +1.5, sample tizi koyu (10-16 kHz -1.5..-3), dinamik geniş (crest 12)
     ("Türkçe Boom Bap", "Türkçe Rap",
      {"ls": 2.5, "mud": -3.0, "mid": 2.0, "presence": 4.0, "air": -3.0,
       "bells": [(60, 3.5, 1.0), (2200, 1.0, 1.0)]},
      ["Kamufle", "Allame", "Farazi", "Hayki", "Şehinşah", "Sagopa Kajmer", "Killa Hakan", "Mode XL", "Çağrı Sinci",
-      "Kayra", "Sürveyan", "İndigo", "Redo"]),
+      "Kayra", "Sürveyan", "İndigo", "Redo", "Fredd", "İmpala"]),
     # bas hafif (80-160 Hz -2), vokal/melodi önde (630 Hz-2 kHz +1..+2): sıcak, yumuşak tepe
     ("Türkçe Melodik Rap", "Türkçe Rap",
      {"ls": 2.0, "mud": -3.0, "presence": 3.0, "air": -4.0,
