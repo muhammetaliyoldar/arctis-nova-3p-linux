@@ -10,7 +10,7 @@
             "bypass": false,
             "num-bands": 7,
             "mode": "IIR",
-            "input-gain": -6.0,
+            "input-gain": -5.5,
             "output-gain": 0.0,
             "split-channels": false,
             "balance": 0.0,
@@ -24,7 +24,7 @@
                     "solo": false,
                     "mute": false,
                     "gain": 0.0,
-                    "frequency": 22.0,
+                    "frequency": 20.0,
                     "q": 0.7,
                     "width": 4.0
                 },
@@ -45,7 +45,7 @@
                     "slope": "x1",
                     "solo": false,
                     "mute": false,
-                    "gain": -4.5,
+                    "gain": -4.0,
                     "frequency": 160.0,
                     "q": 0.7,
                     "width": 4.0
@@ -78,7 +78,7 @@
                     "slope": "x1",
                     "solo": false,
                     "mute": false,
-                    "gain": -4.5,
+                    "gain": -4.0,
                     "frequency": 9000.0,
                     "q": 1.2,
                     "width": 4.0
@@ -89,7 +89,7 @@
                     "slope": "x1",
                     "solo": false,
                     "mute": false,
-                    "gain": 3.0,
+                    "gain": 2.5,
                     "frequency": 50.0,
                     "q": 0.9,
                     "width": 4.0
@@ -103,7 +103,7 @@
                     "solo": false,
                     "mute": false,
                     "gain": 0.0,
-                    "frequency": 22.0,
+                    "frequency": 20.0,
                     "q": 0.7,
                     "width": 4.0
                 },
@@ -124,7 +124,7 @@
                     "slope": "x1",
                     "solo": false,
                     "mute": false,
-                    "gain": -4.5,
+                    "gain": -4.0,
                     "frequency": 160.0,
                     "q": 0.7,
                     "width": 4.0
@@ -157,7 +157,7 @@
                     "slope": "x1",
                     "solo": false,
                     "mute": false,
-                    "gain": -4.5,
+                    "gain": -4.0,
                     "frequency": 9000.0,
                     "q": 1.2,
                     "width": 4.0
@@ -168,7 +168,7 @@
                     "slope": "x1",
                     "solo": false,
                     "mute": false,
-                    "gain": 3.0,
+                    "gain": 2.5,
                     "frequency": 50.0,
                     "q": 0.9,
                     "width": 4.0

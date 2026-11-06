@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""EasyEffects 7.x presetlerini ve tür kataloğunu (../genres.json) üretir: Genel + 100 tür.
+"""EasyEffects 7.x presetlerini ve tür kataloğunu (../genres.json) üretir: Genel + 24 ana tür.
 
 Kullanım: python3 make_presets.py [çıktı_klasörü] [--check]
   --check: her presetin EQ eğrisinin tepe noktalarını yazdırır (dosya yazmaz)
@@ -13,6 +13,9 @@ genres.json'u Spotify servisi ve üst bar menüsü okur: MusicBrainz etiketinde 
 anahtar kelimenin türü seçilir, bu yüzden genel türler kısa ("rock"), özel türler uzun
 ("hard rock") kelime taşır; aynı kelime iki türde olamaz. Deezer tür numarası -> tür (deezer),
 aile -> o ailenin Türkçe türü (turkish_variant) ve sabit modun 5 türü (defaults) de oradadır.
+Ana türün eğrisi, gruptaki en çok dinlenen alt türün eski eğrisidir. Eski 100 türlük katalogdan
+kalkan adların hangi ana türe katıldığı MERGED'dedir (merged): install.sh eski preset dosyalarını
+kenara alır, sabit listeyi ve kilidi yeni adlara çevirir.
 
 Zincir: Equalizer -> Compressor -> Limiter
 - EQ: her presette aynı kulaklık düzeltmesi (nova()) + türün bantları (en fazla 2 Bell: nova
@@ -110,12 +113,8 @@ FAMILIES = {
     "ambient": (dict(ls=2.0, presence=2.5, air=-3.0), [(45, 1.5, 0.8)], OFF),
     # v1 Pop: masterlar ~6 DR; sadece hafif sub ve yumuşak sibilans
     "pop": (dict(air=-4.0), [(50, 1.5, 0.9)], OFF),
-    # K-pop/J-pop masterları pop'tan da parlak: 4 kHz dolgusu azaltılır
-    "asian": (dict(presence=3.0, air=-4.0), [(50, 2.0, 0.9)], OFF),
     # v1 Indie: sıcak bas, vokal ve synth dokusu; kaynak çoğu zaman zaten ezilmiş
     "indie": (dict(mud=-3.0, presence=3.0, air=-4.0), [(80, 1.5, 0.9)], OFF),
-    # bant kaydı sıcaklığı: bas gitar 100 Hz'te önde, fuzz ve tape tizleri yumuşak
-    "psych": (dict(mud=-2.5, mid=2.5, presence=3.0, air=-4.0), [(100, 2.0, 0.9)], OFF),
     # v1 Rock: kick/bas gövdesi 85 Hz, gitar ısırığı 2 kHz
     "rock": (dict(mud=-3.5, presence=3.5, air=-4.0), [(85, 1.5, 1.0), (2000, 1.0, 1.0)], OFF),
     # distorsiyonlu gitarın 500 Hz kutu sesi ve 6-9 kHz cızırtısı alınır; kick 80 Hz
@@ -126,14 +125,8 @@ FAMILIES = {
     "jazz": (dict(ls=2.0, mud=-2.5, presence=3.0, air=-2.5), [(80, 1.0, 0.9)], OFF),
     # doğal tını ve tam dinamik; keman/soprano sertliğine karşı 4 kHz dolgusu az
     "classical": (dict(ls=2.0, mud=-3.0, presence=3.0, air=-2.0), [], OFF),
-    # v1 Akustik: doğal tını, daha az bas, zil parıltısı korunur
-    "acoustic": (dict(ls=2.0, mud=-3.0, air=-2.5), [], OFF),
     # akustik gitar gövdesi 250 Hz; keman/banjo parlaklığı yumuşak
     "folk": (dict(ls=2.0, mud=-3.0, presence=3.5, air=-3.0), [(250, 1.0, 1.0)], OFF),
-    # önde vokal, akustik/elektro gitar; kick/bas gövdesi 85 Hz
-    "country": (dict(ls=2.0, mud=-3.0, presence=3.5, air=-3.0), [(85, 1.5, 1.0)], OFF),
-    # orta frekanslı gitar ve armonika, sıcak bas; eski kayıtlar: hafif yapıştırma
-    "blues": (dict(ls=2.5, mud=-2.5, mid=2.5, presence=3.0, air=-3.0), [(90, 1.5, 1.0)], GLUE),
     # dembow kick + 808, 55 Hz; masterlar pop kadar yüksek
     "latin": (dict(air=-4.0), [(55, 2.5, 0.9)], OFF),
     # mix'in merkezi bas gitar (60-100 Hz), skank gitar ve vokal; kayıtlar dinamik
@@ -142,262 +135,141 @@ FAMILIES = {
     "african": (dict(mud=-3.5, air=-4.0), [(60, 2.0, 0.9)], OFF),
     # darbuka düm'ü 90 Hz, ud/vokal gövdesi 500 Hz, kanun/yaylı parlaklığı yumuşak
     "arabic": (dict(mud=-3.0, mid=2.5, presence=3.0, air=-3.5), [(90, 1.5, 1.0)], GLUE),
-    # Türk sanat: fasıl heyeti ve vokal; eski kayıtlarda ince bas biraz ısıtılır
-    "turkish": (dict(ls=2.5, mud=-2.5, mid=2.5, presence=3.0, air=-3.0), [], GLUE),
 }
 
 # (ad, aile, MusicBrainz anahtar kelimeleri, aileden farklar: nova() ayarları, "bells", "comp")
+# Ana tür + içine katılan alt türlerin kelimeleri; eğri, gruptaki en çok dinlenen alt türünkidir.
 GENRES = [
-    ("Türkçe Rap", "rap", ["turkish hip hop", "turkish rap", "turkish trap", "türkçe rap"], {}),
-    ("Hip Hop", "rap", ["hip hop", "hip-hop", "hiphop", "rap", "g-funk"], {}),
-    ("Trap", "rap", ["trap"], {"hp": 20.0, "bells": [(45, 3.0, 0.9)]}),  # uzun 808 daha derine iner
-    # kayan 808'in harmonikleri 150 Hz'i doldurur
-    ("Drill", "rap", ["drill"], {"mud": -5.0, "bells": [(48, 3.0, 0.8)]}),
-    # örnek kick'in gövdesi 70 Hz (sub değil); plak örnekleri zaten donuk, tiz az kesilir
-    ("Boom Bap", "rap", ["boom bap", "boom-bap", "east coast hip hop", "golden age hip hop", "jazz rap"],
-     {"mud": -3.5, "air": -3.5, "bells": [(70, 2.5, 1.0)]}),
-    # kırpılmış master (compressor sadece pompalar), sert cowbell
-    ("Phonk", "rap", ["phonk", "memphis rap"], {"presence": 3.0, "bells": [(45, 3.0, 0.9)], "comp": OFF}),
-    # alçak geçirgenli örnekler, yumuşak kick: sıcaklık ve tiz korunur
-    ("Lo-fi Hip Hop", "rap", ["lo-fi hip hop", "lofi", "chillhop"],
-     {"ls": 3.0, "mud": -3.0, "air": -2.5, "bells": [(60, 2.0, 0.8)], "comp": GLUE}),
-    ("Grime", "rap", ["grime"], {"bells": [(55, 3.0, 1.0)]}),  # 140 BPM kare dalga bas
-    ("Pop Rap", "rap", ["pop rap", "melodic rap"], {"air": -4.0, "bells": [(50, 2.5, 0.9)]}),
+    # Türkçe ş/ç/s yoğun, miksler 5 kHz'i zaten itiyor (DaBaby mühendisi vokal bus +2.5 dB @5k): presence az
+    ("Türkçe Rap", "rap", ["turkish hip hop", "turkish rap", "turkish trap", "türkçe rap"], {"presence": 3.5}),
+    # Travis Scott / Gorillaz miksleri 25-40 Hz'e iniyor (hp 20), bas harmonikleri 100-200 Hz'e bilerek
+    # ekleniyor (çamur az kesilir), 8-9 kHz sertliğini mühendis zaten alıyor (air az kesilir)
+    ("Hip Hop", "rap", ["hip hop", "hip-hop", "hiphop", "rap", "g-funk", "trap", "drill", "boom bap", "boom-bap",
+                        "east coast hip hop", "golden age hip hop", "jazz rap", "phonk", "memphis rap", "grime",
+                        "pop rap", "melodic rap"],
+     {"mud": -4.0, "air": -4.0, "hp": 20.0, "bells": [(50, 2.5, 0.9)]}),
 
-    ("Techno", "techno", ["techno", "rave"], {}),
-    # distorsiyonlu kick'in 150-200 Hz'i ve sert tizler alınır
-    ("Hard Techno", "techno", ["hard techno", "industrial techno", "schranz"],
-     {"mud": -4.5, "air": -4.5, "bells": [(55, 2.5, 1.0)]}),
-    # derin sub, pad ve arpejler: daha açık orta-tiz
-    ("Melodic Techno", "techno", ["melodic techno", "melodic house"],
-     {"presence": 3.0, "air": -3.0, "bells": [(50, 2.0, 0.9)]}),
-    # supersaw lead'ler 3-8 kHz, kick 60 Hz
-    ("Trance", "techno", ["trance"], {"mid": 1.5, "presence": 3.0, "air": -3.5, "bells": [(60, 2.0, 1.0)]}),
-    # kick 55 Hz + hemen ardından yuvarlanan bas 100 Hz; çok sayıda tiz efekt
-    ("Psytrance", "techno", ["psytrance", "psy-trance", "psychedelic trance", "goa trance"],
-     {"mud": -3.5, "air": -4.5, "bells": [(55, 2.0, 1.0), (100, 1.5, 1.2)]}),
-    # reverse-bass kick: 60 Hz + 150-300 Hz gövde; screech lead'ler sert
-    ("Hardstyle", "techno", ["hardstyle", "hard dance", "rawstyle", "gabber"],
-     {"mud": -3.0, "mid": 1.5, "air": -4.5, "bells": [(60, 2.5, 1.0)]}),
-
-    ("House", "house", ["house", "lo-fi house", "latin house"], {}),
-    # v1 Deep House: derin, sıcak sub ve yumuşak tizler; hafif yapıştırma, uzun setlerde yormaz
-    ("Deep House", "house", ["deep house", "organic house"],
-     {"air": -2.5, "bells": [(60, 2.0, 0.8)], "comp": SLOW}),
-    ("Tech House", "house", ["tech house"], {"air": -4.0, "bells": [(60, 2.0, 0.9)]}),  # yuvarlanan sub bas
-    # konga/perküsyon gövdesi 250 Hz, organik tizler
-    ("Afro House", "house", ["afro house"],
-     {"mud": -2.5, "air": -3.0, "bells": [(55, 2.0, 0.9), (250, 1.0, 1.0)]}),
-    ("Progressive House", "house", ["progressive house"], {"presence": 3.5, "bells": [(55, 2.0, 0.9)]}),
-    # filtrelenmiş disco örnekleri orta frekansta yaşar
-    ("French House", "house", ["french house", "french touch", "filter house"],
-     {"mid": 2.5, "bells": [(90, 2.0, 1.0), (1000, 1.0, 1.0)]}),
-    # melodik disco bası 100 Hz, canlı gitar ve yaylılar
-    ("Nu-Disco", "house", ["nu-disco", "nu disco", "indie dance", "disco house"],
-     {"mud": -2.5, "air": -3.0, "bells": [(100, 1.5, 1.0)]}),
-    # 70'lerin dinamik kayıtları: hafif yapıştırma
-    ("Disco", "house", ["disco"], {"mud": -2.5, "air": -3.0, "bells": [(90, 1.5, 1.0)], "comp": GLUE}),
-
-    ("Drum & Bass", "bass", ["drum and bass", "drum & bass", "drum n bass", "dnb", "liquid funk", "neurofunk"],
-     {}),
-    # kesik amen breakleri: snare gövdesi ve çıtırtısı önde
-    ("Jungle", "bass", ["jungle"], {"mid": 2.5, "presence": 3.5, "bells": [(50, 2.5, 1.0)]}),
-    # wobble/growl 200 Hz-2 kHz, çok sert tizler
-    ("Dubstep", "bass", ["dubstep", "brostep"], {"mud": -3.5, "mid": 1.5, "air": -4.5, "bells": [(50, 2.5, 1.0)]}),
-    # 2-step davullar ve vokal kesitleri
-    ("UK Garage", "bass", ["uk garage", "2-step", "speed garage", "bassline"],
-     {"presence": 3.5, "bells": [(55, 2.0, 1.0)]}),
-    ("Future Bass", "bass", ["future bass"], {"air": -4.5, "bells": [(50, 2.0, 0.9)]}),  # parlak supersaw akorlar
-
-    ("Elektronik", "electronic", ["electronic", "electronica", "electro", "idm"], {}),
-    # big room kick 55 Hz, -5 LUFS masterlar
-    ("EDM", "electronic", ["edm", "big room", "electro house", "electronic dance"],
-     {"ls": 2.0, "presence": 3.0, "air": -4.5, "bells": [(55, 2.5, 1.0)]}),
-    # analog synth bas 80 Hz, gated snare, parlak arpejler
-    ("Synthwave", "electronic", ["synthwave", "retrowave", "outrun", "vaporwave", "darksynth"],
-     {"mud": -3.0, "mid": 2.5, "air": -3.0, "bells": [(80, 1.5, 0.9)]}),
-
-    ("Ambient", "ambient", ["ambient", "new age", "meditation"], {}),
-    ("Downtempo", "ambient", ["downtempo", "chill", "lounge"],
-     {"ls": 2.5, "mud": -3.0, "presence": 3.0, "bells": [(60, 2.0, 0.8)], "comp": SLOW}),
-    # ağır breakbeat ve derin sub, 90'ların dinamik kayıtları
-    ("Trip Hop", "ambient", ["trip hop", "trip-hop"],
-     {"ls": 2.5, "mud": -3.5, "presence": 3.0, "bells": [(50, 2.5, 0.8)], "comp": GLUE}),
-
-    ("Pop", "pop", ["pop"], {}),
+    ("Pop", "pop", ["pop", "dance", "synthpop", "synth-pop", "synth pop", "techno-pop", "new wave", "electropop",
+                    "electro-pop", "electro pop", "hyperpop", "digicore", "k-pop", "kpop", "korean pop", "j-pop",
+                    "jpop", "japanese pop", "anime", "city pop", "bollywood", "filmi", "bhangra"],
+     {"mud": -3.0, "mid": 2.5, "bells": [(80, 1.5, 0.9)]}),  # Synthpop'tan: synth bas 80 Hz
     # vokal gövdesi önde, parlak Türkçe sibilans yumuşak
     ("Türkçe Pop", "pop", ["turkish pop", "türkçe pop"], {"mid": 2.5, "presence": 3.5, "air": -4.5}),
-    ("Dance Pop", "pop", ["dance"], {"ls": 2.0, "bells": [(55, 2.0, 1.0)]}),  # dört vuruşlu kick
-    ("Synthpop", "pop", ["synthpop", "synth-pop", "synth pop", "techno-pop", "new wave"],
-     {"mud": -3.0, "mid": 2.5, "bells": [(80, 1.5, 0.9)]}),  # synth bas 80 Hz
-    ("Electropop", "pop", ["electropop", "electro-pop", "electro pop"], {"mud": -3.5, "bells": [(55, 2.0, 0.9)]}),
-    # aşırı yüksek, distorsiyonlu master ve tiz vokaller
-    ("Hyperpop", "pop", ["hyperpop", "digicore"], {"presence": 3.0, "air": -5.0, "bells": [(50, 2.0, 0.9)]}),
 
-    ("K-pop", "asian", ["k-pop", "kpop", "korean pop"], {}),
-    # J-rock etkisi: kick/bas gövdesi, daha az sub
-    ("J-pop", "asian", ["j-pop", "jpop", "japanese pop", "anime", "city pop"],
-     {"ls": 2.0, "bells": [(85, 1.5, 1.0)]}),
-    ("Bollywood", "asian", ["bollywood", "filmi", "bhangra"],
-     {"mid": 2.5, "bells": [(70, 2.0, 0.9)]}),  # dhol ve önde vokal
+    ("Rock", "rock", ["rock", "hard rock", "classic rock", "rock and roll", "rock & roll", "rock opera",
+                      "alternative rock", "alt-rock", "britpop", "punk", "punk rock", "grunge", "post-punk",
+                      "post punk", "dance-punk", "darkwave", "coldwave", "prog", "progressive rock", "prog rock",
+                      "blues", "country blues"], {}),
+    ("Türkçe Rock", "rock", ["turkish rock", "türkçe rock", "anatolian rock", "anadolu rock", "anatolian psych"],
+     {"mid": 2.5, "presence": 3.0}),  # vokal önde
 
-    ("Indie", "indie", ["indie", "lo-fi"], {}),
-    ("Türkçe Indie", "indie", ["turkish indie", "turkish alternative"], {"mid": 2.5, "presence": 3.5}),
-    ("Indie Rock", "indie", ["indie rock"], {"presence": 3.5, "bells": [(80, 1.5, 0.9), (2000, 1.0, 1.0)]}),
-    ("Indie Pop", "indie", ["indie pop", "bedroom pop", "jangle pop"],
-     {"ls": 2.0, "presence": 3.5, "air": -3.5, "bells": [(70, 1.0, 0.9)]}),
-    # yankıya gömülü vokal ve gitar: parıltı korunur, sertleştirilmez
-    ("Dream Pop", "indie", ["dream pop", "chillwave", "baroque pop"],
-     {"mud": -2.5, "presence": 2.5, "air": -3.0, "bells": [(70, 1.5, 0.8)]}),
-    # fuzz gitar duvarı: kutu sesi ve cızırtı alınır
-    ("Shoegaze", "indie", ["shoegaze", "nu gaze"], {"mid": 1.0, "presence": 2.5, "air": -4.5}),
-    ("Indie Folk", "indie", ["indie folk", "chamber folk"],
-     {"ls": 2.0, "air": -3.0, "bells": [(250, 1.0, 1.0)]}),  # akustik gitar gövdesi
+    ("Metal", "metal", ["metal", "heavy metal", "nwobhm", "thrash", "death metal", "deathcore", "metalcore",
+                        "post-hardcore", "nu metal", "nu-metal", "rap metal"], {}),
 
-    ("Psikedelik", "psych", ["psych"], {}),
-    # 70'lerin ince baslı kayıtları ısıtılır; bağlama/org ortası zaten güçlü
-    ("Anadolu Rock", "psych", ["anatolian rock", "anadolu rock", "anatolian psych"],
-     {"ls": 3.0, "mid": 2.0, "bells": [(90, 1.5, 0.9)], "comp": GLUE}),
+    ("Indie", "indie", ["indie", "lo-fi", "turkish indie", "turkish alternative", "indie rock", "indie pop",
+                        "bedroom pop", "jangle pop", "dream pop", "chillwave", "baroque pop", "shoegaze", "nu gaze",
+                        "psych"],
+     {"mid": 2.5, "air": -3.5}),  # gitar/vokal/synth gövdesi ortada; bant kaydı yumuşak tiz ile 8 kHz'li vokal arası
 
-    ("Rock", "rock", ["rock"], {}),
-    ("Türkçe Rock", "rock", ["turkish rock", "türkçe rock"], {"mid": 2.5, "presence": 3.0}),  # vokal önde
-    ("Hard Rock", "rock", ["hard rock"], {"mud": -4.0, "bells": [(85, 2.0, 1.0), (2500, 1.0, 1.0)]}),
-    # 60-70'lerin dinamik, ince baslı kayıtları
-    ("Klasik Rock", "rock", ["classic rock", "rock and roll", "rock & roll", "rock opera"],
-     {"ls": 3.0, "mud": -3.0, "air": -3.0, "bells": [(85, 1.5, 1.0)], "comp": GLUE}),
-    ("Alternatif Rock", "rock", ["alternative rock", "alt-rock", "britpop"],
-     {"bells": [(85, 1.5, 1.0), (1500, 1.0, 1.0)]}),
-    # ince bas, orta frekanslı gitar, sert ziller
-    ("Punk", "rock", ["punk", "punk rock"],
-     {"mud": -3.0, "air": -4.5, "bells": [(100, 1.5, 1.0), (1500, 1.0, 1.0)]}),
-    # kalın, alçak akortlu gitarlar: alt-orta korunur
-    ("Grunge", "rock", ["grunge"], {"mud": -2.5, "mid": 1.5, "presence": 3.0,
-                                    "bells": [(80, 1.5, 1.0), (2000, 1.0, 1.0)]}),
-    # melodik bas gitar 120 Hz, chorus'lu gitar
-    ("Post-Punk", "rock", ["post-punk", "post punk", "dance-punk", "darkwave", "coldwave"],
-     {"mud": -2.5, "presence": 3.0, "bells": [(120, 1.5, 1.0), (2500, 1.0, 1.2)]}),
-    ("Progresif Rock", "rock", ["prog", "progressive rock", "prog rock"],
-     {"mud": -3.0, "air": -3.0, "bells": [(85, 1.5, 1.0)]}),  # dinamik, geniş
+    ("R&B", "rnb", ["r&b", "rnb", "rhythm and blues", "alternative r&b", "indie r&b", "pbr&b", "trap soul",
+                    "neo soul", "neo-soul", "soul", "motown", "funk", "funk rock", "jazz-funk", "jazz funk", "gospel",
+                    "worship"], {}),
 
-    ("Metal", "metal", ["metal"], {}),
-    # 80'lerin orta frekanslı gitarları, daha az alt
-    ("Heavy Metal", "metal", ["heavy metal", "nwobhm"],
-     {"ls": 3.0, "mid": 2.0, "presence": 3.5, "air": -4.5, "bells": [(90, 1.5, 1.0)]}),
-    # oyulmuş orta, double kick tıkırtısı 2.5 kHz
-    ("Thrash Metal", "metal", ["thrash"], {"mid": 0.5, "bells": [(70, 2.0, 1.0), (2500, 1.0, 1.2)]}),
-    # alçak akort gitarların 300 Hz çamuru alınır
-    ("Death Metal", "metal", ["death metal", "deathcore"],
-     {"mud": -4.5, "mid": 0.5, "bells": [(60, 2.0, 1.0), (300, -1.0, 1.0)]}),
-    ("Metalcore", "metal", ["metalcore", "post-hardcore"], {"bells": [(50, 2.5, 0.9)]}),  # breakdown sub'ları
-    ("Nu Metal", "metal", ["nu metal", "nu-metal", "rap metal"],
-     {"mud": -3.0, "mid": 1.5, "bells": [(60, 2.5, 0.9)]}),  # hip hop davulu, alçak akort groove
+    ("House", "house", ["house", "lo-fi house", "latin house", "tech house", "progressive house", "french house",
+                        "french touch", "filter house", "nu-disco", "nu disco", "indie dance", "disco house", "disco"],
+     {"mid": 2.5, "bells": [(90, 2.0, 1.0), (1000, 1.0, 1.0)]}),  # French House'tan: filtreli disco örnekleri ortada
+    # v1 Deep House: derin, sıcak sub ve yumuşak tizler; hafif yapıştırma, uzun setlerde yormaz
+    ("Deep House", "house", ["deep house", "organic house", "afro house", "melodic house"],
+     {"air": -2.5, "bells": [(60, 2.0, 0.8)], "comp": SLOW}),
 
-    ("R&B", "rnb", ["r&b", "rnb", "rhythm and blues"], {}),
-    # karanlık, havadar; 808 sub
-    ("Alternatif R&B", "rnb", ["alternative r&b", "indie r&b", "pbr&b", "trap soul"],
-     {"air": -4.0, "bells": [(50, 2.5, 0.8)]}),
-    # canlı bas ve Rhodes: sıcak alt-orta
-    ("Neo Soul", "rnb", ["neo soul", "neo-soul"],
-     {"ls": 3.0, "mud": -2.5, "air": -3.0, "bells": [(80, 1.5, 0.9)]}),
-    # 60-70'lerin orta ağırlıklı kayıtları, nefesliler
-    ("Soul", "rnb", ["soul", "motown"],
-     {"ls": 3.0, "mud": -2.5, "mid": 2.5, "air": -3.0, "bells": [(90, 1.5, 1.0)]}),
-    # slap bas 90 Hz, "chicken scratch" gitar 2 kHz
-    ("Funk", "rnb", ["funk", "funk rock", "jazz-funk", "jazz funk"],
-     {"mud": -2.5, "bells": [(90, 2.0, 1.0), (2000, 1.0, 1.2)]}),
-    # koro ve Hammond orgu: geniş orta
-    ("Gospel", "rnb", ["gospel", "worship"],
-     {"mid": 2.5, "presence": 3.5, "air": -3.0, "bells": [(70, 1.5, 0.9)]}),
+    ("Techno", "techno", ["techno", "rave", "hard techno", "industrial techno", "schranz", "melodic techno",
+                          "trance", "psytrance", "psy-trance", "psychedelic trance", "goa trance"], {}),
+    ("Bass Müziği", "bass", ["drum and bass", "drum & bass", "drum n bass", "dnb", "liquid funk", "neurofunk",
+                             "jungle", "dubstep", "brostep", "uk garage", "2-step", "speed garage", "bassline"],
+     # UK Garage'dan: 2-step davullar ve vokal kesitleri; harmoniksiz sinüs sub kulaklıkta ancak temeliyle duyulur
+     {"ls": 2.0, "presence": 3.5, "bells": [(55, 2.5, 1.0)]}),
+    # big room kick 55 Hz, -5 LUFS masterlar
+    ("EDM", "electronic", ["edm", "big room", "electro house", "electronic dance", "hardstyle", "hard dance",
+                           "rawstyle", "gabber", "future bass"],
+     {"ls": 2.0, "presence": 3.0, "air": -4.5, "bells": [(55, 2.5, 1.0)]}),
+    ("Elektronik", "electronic", ["electronic", "electronica", "electro", "idm", "synthwave", "retrowave", "outrun",
+                                  "vaporwave", "darksynth", "downtempo", "trip hop", "trip-hop"],
+     {"air": -4.0}),  # en düz eğimli (en parlak) tür: tizler kaynakta zaten yükseltilmiş
+    ("Ambient - Lo-fi", "ambient", ["ambient", "new age", "meditation", "lo-fi hip hop", "lofi", "chillhop", "chill",
+                                    "lounge"], {}),
 
-    ("Caz", "jazz", ["jazz", "bebop", "swing", "soul jazz"], {}),
-    # cilalı prodüksiyon, saksafon gövdesi; radyo usulü hafif yapıştırma
-    ("Smooth Jazz", "jazz", ["smooth jazz"], {"ls": 2.5, "mid": 2.5, "air": -3.0, "bells": [(70, 1.5, 0.9)],
-                                             "comp": GLUE}),
-    # naylon telli gitar ve fısıltı vokal
-    ("Bossa Nova", "jazz", ["bossa nova", "mpb", "samba"], {"mud": -3.0, "mid": 2.5, "bells": []}),
+    ("Latin", "latin", ["reggaeton", "reggaetón", "latin trap", "dembow", "urbano", "latin", "sertanejo", "salsa",
+                        "latin jazz", "timba", "son cubano", "bachata", "cumbia", "vallenato", "regional mexican",
+                        "corrido", "banda", "mariachi", "norteño", "ranchera", "funk carioca", "baile funk",
+                        "brazilian funk", "funk brasileiro"],
+     {"ls": 2.5, "mid": 2.5, "bells": [(60, 1.5, 0.9)]}),  # Latin Pop'tan
+    ("Afrobeats", "african", ["afrobeat", "afropop", "afro pop", "afro-pop", "naija", "highlife", "amapiano", "gqom",
+                              "kwaito"], {}),
+    ("Reggae", "reggae", ["reggae", "dub", "ska", "rocksteady", "dancehall", "ragga"], {}),
 
-    ("Klasik", "classical", ["classical", "orchestral"], {}),
-    ("Opera", "classical", ["opera"], {"mid": 2.5, "presence": 2.5}),  # soprano 3-5 kHz'te sertleşmesin
-    # yakın mikrofonlu piyano ve yaylılar
-    ("Neoklasik", "classical", ["neoclassical", "neo-classical", "modern classical", "contemporary classical"],
-     {"ls": 2.5, "mud": -2.5, "presence": 2.5, "air": -2.5}),
-    # modern film müziğinin 30-50 Hz "braam"ları
-    ("Film Müziği", "classical", ["soundtrack", "film score", "video game"],
-     {"ls": 2.5, "bells": [(40, 2.0, 0.8)]}),
-
-    ("Akustik", "acoustic", ["acoustic", "singer-songwriter", "singer/songwriter", "singer songwriter"], {}),
-
-    ("Folk", "folk", ["folk", "folk rock"], {}),
-    # bağlama ve zurna 2-5 kHz'te zaten keskin; TRT kayıtlarının ince altı ısıtılır
-    ("Türk Halk", "folk", ["turkish folk", "türk halk", "türkü", "halk müziği", "uzun hava"],
-     {"ls": 2.5, "presence": 3.0, "air": -3.5, "bells": [(90, 1.0, 1.0)]}),
-
-    ("Country", "country", ["country", "bluegrass", "americana"], {}),
-
-    ("Blues", "blues", ["blues", "country blues"], {}),
-
-    ("Reggaeton", "latin", ["reggaeton", "reggaetón", "latin trap", "dembow", "urbano"], {}),
-    ("Latin Pop", "latin", ["latin", "sertanejo"], {"ls": 2.5, "mid": 2.5, "bells": [(60, 1.5, 0.9)]}),
-    # nefesliler ve konga/timbal; eski dinamik kayıtlar
-    ("Salsa", "latin", ["salsa", "latin jazz", "timba", "son cubano"],
-     {"mud": -2.5, "presence": 3.0, "air": -3.0, "bells": [(90, 1.5, 1.0)], "comp": GLUE}),
-    # requinto gitar 2-5 kHz, güira tizleri sert
-    ("Bachata", "latin", ["bachata"], {"presence": 3.0, "air": -4.5, "bells": [(80, 1.5, 1.0)]}),
-    # akordeon ortası, güiro tizleri
-    ("Cumbia", "latin", ["cumbia", "vallenato"], {"mid": 2.5, "air": -4.5, "bells": [(80, 1.5, 1.0)]}),
-    # tuba/tololoche bası 70 Hz, bando nefeslileri
-    ("Meksika Müziği", "latin", ["regional mexican", "corrido", "banda", "mariachi", "norteño", "ranchera"],
-     {"mud": -3.0, "mid": 2.5, "bells": [(70, 2.0, 0.9)]}),
-    # tamborzão 808'i, aşırı yüksek masterlar
-    ("Funk Carioca", "latin", ["funk carioca", "baile funk", "brazilian funk", "funk brasileiro"],
-     {"hp": 22.0, "presence": 3.0, "air": -4.5, "bells": [(50, 3.0, 0.9)]}),
-
-    ("Reggae", "reggae", ["reggae", "dub", "ska", "rocksteady"], {}),
-    # dijital riddim, 808'e yakın kick; yüksek masterlar
-    ("Dancehall", "reggae", ["dancehall", "ragga"], {"air": -4.0, "bells": [(55, 2.5, 0.9)], "comp": OFF}),
-
-    ("Afrobeats", "african", ["afrobeat", "afropop", "afro pop", "afro-pop", "naija", "highlife"], {}),
-    ("Amapiano", "african", ["amapiano", "gqom", "kwaito"], {"ls": 2.0, "bells": [(50, 3.0, 0.8)]}),  # log drum
-
-    ("Arap Müziği", "arabic", ["arab", "khaleeji", "raï", "chaabi"], {}),
     # kaset dönemi yaylıları sert, bas ince
-    ("Arabesk", "arabic", ["arabesk", "arabesque", "damar"],
+    ("Arabesk", "arabic", ["arab", "khaleeji", "raï", "chaabi", "arabesk", "arabesque", "damar", "fantezi"],
      {"ls": 3.0, "presence": 2.5, "air": -4.0, "bells": [(90, 1.5, 1.0)]}),
-    # 90'ların synth/davul makinesi prodüksiyonu
-    ("Fantezi", "arabic", ["fantezi"], {"ls": 2.5, "air": -4.0, "bells": [(70, 1.5, 0.9)]}),
-
-    ("Türk Sanat", "turkish", ["turkish classical", "türk sanat", "sanat müziği", "fasıl"], {}),
+    # Türk Halk'tan: bağlama ve zurna 2-5 kHz'te zaten keskin; TRT kayıtlarının ince altı ısıtılır
+    ("Türk Halk - Sanat", "folk", ["turkish folk", "türk halk", "türkü", "halk müziği", "uzun hava",
+                                   "turkish classical", "türk sanat", "sanat müziği", "fasıl"],
+     {"ls": 2.5, "presence": 3.0, "air": -3.5, "bells": [(90, 1.0, 1.0)]}),
+    ("Folk - Akustik", "folk", ["folk", "folk rock", "acoustic", "singer-songwriter", "singer/songwriter",
+                                "singer songwriter", "country", "bluegrass", "americana", "indie folk", "chamber folk"],
+     {"air": -2.5, "bells": [(250, 0.5, 1.0)]}),  # kaynak zaten koyu; mühendisler 200-300 Hz'i kısıp tizi koruyor
+    ("Caz", "jazz", ["jazz", "bebop", "swing", "soul jazz", "smooth jazz", "bossa nova", "mpb", "samba"], {}),
+    ("Klasik", "classical", ["classical", "orchestral", "opera", "neoclassical", "neo-classical", "modern classical",
+                             "contemporary classical", "soundtrack", "film score", "video game"], {}),
 ]
 
-TURKISH = {"Türkçe Rap", "Türkçe Pop", "Türkçe Rock", "Türkçe Indie", "Anadolu Rock", "Arabesk", "Fantezi",
-           "Türk Halk", "Türk Sanat"}
+TURKISH = {"Türkçe Rap", "Türkçe Pop", "Türkçe Rock", "Arabesk", "Türk Halk - Sanat"}
 # Sanatçı/şarkı Türkçeyse ailenin bu türü seçilir
-TURKISH_VARIANT = {"rap": "Türkçe Rap", "pop": "Türkçe Pop", "rock": "Türkçe Rock",
-                   "indie": "Türkçe Indie", "psych": "Anadolu Rock", "folk": "Türk Halk", "arabic": "Arabesk"}
-DEFAULTS = ["Türkçe Rap", "Psikedelik", "Elektronik", "Türkçe Rock", "R&B"]
+TURKISH_VARIANT = {"rap": "Türkçe Rap", "pop": "Türkçe Pop", "rock": "Türkçe Rock", "folk": "Türk Halk - Sanat"}
+DEFAULTS = ["Türkçe Rap", "Indie", "Elektronik", "Türkçe Rock", "R&B"]
+# Deezer'ın üst düzey türlerine karşılık gelen geniş türler: etiketlerde bunlardan daha özel bir tür
+# (House, Bass Müziği...) varsa o seçilir ("electronic, uk garage" -> Bass Müziği)
+GENERIC = ["Pop", "Hip Hop", "Rock", "EDM", "R&B", "Indie", "Elektronik", "Folk - Akustik", "Reggae", "Caz", "Klasik",
+           "Metal", "Afrobeats", "Arabesk", "Latin"]
 # Deezer tür numarası -> tür (api.deezer.com/genre ve /genre/<id>; albümler ana ve alt türleri birlikte verir)
 DEEZER = {
     132: "Pop", 116: "Hip Hop", 152: "Rock", 113: "EDM", 165: "R&B", 85: "Indie", 106: "Elektronik",
-    466: "Folk", 144: "Reggae", 129: "Caz", 98: "Klasik", 173: "Film Müziği", 464: "Metal", 169: "Soul",
-    2: "Afrobeats", 12: "Arap Müziği", 16: "K-pop", 153: "Blues", 75: "Latin Pop", 81: "Bollywood",
-    95: "Pop", 197: "Latin Pop", 84: "Country",
-    3: "Afrobeats", 13: "Arap Müziği", 14: "Arap Müziği", 15: "Arap Müziği", 22: "J-pop", 23: "K-pop",
-    49: "Türk Halk", 58: "Meksika Müziği", 65: "Meksika Müziği", 67: "Salsa", 71: "Cumbia",
-    76: "Latin Pop", 78: "Bossa Nova", 79: "Latin Pop", 80: "Latin Pop", 86: "Indie Pop", 87: "Indie Rock",
-    99: "Klasik", 100: "Klasik", 101: "Klasik", 102: "Neoklasik", 103: "Opera", 104: "Klasik", 105: "Klasik",
-    107: "Downtempo", 108: "Dubstep", 110: "Electropop", 111: "House", 112: "Afro House", 114: "EDM",
-    115: "Trance", 121: "Hip Hop", 122: "Reggaeton", 123: "Hip Hop", 124: "Hip Hop", 125: "Amapiano",
-    128: "Hip Hop", 130: "Caz", 131: "Caz", 133: "Indie Pop", 134: "Pop", 137: "Türkçe Pop", 138: "Latin Pop",
-    143: "Pop", 145: "Dancehall", 146: "Reggae", 147: "Reggae", 154: "Indie Rock", 155: "Hard Rock",
-    156: "Klasik Rock", 159: "Türkçe Rock", 160: "Rock", 166: "R&B", 167: "Neo Soul", 168: "Disco",
-    170: "Soul", 171: "Soul", 174: "Film Müziği", 175: "Film Müziği", 176: "Film Müziği",
-    177: "Film Müziği", 178: "Bollywood", 179: "Film Müziği", 180: "Blues", 181: "Blues", 182: "Blues",
-    183: "Blues", 184: "Blues", 185: "Blues", 186: "Gospel", 187: "Gospel", 188: "Gospel", 192: "Country",
-    193: "Country", 194: "Country", 195: "Country", 196: "Country", 200: "Trap", 202: "Boom Bap", 204: "Hip Hop",
-    206: "Boom Bap",
-    208: "Boom Bap", 472: "Funk Carioca", 498: "Cumbia", 500: "Cumbia", 504: "Salsa", 510: "Meksika Müziği",
-    512: "Meksika Müziği", 514: "Meksika Müziği", 516: "Latin Pop", 520: "Grime", 522: "Akustik",
-    530: "Bachata", 532: "Folk", 534: "Latin Pop", 536: "Soul", 537: "Downtempo",
+    466: "Folk - Akustik", 144: "Reggae", 129: "Caz", 98: "Klasik", 173: "Klasik", 464: "Metal", 169: "R&B",
+    2: "Afrobeats", 12: "Arabesk", 16: "Pop", 153: "Rock", 75: "Latin", 81: "Pop", 95: "Pop", 197: "Latin",
+    84: "Folk - Akustik", 3: "Afrobeats", 13: "Arabesk", 14: "Arabesk", 15: "Arabesk", 22: "Pop", 23: "Pop",
+    49: "Türk Halk - Sanat", 58: "Latin", 65: "Latin", 67: "Latin", 71: "Latin", 76: "Latin", 78: "Caz", 79: "Latin",
+    80: "Latin", 86: "Indie", 87: "Indie", 99: "Klasik", 100: "Klasik", 101: "Klasik", 102: "Klasik", 103: "Klasik",
+    104: "Klasik", 105: "Klasik", 107: "Elektronik", 108: "Bass Müziği", 110: "Pop", 111: "House", 112: "Deep House",
+    114: "EDM", 115: "Techno", 121: "Hip Hop", 122: "Latin", 123: "Hip Hop", 124: "Hip Hop", 125: "Afrobeats",
+    128: "Hip Hop", 130: "Caz", 131: "Caz", 133: "Indie", 134: "Pop", 137: "Türkçe Pop", 138: "Latin", 143: "Pop",
+    145: "Reggae", 146: "Reggae", 147: "Reggae", 154: "Indie", 155: "Rock", 156: "Rock", 159: "Türkçe Rock",
+    160: "Rock", 166: "R&B", 167: "R&B", 168: "House", 170: "R&B", 171: "R&B", 174: "Klasik", 175: "Klasik",
+    176: "Klasik", 177: "Klasik", 178: "Pop", 179: "Klasik", 180: "Rock", 181: "Rock", 182: "Rock", 183: "Rock",
+    184: "Rock", 185: "Rock", 186: "R&B", 187: "R&B", 188: "R&B", 192: "Folk - Akustik", 193: "Folk - Akustik",
+    194: "Folk - Akustik", 195: "Folk - Akustik", 196: "Folk - Akustik", 200: "Hip Hop", 202: "Hip Hop",
+    204: "Hip Hop", 206: "Hip Hop", 208: "Hip Hop", 472: "Latin", 498: "Latin", 500: "Latin", 504: "Latin",
+    510: "Latin", 512: "Latin", 514: "Latin", 516: "Latin", 520: "Hip Hop", 522: "Folk - Akustik", 530: "Latin",
+    532: "Folk - Akustik", 534: "Latin", 536: "R&B", 537: "Elektronik",
+}
+# Eski 100 türlük katalogdan kalkan ad -> katıldığı ana tür
+MERGED = {
+    "Trap": "Hip Hop", "Drill": "Hip Hop", "Boom Bap": "Hip Hop", "Phonk": "Hip Hop", "Grime": "Hip Hop",
+    "Pop Rap": "Hip Hop", "Lo-fi Hip Hop": "Ambient - Lo-fi", "Hard Techno": "Techno", "Melodic Techno": "Techno",
+    "Trance": "Techno", "Psytrance": "Techno", "Hardstyle": "EDM", "Future Bass": "EDM", "Tech House": "House",
+    "Progressive House": "House", "French House": "House", "Nu-Disco": "House", "Disco": "House",
+    "Afro House": "Deep House", "Drum & Bass": "Bass Müziği", "Jungle": "Bass Müziği", "Dubstep": "Bass Müziği",
+    "UK Garage": "Bass Müziği", "Synthwave": "Elektronik", "Downtempo": "Elektronik", "Trip Hop": "Elektronik",
+    "Ambient": "Ambient - Lo-fi", "Dance Pop": "Pop", "Synthpop": "Pop", "Electropop": "Pop", "Hyperpop": "Pop",
+    "K-pop": "Pop", "J-pop": "Pop", "Bollywood": "Pop", "Türkçe Indie": "Indie", "Indie Rock": "Indie",
+    "Indie Pop": "Indie", "Dream Pop": "Indie", "Shoegaze": "Indie", "Psikedelik": "Indie",
+    "Indie Folk": "Folk - Akustik", "Anadolu Rock": "Türkçe Rock", "Hard Rock": "Rock", "Klasik Rock": "Rock",
+    "Alternatif Rock": "Rock", "Punk": "Rock", "Grunge": "Rock", "Post-Punk": "Rock", "Progresif Rock": "Rock",
+    "Blues": "Rock", "Heavy Metal": "Metal", "Thrash Metal": "Metal", "Death Metal": "Metal", "Metalcore": "Metal",
+    "Nu Metal": "Metal", "Alternatif R&B": "R&B", "Neo Soul": "R&B", "Soul": "R&B", "Funk": "R&B", "Gospel": "R&B",
+    "Smooth Jazz": "Caz", "Bossa Nova": "Caz", "Opera": "Klasik", "Neoklasik": "Klasik", "Film Müziği": "Klasik",
+    "Akustik": "Folk - Akustik", "Folk": "Folk - Akustik", "Country": "Folk - Akustik",
+    "Türk Halk": "Türk Halk - Sanat", "Türk Sanat": "Türk Halk - Sanat", "Reggaeton": "Latin", "Latin Pop": "Latin",
+    "Salsa": "Latin", "Bachata": "Latin", "Cumbia": "Latin", "Meksika Müziği": "Latin", "Funk Carioca": "Latin",
+    "Dancehall": "Reggae", "Amapiano": "Afrobeats", "Arap Müziği": "Arabesk", "Fantezi": "Arabesk",
 }
 
 
@@ -414,7 +286,7 @@ PRESETS = {"Genel": preset(nova(), GLUE)}
 PRESETS.update((name, genre_preset(family, diff)) for name, family, _, diff in GENRES)
 CATALOG = {"genres": [{"name": n, "family": f, "keywords": k, "turkish": n in TURKISH} for n, f, k, _ in GENRES],
            "deezer": {str(k): v for k, v in DEEZER.items()},
-           "turkish_variant": TURKISH_VARIANT, "defaults": DEFAULTS}
+           "turkish_variant": TURKISH_VARIANT, "defaults": DEFAULTS, "generic": GENERIC, "merged": MERGED}
 
 
 APO_TYPES = {"Hi-pass": "HPQ", "Bell": "PK", "Lo-shelf": "LSC", "Hi-shelf": "HSC"}
@@ -519,14 +391,16 @@ def check_catalog():
     names = [g[0] for g in GENRES]
     words = [w for g in GENRES for w in g[2]]
     family = {g[0]: g[1] for g in GENRES}
-    errors = [] if len(GENRES) == 100 else [f"{len(GENRES)} tür var, tam 100 olmalı"]
+    errors = [] if len(GENRES) == 24 else [f"{len(GENRES)} tür var, tam 24 olmalı"]
     errors += [f"ad iki kez geçiyor: {n}" for n in sorted({n for n in names if names.count(n) > 1})]
     errors += [f"geçersiz ad: {n}" for n in names if "/" in n or n == "Genel"]
     errors += [f"anahtar kelime iki kez geçiyor: {w}" for w in sorted({w for w in words if words.count(w) > 1})]
     errors += [f"anahtar kelime küçük harf değil: {w}" for w in words if w != w.lower()]
     errors += [f"{where}: katalogda olmayan tür {v}" for where, values in
                (("defaults", DEFAULTS), ("deezer", DEEZER.values()), ("turkish_variant", TURKISH_VARIANT.values()),
-                ("TURKISH", TURKISH)) for v in values if v not in family]
+                ("TURKISH", TURKISH), ("merged", MERGED.values()), ("generic", GENERIC))
+               for v in values if v not in family]
+    errors += [f"merged: {k} hâlâ katalogda" for k in MERGED if k in family or k == "Genel"]
     errors += [f"turkish_variant: {k} -> {v} Türkçe tür değil ya da ailesi {k} değil"
                for k, v in TURKISH_VARIANT.items() if v not in TURKISH or family.get(v) != k]
     if len(DEFAULTS) != 5:

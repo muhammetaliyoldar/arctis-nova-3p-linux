@@ -67,7 +67,7 @@
                     "slope": "x1",
                     "solo": false,
                     "mute": false,
-                    "gain": 4.0,
+                    "gain": 3.5,
                     "frequency": 4300.0,
                     "q": 2.5,
                     "width": 4.0
@@ -146,7 +146,7 @@
                     "slope": "x1",
                     "solo": false,
                     "mute": false,
-                    "gain": 4.0,
+                    "gain": 3.5,
                     "frequency": 4300.0,
                     "q": 2.5,
                     "width": 4.0

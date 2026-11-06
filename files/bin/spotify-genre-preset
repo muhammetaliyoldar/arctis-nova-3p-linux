@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """Spotify'da çalan şarkının türüne göre EasyEffects presetini değiştirir.
 
-Türler genres.json'da (100 tür; her türün aynı adlı bir preseti var, uymayan her şey Genel):
+Türler genres.json'da (24 ana tür; her türün aynı adlı bir preseti var, uymayan her şey Genel):
 ~/.local/share/spotify-genre-preset/genres.json, yoksa betiğin yanındaki ../genres.json.
 Tür (anahtar gerekmez): Deezer albüm türü ve MusicBrainz sanatçı etiketleri. Etiketler oy sırasıyla
 taranır, ilk eşleşen etikette en uzun anahtar kelime kazanır ("deep house" > "house"). Etiket türü,
 Deezer türü yoksa, aynı ailedense ya da Deezer türü genişse (pop, dance, elektro, alternatif,
 techno/house) seçilir; değilse Deezer türü (MusicBrainz'deki ad karışıklığı başka aileden tür
-getirmesin). Sanatçı ya da şarkı Türkçeyse (ğ ı ş harfleri ya da "turkish" etiketi) ve tür ailesinin
-genel türüyse ailenin Türkçe türü seçilir (Hip Hop -> Türkçe Rap); Drill gibi alt türlere dokunulmaz.
+getirmesin). Sanatçı ya da şarkı Türkçeyse (ğ ı ş harfleri ya da "turkish" etiketi) ve tür, Türkçe
+karşılığı olan bir türse o seçilir (Hip Hop -> Türkçe Rap, Rock -> Türkçe Rock).
 Sonuç albüm başına ~/.cache/spotify-genre-preset.json'a yazılır, tekrar sorulmaz.
 Her şarkı değişiminde türün presetine geçilir (preset dosyası yoksa Genel); elle seçilen preset o
 şarkı boyunca kalır. ~/.local/state/spotify-genre-preset/kilit dosyasında bir preset adı varsa (üst bar
@@ -127,10 +127,10 @@ def musicbrainz_tags(artist):
 
 
 def genre_from_tags(tags):
-    """Oyu en yüksek 5 etiketten oy sırasıyla ilk ÖZEL tür (French House, Dream Pop, Techno...); yoksa
-    oradaki ilk eşleşen genel tür (Elektronik, Pop: Deezer haritasındakiler); o da yoksa sonraki
+    """Oyu en yüksek 5 etiketten oy sırasıyla ilk ÖZEL tür (House, Bass Müziği, Techno...); yoksa
+    oradaki ilk eşleşen genel tür (Elektronik, Pop: genres.json "generic"); o da yoksa sonraki
     etiketlerden ilk eşleşen. Etiket birden çok kelime içeriyorsa en uzunu. Eşleşme yoksa (None, None)."""
-    generic = set(CAT["deezer"].values())
+    generic = set(CAT["generic"])
     matches = []  # (etiket sırası, tür, kelime)
     for i, t in enumerate(tags):
         words = [w for w in CAT["keywords"] if w in t]

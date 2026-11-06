@@ -21,7 +21,7 @@ fi
 echo "Hangi parçalar kurulsun? (Enter = evet, h = hayır)"
 ask "Bağlantı düzeltmeleri: sadece SBC codec, güç tasarrufu kapalı, otomatik bağlanma" && DO_BT=1
 [ -n "$DO_BT" ] && ask "  Bluetooth mikrofonu kapatılsın mı? (test edilen ayar; açık kalırsa kopmalar geri gelebilir)" && MIC_OFF=1
-ask "Ses presetleri: EasyEffects, 4 preset ve Ctrl+Alt kısayolları" && DO_EE=1
+ask "Ses presetleri: EasyEffects, tür presetleri ve Ctrl+Alt kısayolları" && DO_EE=1
 [ -n "$DO_EE" ] && ask "  Spotify'da çalan şarkının türüne göre preset kendiliğinden değişsin mi? (sanatçı ve şarkı adı Deezer ve MusicBrainz'e sorulur)" && DO_GENRE=1
 if [ -n "$DO_GENRE" ]; then
     # Menüdeki "en çok dinlenen 5" nereden gelsin; sonradan menüdeki "Kaynak"tan değiştirilebilir
@@ -108,14 +108,19 @@ if [ -n "$EE_DIR" ]; then
     cp "$DIR"/easyeffects/output/*.json "$EE_DIR/output/"
     install -Dm 644 "$DIR/genres.json" ~/.local/share/spotify-genre-preset/genres.json  # menü, kısayollar ve servis okur
 
-    # Bu reponun eski sürümündeki presetler silinmez, kenara alınır
-    for p in "${LEGACY_PRESETS[@]}"; do
+    # Bu reponun eski sürümündeki presetler silinmez, kenara alınır; 100 türlük sürümden ana türlere
+    # katılanların adları genres.json "merged"da
+    mapfile -t MERGED < <(python3 -c 'import json, sys; print("\n".join(json.load(open(sys.argv[1]))["merged"]))' \
+                          "$DIR/genres.json")
+    MOVED=0
+    for p in "${LEGACY_PRESETS[@]}" "${MERGED[@]}"; do
         if [ -f "$EE_DIR/output/$p.json" ]; then
             mkdir -p "$EE_DIR/eski-presetler"
             mv "$EE_DIR/output/$p.json" "$EE_DIR/eski-presetler/"
-            say "Eski preset kenara alındı: $EE_DIR/eski-presetler/$p.json"
+            MOVED=$((MOVED + 1))
         fi
     done
+    [ "$MOVED" -gt 0 ] && say "$MOVED eski preset kenara alındı: $EE_DIR/eski-presetler/"
 
     MAC=$(bluetoothctl devices 2>/dev/null | grep -i 'Arctis Nova 3P' | awk '{print $2}' | head -1)
     if [ -n "$MAC" ]; then
@@ -166,13 +171,23 @@ import ast,sys; l=ast.literal_eval(sys.stdin.read().replace('@as ','')); '$path'
         install -Dm 755 "$DIR/bin/spotify-genre-preset" ~/.local/bin/spotify-genre-preset
         install -Dm 644 "$DIR/systemd/spotify-genre-preset.service" ~/.config/systemd/user/spotify-genre-preset.service
         rm -f ~/.cache/spotify-genre-preset.json   # tür eşlemesi değişmiş olabilir, baştan sorulsun
-        python3 - "$MODE" ~/.config/spotify-genre-preset/config.json ~/.local/share/spotify-genre-preset/genres.json <<'PY'
+        python3 - "$MODE" ~/.config/spotify-genre-preset/config.json ~/.local/share/spotify-genre-preset/genres.json \
+            ~/.local/state/spotify-genre-preset/kilit <<'PY'
 import json, os, sys
-mode, path, genres = sys.argv[1:4]
+mode, path, genres, lock = sys.argv[1:5]
+cat = json.load(open(genres))
 old = json.load(open(path)) if os.path.exists(path) else {}
+sabit = []
+for name in old.get("sabit") or cat["defaults"]:  # 100 türlük sürümün adları ana türe çevrilir
+    name = cat["merged"].get(name, name)
+    if name not in sabit:
+        sabit.append(name)
 os.makedirs(os.path.dirname(path), exist_ok=True)
-json.dump({"mode": mode, "sabit": old.get("sabit") or json.load(open(genres))["defaults"]},
-          open(path, "w"), ensure_ascii=False, indent=1)
+json.dump({"mode": mode, "sabit": sabit}, open(path, "w"), ensure_ascii=False, indent=1)
+if os.path.exists(lock):  # kilitli preset de
+    name = open(lock).read().strip()
+    if name in cat["merged"]:
+        open(lock, "w").write(cat["merged"][name])
 PY
         if [ "$MODE" = hesap ] && [ ! -f ~/.config/spotify-genre-preset/spotify.json ] && [ -t 0 ]; then
             say "Spotify hesabını bağlama (README: Spotify hesabını bağlama)"
