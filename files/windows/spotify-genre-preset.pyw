@@ -111,6 +111,24 @@ def icon_image(locked):
     return img
 
 
+def hotkeys(on_key):
+    """Ctrl+Alt+Shift+1..7 ve 0'ı alır, basılınca on_key(rakam); dönmez, kendi iş parçacığında çalışır (WM_HOTKEY
+    kaydeden iş parçacığına gelir). Linux'taki Ctrl+Alt değil: Windows'ta AltGr = Ctrl+Alt, Türkçe Q'da # $ { [ ] }
+    yazılamaz olurdu."""
+    import ctypes
+    from ctypes import wintypes
+    user32 = ctypes.WinDLL("user32", use_last_error=True)
+    mods = 0x1 | 0x2 | 0x4 | 0x4000  # MOD_ALT | MOD_CONTROL | MOD_SHIFT | MOD_NOREPEAT
+    for n in range(8):
+        if not user32.RegisterHotKey(None, n, mods, ord(str(n))):  # rakam tuşlarının sanal kodu ASCII ile aynı
+            print(f"Ctrl+Alt+Shift+{n} alınamadı, başka bir program kullanıyor olabilir "
+                  f"(hata {ctypes.get_last_error()})", flush=True)
+    msg = wintypes.MSG()
+    while user32.GetMessageW(ctypes.byref(msg), None, 0, 0) > 0:
+        if msg.message == 0x0312:  # WM_HOTKEY
+            on_key(msg.wParam)
+
+
 def main():
     import pystray
 
@@ -138,12 +156,20 @@ def main():
         icon.title = f"Arctis: {f.engine.current() or '-'}" + (" (kilitli)" if locked else "")  # en fazla 127 harf
         icon.update_menu()
 
+    def on_hotkey(n):
+        name = tray.shortcut(f, n)
+        if name:  # Linux'taki gibi bildirim; bir öncekinin yerine geçer
+            icon.remove_notification()
+            icon.notify("Equalizer APO preseti değişti", f"🎧 {name}")
+
     menu = pystray.Menu(lambda: to_pystray(tray.items(f, login) + [None, tray.Item("Çıkış", icon.stop)]))
     icon = pystray.Icon(core.APP, icon_image(False), "Arctis", menu)
 
     def setup(icon):
         icon.visible = True
         threading.Thread(target=lambda: tray.follow(f, smtc_reader(), refresh), daemon=True).start()
+        threading.Thread(target=hotkeys, args=(lambda n: tray.run_action(functools.partial(on_hotkey, n)),),
+                         daemon=True).start()
         if f.spotify:
             threading.Thread(target=f.run_spotify, daemon=True).start()
 

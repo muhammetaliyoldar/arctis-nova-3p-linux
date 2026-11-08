@@ -282,12 +282,12 @@ Sınırlar:
 
 ### Windows: Equalizer APO
 
-> Ubuntu'da yazıldı, gerçek bir Windows cihazında **henüz denenmedi**.
+> 8 Kasım 2026'da Windows 11, Python 3.14 ve Equalizer APO 1.4.2 üzerinde kuruldu. `install.ps1`, Spotify'da çalan şarkının okunması (Microsoft Store'daki Spotify sürümüyle), tür bulma, `config.txt` yazımı, tepsi menüsü, Spotify hesabı bağlama, Başlangıç kısayolu ve kısayollar çalışıyor. **Henüz doğrulanmayanlar:** APO'nun sesi gerçekten değiştirdiği (dinleyerek, yeniden başlatma sonrası denenecek) ve 2.4 GHz alıcı.
 
 Ne yapar: Linux'taki tür takibinin aynısı. Spotify'da çalan şarkı Windows'un medya oturumundan (SMTC) 2 saniyede bir okunuyor, türün preseti Equalizer APO'nun `config.txt` dosyasına yazılıyor, APO dosyayı kendisi yeniden yüklüyor. `config.txt`'nin ilk satırındaki yorum yüklü presetin adı.
 
 Önce:
-- [Equalizer APO](https://sourceforge.net/projects/equalizerapo/) kurulu olmalı. Configurator'da kulaklığın iki cihazı da (Bluetooth ve USB alıcı) işaretli olmalı ve bilgisayar yeniden başlatılmış olmalı.
+- [Equalizer APO](https://sourceforge.net/projects/equalizerapo/) kurulu olmalı. APO 1.4'te eski "Configurator"ın adı Device Selector; kurulumun sonunda açılıyor, sonradan Başlat menüsünden açılabiliyor. Device Selector'da kulaklığın Bluetooth cihazı ve alıcının takıldığı USB yolu işaretlenmeli, sonra bilgisayar yeniden başlatılmalı. "Hands-Free" adlı cihaz (görüşme kanalı) işaretlenmez.
 - SteelSeries GG'de Sonar kapalı, Engine'deki EQ (Bluetooth ve 2.4GHz profili) düz olmalı; yoksa EQ'lar toplanır.
 
 Kurulum: normal kullanıcı olarak (yönetici olarak **değil**):
@@ -297,7 +297,7 @@ powershell -ExecutionPolicy Bypass -File install.ps1
 ```
 
 - APO config klasörüne yazma izni için bir kez yönetici onayı istiyor.
-- Python 3.11+ yoksa winget ile Python 3.12 kuruyor.
+- `py` başlatıcısındaki 3.11 ya da üstü Python'u kullanıyor (3.14 ile denendi); yoksa winget ile Python 3.12 kuruyor.
 - Dosyaları `%LOCALAPPDATA%\spotify-genre-preset` klasörüne koyuyor (venv, presets, program); pystray, Pillow ve winrt paketlerini kuruyor.
 - Eski `config.txt`'yi `config.txt.arctis-yedek` olarak yedekliyor.
 - Spotify hesabını bağlamayı öneriyor.
@@ -309,9 +309,24 @@ Kullanım: Tepside kulaklık simgesi var, kilitliyken turuncu. Üzerine gelince 
 - Kaynak, Dönem, İstatistik, Menüde sabitle, Menüde gizle.
 - Çıkış.
 
+Kısayollar:
+- `Ctrl+Alt+Shift+1..7` menüdeki 1.-7. satırı yükler.
+- `Ctrl+Alt+Shift+0` menüde sıradaki preseti yükler.
+- Seçilen preset bir Windows bildirimiyle gösteriliyor.
+- Linux'taki gibi kilide dokunmuyor: kilit varsa sonraki şarkıda kilitli preset geri geliyor.
+- Linux'taki `Ctrl+Alt+rakam` kullanılmadı: Windows'ta AltGr tuşu Ctrl+Alt sayılıyor, Türkçe Q klavyede AltGr ile yazılan `# $ { [ ] }` gibi karakterler bütün programlarda yazılamaz olurdu.
+- Başka bir program aynı tuşu almışsa o kısayol çalışmaz ve günlüğe yazılır.
+
 Günlük: `%LOCALAPPDATA%\spotify-genre-preset\gunluk.txt`. Denemek için (Spotify çalarken) `install.ps1`'in sonunda yazdırdığı `--dene` komutunu aynen kullan.
 
 Kaldırma: `powershell -ExecutionPolicy Bypass -File uninstall.ps1`. Uygulamayı, kısayolu ve program dosyalarını siliyor, `config.txt`'yi geri koyuyor. Ayarlar, Spotify girişi ve dinleme geçmişi kalıyor; Equalizer APO ve Python kaldırılmıyor.
+
+2.4 GHz alıcı (henüz denenmedi):
+- Alıcının seri numarası olmadığı için Windows, alıcının takıldığı her fiziksel yol (PC'nin bir portu, monitörün USB hub'ı gibi) için ayrı bir ses cihazı açıyor.
+- APO her biri için bir kez Device Selector'da işaretlenmeli, sonra bilgisayar yeniden başlatılmalı.
+- Alıcı takılı değilken Device Selector onu listelemiyor; işaretleme alıcı takılıyken yapılır.
+- Alıcıyı hep aynı portlara takmak bu işi bir kereye indirir.
+- Uygulama tek bir `config.txt` yazdığı için presetler APO'nun kurulu olduğu tüm cihazlarda aynı anda geçerli; 2.4 için ayrı bir ayar gerekmiyor.
 
 Sınırlar:
 - Yalnız EQ ve preamp taşınıyor; Linux zincirindeki compressor, limiter, Bass Enhancer ve stereo genişlik yok.
@@ -386,7 +401,9 @@ Sınırlar: Yalnız EQ ve preamp taşınıyor (compressor, limiter, Bass Enhance
 
 Ubuntu 24.04, kernel 7.0, PipeWire 1.0.5, WirePlumber 0.4.17, BlueZ 5.72, EasyEffects 7.1.6, Realtek RTL8821CE (WiFi + Bluetooth).
 
-Windows (`install.ps1`) ve macOS (`install-mac.sh`) sürümleri henüz gerçek bir Windows ya da Mac cihazında denenmedi. Yalnızca Ubuntu'da, taklit edilen testlerle denendi.
+Windows (`install.ps1`): Windows 11, Python 3.14, Equalizer APO 1.4.2, Microsoft Store'daki Spotify. APO'nun sesi gerçekten değiştirdiği ve 2.4 GHz alıcı henüz doğrulanmadı.
+
+macOS (`install-mac.sh`) sürümü henüz gerçek bir Mac cihazında denenmedi. Yalnızca Ubuntu'da, taklit edilen testlerle denendi.
 
 ## Klasör yapısı
 
@@ -428,7 +445,7 @@ files/
 
 ## Proje durumu
 
-Repo 23 Ekim 2026'da oluşturuldu. Linux (Ubuntu) tarafı yukarıdaki test ortamında günlük kullanımda. 6 Kasım 2026'da Windows (Equalizer APO + tepsi menüsü) ve macOS (BlackHole + CamillaDSP + menü çubuğu) sürümleri eklendi. Üçü de aynı tür takibi çekirdeğini (`files/core/genre_core.py`) kullanıyor. Windows ve macOS sürümleri henüz gerçek cihazda denenmedi.
+Repo 23 Ekim 2026'da oluşturuldu. Linux (Ubuntu) tarafı yukarıdaki test ortamında günlük kullanımda. 6 Kasım 2026'da Windows (Equalizer APO + tepsi menüsü) ve macOS (BlackHole + CamillaDSP + menü çubuğu) sürümleri eklendi. Üçü de aynı tür takibi çekirdeğini (`files/core/genre_core.py`) kullanıyor. 8 Kasım 2026'da Windows sürümü gerçek bir Windows 11 cihazında kuruldu ve çalıştı (APO'nun sesi değiştirmesi ve 2.4 GHz alıcı henüz doğrulanmadı). macOS sürümü henüz gerçek cihazda denenmedi.
 
 ## Lisans
 

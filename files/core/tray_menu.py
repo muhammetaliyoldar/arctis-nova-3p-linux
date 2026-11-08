@@ -64,6 +64,21 @@ def choose(f, name):
     lock(f, name) if core.locked_preset() else f.engine.apply(name)
 
 
+def shortcut(f, n):
+    """Kısayol (Linux'taki ee-preset gibi kilide dokunmaz): n 1..7 menünün n. satırını, 0 menüde yüklü presetten
+    sonrakini (yüklü preset menüde yoksa ilk satırı) uygular. Uygulanan ad; menüde o kadar satır yoksa None."""
+    names = core.load(core.STATE, {}).get("menu") or [*core.CAT["defaults"], core.GENEL]
+    if n > len(names):
+        return None
+    if n:
+        name = names[n - 1]
+    else:
+        loaded = f.engine.current()
+        name = names[(names.index(loaded) + 1) % len(names)] if loaded in names else names[0]
+    f.engine.apply(name)
+    return name
+
+
 def items(f, login):
     """Menü ağacı. login: "Spotify hesabını bağla…" tıklanınca çağrılır."""
     st = core.load(core.STATE, {})

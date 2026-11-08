@@ -1,8 +1,9 @@
 ﻿# Windows: Spotify'da çalan şarkının türüne göre Equalizer APO preseti + tepsi menüsü (Linux'taki tür takibinin aynısı).
 # Normal kullanıcı olarak çalıştır (yönetici olarak DEĞİL); APO klasörüne yazma izni için yönetici onayını kendisi ister:
 #   powershell -ExecutionPolicy Bypass -File install.ps1
-# Önce: Equalizer APO kurulu, Configurator'da kulaklığın iki cihazı (Bluetooth ve USB alıcı) işaretli ve bilgisayar
-# yeniden başlatılmış olmalı. Dosya UTF-8 BOM'lu: Windows PowerShell 5.1 BOM'suz dosyadaki Türkçe harfleri bozuyor.
+# Önce: Equalizer APO kurulu, Device Selector'da kulaklığın Bluetooth cihazı ve alıcının takıldığı her USB yolu
+# (Windows her port için ayrı cihaz açar) işaretli ve bilgisayar yeniden başlatılmış olmalı.
+# Dosya UTF-8 BOM'lu: Windows PowerShell 5.1 BOM'suz dosyadaki Türkçe harfleri bozuyor.
 $ErrorActionPreference = 'Stop'
 $Files = Join-Path $PSScriptRoot 'files'
 $Dir = Join-Path $env:LOCALAPPDATA 'spotify-genre-preset'  # genre_core.app_paths() ile aynı klasör
@@ -16,7 +17,7 @@ function Warn($m) { Write-Host "!! $m" -ForegroundColor Yellow }
 # 1) Equalizer APO ve config klasörüne yazma izni
 $Cfg = (Get-ItemProperty 'HKLM:\SOFTWARE\EqualizerAPO' -ErrorAction SilentlyContinue).ConfigPath
 if (-not $Cfg) {
-    Warn 'Equalizer APO bulunamadı. https://sourceforge.net/projects/equalizerapo/ adresinden kur, Configurator''da kulaklığın Bluetooth ve USB alıcı cihazlarını işaretle, bilgisayarı yeniden başlat, sonra bu scripti tekrar çalıştır.'
+    Warn 'Equalizer APO bulunamadı. https://sourceforge.net/projects/equalizerapo/ adresinden kur, Device Selector''da kulaklığın Bluetooth ve USB alıcı cihazlarını işaretle, bilgisayarı yeniden başlat, sonra bu scripti tekrar çalıştır.'
     exit 1
 }
 try {
@@ -103,8 +104,10 @@ $Lnk.Save()
 Start-Process $Pythonw -ArgumentList "`"$App`"" -WorkingDirectory $Dir
 Say 'Kuruldu: tepside kulaklık simgesi (kilitliyken turuncu); üzerine gelince yüklü preset yazar, sağ tıkla menü.'
 Write-Host @"
+    - Kısayollar: Ctrl+Alt+Shift+1..7 menüdeki satırlar, Ctrl+Alt+Shift+0 sıradaki preset.
     - SteelSeries GG'de Sonar kapalı, Engine'deki EQ (Bluetooth ve 2.4GHz profili) düz olmalı; yoksa EQ'lar toplanır.
-    - Equalizer APO Configurator'da kulaklığın iki cihazı da (Bluetooth ve USB alıcı) işaretli olmalı.
+    - Equalizer APO Device Selector'da kulaklığın Bluetooth cihazı ve alıcının takıldığı her USB portu işaretli olmalı
+      (Windows her port için ayrı cihaz açar; alıcı takılı değilken listede çıkmaz).
     - Günlük: $Dir\gunluk.txt
     - Deneme (Spotify çalarken): & '$Dir\venv\Scripts\python.exe' '$App' --dene
 "@
