@@ -22,7 +22,7 @@ print("\n".join(menu))' "$STATE" "$GENRES")
     else
         # EasyEffects 8+ GSettings kullanmıyor, yüklü preseti kendisi söylüyor
         current=$( { gsettings get com.github.wwmm.easyeffects last-used-output-preset 2>/dev/null ||
-                     easyeffects -a output 2>/dev/null; } | tr -d "'")
+                     timeout 5 easyeffects -a output 2>/dev/null; } | tr -d "'")
         target="${PRESETS[0]}"
         for i in "${!PRESETS[@]}"; do
             if [ "${PRESETS[$i]}" = "$current" ]; then

@@ -34,7 +34,10 @@ class EasyEffects:
         r = subprocess.run(["gsettings", "get", "com.github.wwmm.easyeffects", "last-used-output-preset"],
                            capture_output=True, text=True)
         if r.returncode:  # EasyEffects 8+ GSettings kullanmıyor
-            r = subprocess.run(["easyeffects", "-a", "output"], capture_output=True, text=True)
+            try:  # EasyEffects kapalıyken -a cevap verip çıkmıyor
+                r = subprocess.run(["easyeffects", "-a", "output"], capture_output=True, text=True, timeout=5)
+            except subprocess.TimeoutExpired:
+                return ""
         return r.stdout.strip().strip("'")
 
     def has(self, name):
