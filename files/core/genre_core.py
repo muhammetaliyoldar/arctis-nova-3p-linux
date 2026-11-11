@@ -38,6 +38,7 @@ import json
 import os
 import re
 import secrets
+import ssl
 import sys
 import threading
 import time
@@ -110,12 +111,16 @@ def load_genres():
 
 CAT = load_genres()
 
+# Python 3.13+ sıkı X.509 denetimi, AKI'siz sertifika basan TLS ara kutularını (ör. kurum/kampüs proxy'si) reddediyor
+SSL_CTX = ssl.create_default_context()
+SSL_CTX.verify_flags &= ~ssl.VERIFY_X509_STRICT
+
 
 def get_json(url, tries=3):
     for i in range(tries):
         try:
             req = urllib.request.Request(url, headers={"User-Agent": UA})
-            with urllib.request.urlopen(req, timeout=8) as r:
+            with urllib.request.urlopen(req, timeout=8, context=SSL_CTX) as r:
                 return json.load(r)
         except urllib.error.HTTPError as e:  # MusicBrainz yoğunken 503 dönüyor
             if e.code != 503 or i == tries - 1:
@@ -283,7 +288,7 @@ def save(path, data, mode=0o644):
 
 def token_request(fields):
     data = urllib.parse.urlencode(fields).encode()
-    with urllib.request.urlopen("https://accounts.spotify.com/api/token", data, timeout=10) as r:
+    with urllib.request.urlopen("https://accounts.spotify.com/api/token", data, timeout=10, context=SSL_CTX) as r:
         return json.load(r)
 
 
@@ -347,7 +352,7 @@ def access_token(cfg):
 
 def spotify_get(token, path):
     req = urllib.request.Request("https://api.spotify.com/v1/" + path, headers={"Authorization": f"Bearer {token}"})
-    with urllib.request.urlopen(req, timeout=10) as r:
+    with urllib.request.urlopen(req, timeout=10, context=SSL_CTX) as r:
         return json.load(r)
 
 
