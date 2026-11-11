@@ -3,6 +3,8 @@ Description=Spotify'daki türe göre EasyEffects preseti
 
 [Service]
 ExecStart=%h/.local/bin/spotify-genre-preset
+# Servis grafik oturumdan önce başlayabiliyor; ekran yokken `easyeffects -l` (Qt) çöküyor, pencere zaten gerekmiyor
+Environment=QT_QPA_PLATFORM=offscreen
 Restart=on-failure
 RestartSec=10
 
