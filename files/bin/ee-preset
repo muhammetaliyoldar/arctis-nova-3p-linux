@@ -20,7 +20,9 @@ print("\n".join(menu))' "$STATE" "$GENRES")
         target="${PRESETS[$((target - 1))]}"
         [ -z "$target" ] && exit 0  # menüde o kadar satır yok
     else
-        current=$(gsettings get com.github.wwmm.easyeffects last-used-output-preset 2>/dev/null | tr -d "'")
+        # EasyEffects 8+ GSettings kullanmıyor, yüklü preseti kendisi söylüyor
+        current=$( { gsettings get com.github.wwmm.easyeffects last-used-output-preset 2>/dev/null ||
+                     easyeffects -a output 2>/dev/null; } | tr -d "'")
         target="${PRESETS[0]}"
         for i in "${!PRESETS[@]}"; do
             if [ "${PRESETS[$i]}" = "$current" ]; then

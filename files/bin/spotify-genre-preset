@@ -22,15 +22,20 @@ import gi  # noqa: E402
 gi.require_version("Gio", "2.0")
 from gi.repository import Gio, GLib  # noqa: E402
 
-EE_OUTPUT = (os.path.join(GLib.get_user_config_dir(), "easyeffects", "output"),  # native, flatpak
-             os.path.expanduser("~/.var/app/com.github.wwmm.easyeffects/config/easyeffects/output"))
+EE_OUTPUT = (os.path.join(GLib.get_user_config_dir(), "easyeffects", "output"),  # 7.x native, flatpak
+             os.path.expanduser("~/.var/app/com.github.wwmm.easyeffects/config/easyeffects/output"),
+             os.path.join(GLib.get_user_data_dir(), "easyeffects", "output"),  # 8+ native, flatpak
+             os.path.expanduser("~/.var/app/com.github.wwmm.easyeffects/data/easyeffects/output"))
 MPRIS = "org.mpris.MediaPlayer2.spotify"
 
 
 class EasyEffects:
     def current(self):
-        return subprocess.run(["gsettings", "get", "com.github.wwmm.easyeffects", "last-used-output-preset"],
-                              capture_output=True, text=True).stdout.strip().strip("'")
+        r = subprocess.run(["gsettings", "get", "com.github.wwmm.easyeffects", "last-used-output-preset"],
+                           capture_output=True, text=True)
+        if r.returncode:  # EasyEffects 8+ GSettings kullanmıyor
+            r = subprocess.run(["easyeffects", "-a", "output"], capture_output=True, text=True)
+        return r.stdout.strip().strip("'")
 
     def has(self, name):
         return any(os.path.exists(os.path.join(d, name + ".json")) for d in EE_OUTPUT)

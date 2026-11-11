@@ -52,18 +52,22 @@ fi
 if [ -n "$DO_BT" ]; then
     # 1) Güç tasarrufu
     #    - btusb autosuspend: Bluetooth USB adaptörü uykuya geçip bağlantıyı düşürmesin (her bilgisayarda)
-    #    - rtw88 + NetworkManager: Realtek WiFi/BT kombo kartında firmware LPS deep modundan
+    #    - rtw88/rtw89 + NetworkManager: Realtek WiFi/BT kombo kartında firmware güç tasarrufu modundan
     #      çıkamıyor, WiFi/BT anten paylaşımı bozulup ses cızırtılı/kesik geliyor (sadece bu kartlarda)
     say "Bluetooth USB güç tasarrufu kapatılıyor (sudo gerekli)"
     sudo install -m 644 "$DIR/modprobe/btusb.conf" /etc/modprobe.d/btusb.conf
-    if [ -d /sys/module/rtw88_core ]; then
-        say "Realtek rtw88 WiFi kartı bulundu: sürücü ve WiFi güç tasarrufu kapatılıyor"
-        sudo install -m 644 "$DIR/modprobe/rtw88.conf" /etc/modprobe.d/rtw88.conf
+    RTW=""
+    for m in rtw88 rtw89; do
+        if [ -d /sys/module/${m}_core ]; then RTW=$m; fi
+    done
+    if [ -n "$RTW" ]; then
+        say "Realtek $RTW WiFi kartı bulundu: sürücü ve WiFi güç tasarrufu kapatılıyor"
+        sudo install -m 644 "$DIR/modprobe/$RTW.conf" /etc/modprobe.d/$RTW.conf
         sudo install -m 644 "$DIR/networkmanager/wifi-powersave-off.conf" \
             /etc/NetworkManager/conf.d/wifi-powersave-off.conf
         NEED_REBOOT=1
     else
-        say "rtw88 WiFi kartı yok, WiFi düzeltmeleri atlandı (bu bilgisayarda gerekmiyor)"
+        say "Realtek rtw88/rtw89 WiFi kartı yok, WiFi düzeltmeleri atlandı (bu bilgisayarda gerekmiyor)"
     fi
 
     # 2) WirePlumber: sadece SBC; mikrofon kapatılırsa ayrıca sadece A2DP. Format sürüme göre
@@ -103,8 +107,13 @@ fi
 # 4) EasyEffects presetleri + kulaklık bağlanınca otomatik yükleme
 if [ -n "$DO_EE" ] && flatpak info com.github.wwmm.easyeffects >/dev/null 2>&1; then
     EE_DIR=~/.var/app/com.github.wwmm.easyeffects/config/easyeffects
+    # EasyEffects 8+ presetleri config değil data klasöründe arar
+    flatpak info com.github.wwmm.easyeffects | grep -qE 'Version: *([89]|[1-9][0-9])\.' && \
+        EE_DIR=~/.var/app/com.github.wwmm.easyeffects/data/easyeffects
 elif [ -n "$DO_EE" ] && command -v easyeffects >/dev/null; then
     EE_DIR=~/.config/easyeffects
+    # EasyEffects 8+ GSettings kullanmıyor, presetleri ~/.local/share altında arıyor
+    gsettings list-schemas | grep -qx com.github.wwmm.easyeffects || EE_DIR=~/.local/share/easyeffects
 fi
 
 if [ -n "$EE_DIR" ]; then
@@ -147,7 +156,7 @@ EOF
     fi
 
     # Oturum açılınca arka planda başlasın; pencere kapatılınca efektler kapanmasın
-    if [ "$EE_DIR" = ~/.config/easyeffects ]; then
+    if [[ "$EE_DIR" != "$HOME"/.var/* ]]; then
         install -Dm 644 "$DIR/easyeffects/autostart/easyeffects-service.desktop" \
             ~/.config/autostart/easyeffects-service.desktop
         gsettings set com.github.wwmm.easyeffects shutdown-on-window-close false 2>/dev/null || true

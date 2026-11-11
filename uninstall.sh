@@ -12,11 +12,13 @@ systemctl --user daemon-reload
 rm -f ~/.config/wireplumber/bluetooth.lua.d/51-arctis-{a2dp,sbc}-only.lua \
       ~/.config/wireplumber/wireplumber.conf.d/51-arctis-{a2dp,sbc}-only.conf
 rm -f ~/.config/easyeffects/autoload/output/bluez_output.*:headphone-output.json \
-      ~/.var/app/com.github.wwmm.easyeffects/config/easyeffects/autoload/output/bluez_output.*:headphone-output.json
+      ~/.local/share/easyeffects/autoload/output/bluez_output.*:headphone-output.json \
+      ~/.var/app/com.github.wwmm.easyeffects/{config,data}/easyeffects/autoload/output/bluez_output.*:headphone-output.json
 
-if [ -f /etc/modprobe.d/rtw88.conf ] || [ -f /etc/NetworkManager/conf.d/wifi-powersave-off.conf ]; then
-    sudo rm -f /etc/modprobe.d/rtw88.conf /etc/NetworkManager/conf.d/wifi-powersave-off.conf \
-        && echo "rtw88 ve WiFi güç tasarrufu ayarları kaldırıldı (yeniden başlatınca geçerli)"
+if [ -f /etc/modprobe.d/rtw88.conf ] || [ -f /etc/modprobe.d/rtw89.conf ] || \
+   [ -f /etc/NetworkManager/conf.d/wifi-powersave-off.conf ]; then
+    sudo rm -f /etc/modprobe.d/rtw88.conf /etc/modprobe.d/rtw89.conf /etc/NetworkManager/conf.d/wifi-powersave-off.conf \
+        && echo "rtw88/rtw89 ve WiFi güç tasarrufu ayarları kaldırıldı (yeniden başlatınca geçerli)"
 fi
 # /etc/modprobe.d/btusb.conf bilerek bırakılıyor: Bluetooth adaptörünün uykuya
 # geçmemesi her durumda zararsız ve çoğu sistemde zaten istenen ayar.

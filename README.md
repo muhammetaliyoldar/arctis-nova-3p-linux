@@ -15,7 +15,7 @@ Script başta hangi parçaların kurulacağını soruyor (Enter = evet, `h` = ha
 
 1. **Bağlantı düzeltmeleri:** Üç şey kuruyor.
    - **Kulaklığın bağlanır bağlanmaz kapanması:** Bluetooth codec listesini 19'dan sadece SBC'ye indiriyor.
-   - **Güç tasarrufu (cızırtı ve kopma):** Bluetooth USB adaptörünün uykuya geçmesini her bilgisayarda kapatıyor. Bilgisayarda Realtek `rtw88` WiFi kartı varsa WiFi sürücüsünün ve NetworkManager'ın güç tasarrufunu da kapatıyor.
+   - **Güç tasarrufu (cızırtı ve kopma):** Bluetooth USB adaptörünün uykuya geçmesini her bilgisayarda kapatıyor. Bilgisayarda Realtek `rtw88` ya da `rtw89` WiFi kartı varsa WiFi sürücüsünün ve NetworkManager'ın güç tasarrufunu da kapatıyor.
    - **Otomatik bağlanma:** Oturum açıldıktan sonra kulaklığa kendisi bağlanmayı deneyen servisi kuruyor.
 2. **Bluetooth mikrofonu kapatılsın mı?** Sadece 1. soruya evet dersen soruluyor. Evet (varsayılan) HFP/HSP'yi kapatıyor; bugüne kadar test edilen ayar bu. Hayır dersen mikrofon açık kalıyor, ama kopmalar geri gelebilir (aşağıda "Belirtiler" altında 1. maddeye bak).
 3. **Ses presetleri:** Kurulu değilse EasyEffects'i ve LSP eklentilerini, ayrıca Calf eklentilerini (`calf-plugins`) kuruyor (apt, sudo ister). 63 preseti ekliyor (100 türlük sürümden kalan presetleri ve v1'in Rap, Tekno - Rave, House - Disco presetlerini EasyEffects'te eski-presetler klasörüne alıyor; kendi presetlerine dokunmuyor), açılışta ve kulaklık bağlanınca **Genel**'in otomatik yüklenmesini ve EasyEffects'in her açılışta arka planda başlamasını ayarlıyor. Ctrl+Alt kısayollarını da bu kuruyor. Üst bar preset menüsü olarak 4. soruya hayır dersen EasyEffects Preset Selector uzantısı, evet dersen kendi menümüz kuruluyor.
@@ -71,8 +71,8 @@ Güç tasarrufu üç yerde kapatılıyor:
 | Ayar | Dosya | Hangi bilgisayarda |
 |---|---|---|
 | Bluetooth USB adaptörü uykuya geçmesin | `/etc/modprobe.d/btusb.conf` | Hepsinde |
-| Realtek WiFi firmware'i derin uykuya girmesin | `/etc/modprobe.d/rtw88.conf` | Sadece `rtw88` kartlarda |
-| NetworkManager WiFi güç tasarrufu kapalı | `/etc/NetworkManager/conf.d/wifi-powersave-off.conf` | Sadece `rtw88` kartlarda |
+| Realtek WiFi firmware'i derin uykuya girmesin | `/etc/modprobe.d/rtw88.conf` ya da `rtw89.conf` | Sadece `rtw88`/`rtw89` kartlarda |
+| NetworkManager WiFi güç tasarrufu kapalı | `/etc/NetworkManager/conf.d/wifi-powersave-off.conf` | Sadece `rtw88`/`rtw89` kartlarda |
 
 Asıl sorun Realtek kartlarda:
 
@@ -88,7 +88,12 @@ rtw88_8821ce: failed to send h2c command
 options rtw88_core disable_lps_deep=y
 options rtw88_pci disable_aspm=y
 ```
-`install.sh` bu ayarı ve NetworkManager ayarını sadece bilgisayarda `rtw88` sürücüsü varsa kuruyor. Kurduktan sonra bilgisayarı yeniden başlatman gerekiyor.
+Yeni Realtek kartlarda (ör. RTL8852BE) sürücü `rtw89`; aynı ayarın karşılığı `/etc/modprobe.d/rtw89.conf`:
+```
+options rtw89_core disable_ps_mode=y
+options rtw89_pci disable_aspm_l1=y disable_aspm_l1ss=y disable_clkreq=y
+```
+`install.sh` bu ayarı ve NetworkManager ayarını sadece bilgisayarda `rtw88` ya da `rtw89` sürücüsü varsa kuruyor. Kurduktan sonra bilgisayarı yeniden başlatman gerekiyor.
 
 Bilgisayarında bu kart var mı diye bakmak için:
 ```bash
@@ -401,6 +406,8 @@ Sınırlar: Yalnız EQ ve preamp taşınıyor (compressor, limiter, Bass Enhance
 
 Ubuntu 24.04, kernel 7.0, PipeWire 1.0.5, WirePlumber 0.4.17, BlueZ 5.72, EasyEffects 7.1.6, Realtek RTL8821CE (WiFi + Bluetooth).
 
+Ubuntu 26.04, PipeWire 1.6.2, WirePlumber 0.5.13, EasyEffects 8.1.2, GNOME 50, Realtek RTL8852BE (`rtw89`): kurulum uyumlu hâle getirildi (EasyEffects 8 presetleri `~/.local/share/easyeffects` altında arıyor ve GSettings kullanmıyor), kulaklıkla dinleme testi henüz yapılmadı.
+
 Windows (`install.ps1`): Windows 11, Python 3.14, Equalizer APO 1.4.2, Microsoft Store'daki Spotify. APO'nun sesi gerçekten değiştirdiği ve 2.4 GHz alıcı henüz doğrulanmadı.
 
 macOS (`install-mac.sh`) sürümü henüz gerçek bir Mac cihazında denenmedi. Yalnızca Ubuntu'da, taklit edilen testlerle denendi.
@@ -435,7 +442,7 @@ files/
 ├── headset/*.txt                  # kulaklığın kendi EQ'su için HeadsetControl bantları (make_presets.py üretir)
 ├── mac/
 │   └── spotify-genre-preset.py    # macOS ön yüzü (AppleScript + CamillaDSP + rumps menü çubuğu)
-├── modprobe/                      # btusb.conf, rtw88.conf
+├── modprobe/                      # btusb.conf, rtw88.conf, rtw89.conf
 ├── networkmanager/                # wifi-powersave-off.conf
 ├── systemd/                       # arctis-autoconnect (otomatik bağlanma) ve spotify-genre-preset (tür takibi) kullanıcı servisleri
 ├── windows/
