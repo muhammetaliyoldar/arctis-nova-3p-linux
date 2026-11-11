@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 """Linux ön yüzü: Spotify'da çalan şarkının türüne göre EasyEffects presetini değiştirir.
 
 Şarkı değişimini Spotify'ın MPRIS sinyalinden alır, preseti `easyeffects -l` ile yükler, üst bar menüsünün
