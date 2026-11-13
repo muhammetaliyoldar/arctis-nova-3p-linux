@@ -18,6 +18,8 @@ const APP = 'spotify-genre-preset';
 const STATE_DIR = GLib.build_filenamev([GLib.get_user_state_dir(), APP]);
 const STATE = GLib.build_filenamev([STATE_DIR, 'state.json']);
 const LOCK = GLib.build_filenamev([STATE_DIR, 'kilit']);
+// ee-preset ve servis yüklediği preseti yazar (EasyEffects 8+ GSettings kullanmıyor)
+const LOADED = GLib.build_filenamev([STATE_DIR, 'yuklu']);
 const CONFIG_DIR = GLib.build_filenamev([GLib.get_user_config_dir(), APP]);
 const CONFIG = GLib.build_filenamev([CONFIG_DIR, 'config.json']);
 const SPOTIFY = GLib.build_filenamev([CONFIG_DIR, 'spotify.json']);
@@ -117,7 +119,7 @@ class Indicator extends PanelMenu.Button {
             }
         });
         this._settings?.connectObject('changed::last-used-output-preset', () => this._update(), this);
-        this._monitors = [[STATE, () => this._update()], [LOCK, () => this._refresh()]].map(([path, onChange]) => {
+        this._monitors = [[STATE, () => this._update()], [LOADED, () => this._update()], [LOCK, () => this._refresh()]].map(([path, onChange]) => {
             const monitor = Gio.File.new_for_path(path).monitor_file(Gio.FileMonitorFlags.NONE, null);
             monitor.connectObject('changed', (_monitor, file, _other, event) => {
                 // atomik yazımda geçici dosyanın olayları da gelir; sadece bu dosyanın son hâline bak
@@ -163,7 +165,7 @@ class Indicator extends PanelMenu.Button {
 
     _update() {
         const state = readJson(STATE);
-        const loaded = this._settings?.get_string('last-used-output-preset') ?? '';
+        const loaded = this._settings?.get_string('last-used-output-preset') || readText(LOADED)?.trim() || '';
         // elle seçilen preset de yazsın: menüdeki noktayla aynı
         this._label.text = loaded || (state?.current?.genre ?? '');
         this._label.visible = this._label.text !== '';

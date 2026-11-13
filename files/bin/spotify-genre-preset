@@ -45,6 +45,9 @@ class EasyEffects:
 
     def apply(self, name):
         subprocess.run(["easyeffects", "-l", name], check=False)  # ee-preset değil: şarkı değişiminde bildirim çıkmasın
+        os.makedirs(core.STATE_DIR, exist_ok=True)  # üst bar menüsü izler (ee-preset de yazar)
+        with open(os.path.join(core.STATE_DIR, "yuklu"), "w") as fh:
+            fh.write(name)
 
 
 def on_metadata(f, md):
