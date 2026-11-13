@@ -35,6 +35,3 @@ fi
 easyeffects -l "$target"
 # EasyEffects 8+ yüklü preseti kapanana kadar diske yazmıyor; üst bar menüsü bu dosyayı izler
 mkdir -p "${STATE%/*}" && printf '%s' "$target" > "${STATE%/*}/yuklu"
-command -v notify-send >/dev/null && \
-    notify-send -a "Easy Effects" -i com.github.wwmm.easyeffects -h string:x-canonical-private-synchronous:ee-preset \
-        "🎧 $target" "EasyEffects preseti değişti"

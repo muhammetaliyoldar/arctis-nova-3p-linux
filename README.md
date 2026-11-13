@@ -147,7 +147,7 @@ Tür farkları türlerin bilinen frekans karakterine göre tasarlandı, kulakla 
 
 Kısayollar: `Ctrl+Alt+1..7` üst bar menüsündeki 1.-7. satır (sıra dinlemene göre değişiyor); `Ctrl+Alt+0` menüde sıradaki preset. Tür takibi kurulu değilse menü yerine `files/genres.json`'daki varsayılan 5 tür + Genel kullanılıyor.
 
-Preset değişince ekranda bildirim çıkıyor. Ayrıca üst bardaki menüden fareyle de seçebilirsin (tür takibi kuruluysa kendi menümüz, değilse EasyEffects Preset Selector). Terminalden geçmek için: `ee-preset "Türkçe Rap"`, `ee-preset next`.
+Bildirim çıkmıyor; yüklü preset üst bardaki menünün yanında yazıyor. Ayrıca üst bardaki menüden fareyle de seçebilirsin (tür takibi kuruluysa kendi menümüz, değilse EasyEffects Preset Selector). Terminalden geçmek için: `ee-preset "Türkçe Rap"`, `ee-preset next`.
 
 **Zincir:** Presetlerin hepsinde **Equalizer → Compressor → Limiter** var; compressor her türde aynı değil: kimisinde kapalı, kimisinde hafif yapıştırma, rapte punch ayarı var. Equalizer, Compressor ve Limiter LSP eklentisi. Beş preset araya Calf eklentisi alıyor: Türkçe Trap, Cloud Rap ve Festival Trap'e **Bass Enhancer**, Türkçe Deneysel Rap ve Anadolu Klasikleri'ne **Stereo Tools** (Equalizer → Bass Enhancer / Stereo Tools → Compressor → Limiter). `install.sh` bunlar için `calf-plugins` paketini kuruyor; Calf yoksa EasyEffects o eklentiyi atlıyor, preset yine yükleniyor. Windows'a (Equalizer APO), macOS'a (CamillaDSP) ve kulaklığın kendi EQ'suna yalnız EQ taşınıyor.
 - **Equalizer:** Her presette aynı kulaklık düzeltmesi tabanı var: 105 Hz bas rafı +2.5, 160 Hz -4 (kulaklığın 100-250 Hz'teki çamur tümseği), 500 Hz +2, 4.3 kHz +4 (kulaklığın 4-5 kHz çukuru: vokal ve atak), 9 kHz -3.5 (8-10 kHz sertliği). Nova 3P'nin yayımlanmış ölçümü yok; taban, kardeş modeller Nova 3 ve Nova 5'in AutoEq/rtings ölçümlerinin Harman OE 2018 hedefinden farkına göre yumuşatıldı. SBC codec 12 kHz üstünü bozduğu için oraya yükseltme yok. Türler tabanın üstüne kendi bantlarını ekliyor (en fazla 2 Bell). Filtreler "APO (DR)" modunda; Windows'taki Equalizer APO ile birebir aynı eğri. Girişteki ses kısma otomatik: eğrinin tepesi + 1 dB. Böylece equalizer'ın kendisi clipping yapmıyor (`python3 files/easyeffects/make_presets.py --check` ile eğriler kontrol edilebilir).
@@ -241,7 +241,7 @@ Uygulamanın sahibinin Spotify Premium'u olmalı (Spotify'ın Şubat 2026 kural�
 Bir başkası ya kendi uygulamasını açar ya da sen onu uygulamanın User Management sekmesine (ad + Spotify e-postası) eklersin ve senin Client ID'nle giriş yapar. Uygulama başına en fazla 5 kişi.
 
 - Sonuç albüm başına `~/.cache/spotify-genre-preset.json` dosyasına yazılıyor; aynı albüm bir daha sorulmuyor. `./install.sh` her çalıştığında bu önbellek sıfırlanıyor, çünkü tür eşlemesi değişmiş olabilir. Yanlış bulunan bir albümü düzeltmek için bu dosyadan o satırı sil (ya da dosyayı sil).
-- Preset sadece tür değişince değişiyor, bildirim de o zaman çıkıyor. Elle seçtiğin preset o şarkı bitene kadar korunuyor; kilitliysen hiç değişmiyor.
+- Preset sadece tür değişince değişiyor. Elle seçtiğin preset o şarkı bitene kadar korunuyor; kilitliysen hiç değişmiyor.
 - İnternet yoksa ya da servisler cevap vermezse preset değişmiyor; o albüm sonraki şarkıda tekrar deneniyor.
 - Ne yaptığını izlemek için: `journalctl --user -u spotify-genre-preset -f` (her şarkı için "Sanatçı - Şarkı: Preset" satırı yazıyor).
 - Geçici olarak kapatmak için: `systemctl --user stop spotify-genre-preset`. Tamamen kapatmak için `./install.sh`'ı tekrar çalıştırıp bu soruya `h` de.

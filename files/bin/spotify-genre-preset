@@ -44,7 +44,7 @@ class EasyEffects:
         return any(os.path.exists(os.path.join(d, name + ".json")) for d in EE_OUTPUT)
 
     def apply(self, name):
-        subprocess.run(["easyeffects", "-l", name], check=False)  # ee-preset değil: şarkı değişiminde bildirim çıkmasın
+        subprocess.run(["easyeffects", "-l", name], check=False)
         os.makedirs(core.STATE_DIR, exist_ok=True)  # üst bar menüsü izler (ee-preset de yazar)
         with open(os.path.join(core.STATE_DIR, "yuklu"), "w") as fh:
             fh.write(name)
